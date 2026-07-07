@@ -3,7 +3,7 @@ task: Build expo-forge — production-grade Expo template (next-forge philosophy
 project: expo-forge
 effort: E3
 phase: build
-progress: 24/46
+progress: 32/46
 mode: standard
 started: 2026-07-07T14:00:00Z
 updated: 2026-07-07T15:30:00Z
@@ -79,14 +79,14 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [x] ISC-22: Anti: no custom display font shipped — system fonts only, documented custom-font slot
 
 ### Vendor packages (each: keys schema + provider/client + inert-when-unset)
-- [ ] ISC-23: packages/backend — supabase client factory, typed env, migrations dir, generated-types script
-- [ ] ISC-24: packages/auth — Clerk Expo provider + secure-store token cache + keys schema
-- [ ] ISC-25: packages/analytics — PostHog RN provider, no-ops without key
-- [ ] ISC-26: packages/observability — Sentry RN init, no-ops without DSN
-- [ ] ISC-27: packages/payments — RevenueCat wrapper, no-ops without key
-- [ ] ISC-28: packages/notifications — expo-notifications registration helper
-- [ ] ISC-29: packages/updates — expo-updates strategy + version display helper
-- [ ] ISC-30: every package has keys.ts (Zod schema) consumed by app env composition
+- [x] ISC-23: packages/backend — supabase client factory, typed env, migrations dir, generated-types script
+- [x] ISC-24: packages/auth — Clerk Expo provider + secure-store token cache + keys schema
+- [x] ISC-25: packages/analytics — PostHog RN provider, no-ops without key
+- [x] ISC-26: packages/observability — Sentry RN init, no-ops without DSN
+- [x] ISC-27: packages/payments — RevenueCat wrapper, no-ops without key
+- [x] ISC-28: packages/notifications — expo-notifications registration helper
+- [x] ISC-29: packages/updates — expo-updates strategy + version display helper
+- [x] ISC-30: every package has keys.ts (Zod schema) consumed by app env composition
 
 ### CLI (create-expo-forge)
 - [ ] ISC-31: npm name create-expo-forge published (placeholder ok early to claim)
@@ -153,3 +153,5 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - Follow-ups applied post-Forge (commit 5489684): flash-list repinned exact 2.0.2 (matches Expo bundledNativeModules), reanimated 4.5.1 override encoded via expo.install.exclude, Codex/.tmp byproducts removed.
 - expo-doctor: 2 residual flags are known-benign (bun isolated-store false positive; reanimated deliberate override now excluded from checks).
 - 2026-07-07: TEMPLATE GOTCHA (shipped): bun 1.3 defaults workspaces to the isolated linker; Metro crashes with "Cannot read properties of undefined (reading 'transformFile')". Fix encoded: root bunfig.toml [install] linker = "hoisted". Also: a native project generated against the isolated store keeps stale .bun paths — expo prebuild --clean required after switching linkers. expo-doctor's "duplicate installs" flag was this, not a false positive.
+- ISC-23..30: Forge commit 60c118d — 8 vendor packages (env composer, backend/auth/analytics/observability/payments/notifications/updates), per-package tsc PASS ×8, biome 50 files clean, inert-when-unset verified per package. Follow-ups landed: bun.lock committed, PostHog env renamed EXPO_PUBLIC_POSTHOG_KEY (+HOST) to match @repo/analytics.
+- ISC-35 (partial): onboarding + sign-in code-complete with Stack.Protected gating (tsc + biome clean); [x] deferred until simulator screenshot probe.
