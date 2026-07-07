@@ -9,28 +9,21 @@ import {
 
 type Session = {
 	onboarded: boolean;
-	signedIn: boolean;
 	completeOnboarding: () => void;
-	signIn: () => void;
-	signOut: () => void;
 };
 
 const SessionContext = createContext<Session | null>(null);
 
-// In-memory for the skeleton: onboarded persistence arrives with the storage
-// layer, and signIn/signOut are replaced by @repo/auth (Clerk) once wired —
-// the guards in app/_layout.tsx then read Clerk's isSignedIn instead.
+// Tracks onboarding only — auth state comes from @repo/auth (Clerk).
+// In-memory for the skeleton: persistence arrives with the storage layer.
 export function SessionProvider({ children }: { children: ReactNode }) {
 	const [onboarded, setOnboarded] = useState(false);
-	const [signedIn, setSignedIn] = useState(false);
 
 	const completeOnboarding = useCallback(() => setOnboarded(true), []);
-	const signIn = useCallback(() => setSignedIn(true), []);
-	const signOut = useCallback(() => setSignedIn(false), []);
 
 	const value = useMemo(
-		() => ({ onboarded, signedIn, completeOnboarding, signIn, signOut }),
-		[onboarded, signedIn, completeOnboarding, signIn, signOut],
+		() => ({ onboarded, completeOnboarding }),
+		[onboarded, completeOnboarding],
 	);
 
 	return (
