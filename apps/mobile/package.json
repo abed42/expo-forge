@@ -1,0 +1,35 @@
+{
+	"//": "Pins source: ../../tooling/pins.json. Keep react-native-worklets exactly 0.10.0 because 0.10.1 SIGABRTs at launch; keep react-native-reanimated at ^4.5.1 and never 4.5.0.",
+	"name": "mobile",
+	"private": true,
+	"main": "index.ts",
+	"scripts": {
+		"start": "expo start",
+		"ios": "expo run:ios",
+		"android": "expo run:android",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check ."
+	},
+	"dependencies": {
+		"@repo/design-system": "workspace:*",
+		"@shopify/flash-list": "^2.0.2",
+		"expo": "~57.0.2",
+		"expo-router": "~57.0.3",
+		"expo-status-bar": "~57.0.0",
+		"expo-system-ui": "~57.0.0",
+		"react": "19.2.3",
+		"react-native": "0.86.0",
+		"react-native-gesture-handler": "~2.32.0",
+		"react-native-nitro-modules": "^0.36.1",
+		"react-native-reanimated": "^4.5.1",
+		"react-native-safe-area-context": "~5.7.0",
+		"react-native-screens": "4.25.2",
+		"react-native-unistyles": "^3.2.5",
+		"react-native-worklets": "0.10.0"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "~19.2.2",
+		"typescript": "~6.0.3"
+	}
+}
