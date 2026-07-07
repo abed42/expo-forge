@@ -1,0 +1,28 @@
+{
+	"name": "@repo/auth",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./keys": "./src/keys.ts",
+		"./provider": "./src/provider.tsx"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@clerk/expo": "^3.7.0",
+		"@repo/env": "workspace:*",
+		"expo-secure-store": "~57.0.0",
+		"zod": "^4.4.3"
+	},
+	"peerDependencies": {
+		"react": "19.2.3",
+		"react-native": "0.86.0"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@types/node": "^25.3.5",
+		"@types/react": "~19.2.2",
+		"typescript": "~6.0.3"
+	}
+}

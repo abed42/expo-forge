@@ -1,0 +1,27 @@
+{
+	"name": "@repo/payments",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./client": "./src/client.ts",
+		"./keys": "./src/keys.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@repo/env": "workspace:*",
+		"react-native-purchases": "^10.4.1",
+		"zod": "^4.4.3"
+	},
+	"peerDependencies": {
+		"react": "19.2.3",
+		"react-native": "0.86.0"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@types/node": "^25.3.5",
+		"@types/react": "~19.2.2",
+		"typescript": "~6.0.3"
+	}
+}
