@@ -59,7 +59,7 @@ export function composeEnv<Schemas extends readonly AnyZodObject[]>(
 
 	if (process.env.EXPO_PUBLIC_SKIP_ENV_VALIDATION === "true") {
 		// Validation is explicitly disabled, so we trust the caller's schemas and cast the raw env object once.
-		cachedEnv = process.env as ComposeEnvResult<Schemas>;
+		cachedEnv = process.env as unknown as ComposeEnvResult<Schemas>;
 		hasCachedEnv = true;
 		return cachedEnv as ComposeEnvResult<Schemas>;
 	}
