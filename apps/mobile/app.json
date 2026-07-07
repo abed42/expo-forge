@@ -10,6 +10,9 @@
 			"typedRoutes": true,
 			"tsconfigPaths": true
 		},
-		"plugins": ["expo-router", "expo-system-ui"]
+		"plugins": ["expo-router", "expo-system-ui"],
+		"ios": {
+			"bundleIdentifier": "com.stephanos62.expo-forge-demo"
+		}
 	}
 }
