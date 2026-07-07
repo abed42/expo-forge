@@ -44,7 +44,7 @@ export default function SignInScreen() {
 			setBusy(false);
 			return;
 		}
-		const sentUp = await signUp.sendEmailCode();
+		const sentUp = await signUp.verifications.sendEmailCode();
 		if (sentUp.error) {
 			setError(sentUp.error.message ?? "Could not send the code.");
 		} else {
@@ -64,7 +64,7 @@ export default function SignInScreen() {
 		const verified =
 			mode === "signIn"
 				? await signIn.emailCode.verifyCode({ code })
-				: await signUp.verifyEmailCode({ code });
+				: await signUp.verifications.verifyEmailCode({ code });
 		if (verified.error) {
 			setError(verified.error.message ?? "That code didn't work.");
 			setBusy(false);
