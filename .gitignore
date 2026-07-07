@@ -1,0 +1,14 @@
+node_modules
+.expo
+ios/
+android/
+dist
+.env*.local
+.DS_Store
+*.log
+.turbo
+
+# scaffolding byproducts (safe to delete from disk)
+.tmp/
+docs/superpowers/
+${HOME}/

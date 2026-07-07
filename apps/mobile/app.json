@@ -1,0 +1,15 @@
+{
+	"expo": {
+		"name": "expo-forge-demo",
+		"slug": "expo-forge-demo",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"scheme": "expoforge",
+		"userInterfaceStyle": "automatic",
+		"experiments": {
+			"typedRoutes": true,
+			"tsconfigPaths": true
+		},
+		"plugins": ["expo-router", "expo-system-ui"]
+	}
+}

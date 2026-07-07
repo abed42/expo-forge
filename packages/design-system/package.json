@@ -1,0 +1,22 @@
+{
+	"name": "@repo/design-system",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./unistyles": "./src/unistyles.ts",
+		"./nav-theme": "./src/nav-theme.tsx",
+		"./tokens": "./src/tokens.ts"
+	},
+	"peerDependencies": {
+		"expo-router": "~57.0.3",
+		"expo-system-ui": "~57.0.0",
+		"react": "19.2.3",
+		"react-native": "0.86.0",
+		"react-native-unistyles": "^3.2.5"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "~19.2.2",
+		"typescript": "~6.0.3"
+	}
+}
