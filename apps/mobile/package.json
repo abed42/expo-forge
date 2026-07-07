@@ -11,7 +11,13 @@
 		"lint": "biome check ."
 	},
 	"dependencies": {
+		"@repo/analytics": "workspace:*",
+		"@repo/auth": "workspace:*",
+		"@repo/backend": "workspace:*",
 		"@repo/design-system": "workspace:*",
+		"@repo/env": "workspace:*",
+		"@repo/observability": "workspace:*",
+		"expo-secure-store": "~57.0.0",
 		"@shopify/flash-list": "2.0.2",
 		"expo": "~57.0.2",
 		"expo-router": "~57.0.3",
