@@ -1,0 +1,23 @@
+{
+	"name": "@repo/updates",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./use-update-status": "./src/use-update-status.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"expo-updates": "~57.0.6"
+	},
+	"peerDependencies": {
+		"react": "19.2.3",
+		"react-native": "0.86.0"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"@types/react": "~19.2.2",
+		"typescript": "~6.0.3"
+	}
+}

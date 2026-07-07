@@ -1,0 +1,25 @@
+{
+	"name": "@repo/notifications",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./keys": "./src/keys.ts",
+		"./register": "./src/register.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"expo-constants": "~57.0.3",
+		"expo-device": "~57.0.0",
+		"expo-notifications": "~57.0.3",
+		"zod": "^4.4.3"
+	},
+	"peerDependencies": {
+		"react-native": "0.86.0"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"typescript": "~6.0.3"
+	}
+}
