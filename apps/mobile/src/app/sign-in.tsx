@@ -8,16 +8,13 @@ import { StyleSheet } from "react-native-unistyles";
 type Phase = "email" | "code";
 type Mode = "signIn" | "signUp";
 
-function errorMessage(error: unknown): string {
-	const clerkError = error as { errors?: Array<{ message?: string }> };
-	return clerkError?.errors?.[0]?.message ?? "Something went wrong. Try again.";
-}
-
-// Combined email-code sign-in/sign-up: unknown emails fall through to
-// sign-up transparently, so one screen serves both journeys.
+// Combined email-code sign-in/sign-up on Clerk's Core 3 result-object API:
+// unknown emails fall through to sign-up transparently, so one screen serves
+// both journeys. finalize() converts the completed attempt into the active
+// session, which flips the Stack.Protected guards in _layout.
 export default function SignInScreen() {
-	const { signIn, setActive: setActiveSignIn, isLoaded } = useSignIn();
-	const { signUp, setActive: setActiveSignUp } = useSignUp();
+	const { signIn } = useSignIn();
+	const { signUp } = useSignUp();
 	const [phase, setPhase] = useState<Phase>("email");
 	const [mode, setMode] = useState<Mode>("signIn");
 	const [email, setEmail] = useState("");
@@ -26,72 +23,60 @@ export default function SignInScreen() {
 	const [busy, setBusy] = useState(false);
 
 	const continueWithEmail = async () => {
-		if (!(isLoaded && signIn && signUp) || busy) {
+		if (!(signIn && signUp) || busy) {
 			return;
 		}
 		setBusy(true);
 		setError(null);
-		try {
-			const attempt = await signIn.create({ identifier: email });
-			const factor = attempt.supportedFirstFactors?.find(
-				(candidate) => candidate.strategy === "email_code",
-			);
-			if (factor && "emailAddressId" in factor) {
-				await signIn.prepareFirstFactor({
-					emailAddressId: factor.emailAddressId,
-					strategy: "email_code",
-				});
-				setMode("signIn");
-				setPhase("code");
-			} else {
-				setError("Email codes are not enabled for this Clerk app.");
-			}
-		} catch {
-			try {
-				await signUp.create({ emailAddress: email });
-				await signUp.prepareEmailAddressVerification({
-					strategy: "email_code",
-				});
-				setMode("signUp");
-				setPhase("code");
-			} catch (signUpError) {
-				setError(errorMessage(signUpError));
-			}
-		} finally {
+
+		const sent = await signIn.emailCode.sendCode({ emailAddress: email });
+		if (!sent.error) {
+			setMode("signIn");
+			setPhase("code");
 			setBusy(false);
+			return;
 		}
+
+		// Sign-in failed (most likely no account) — fall through to sign-up.
+		const created = await signUp.create({ emailAddress: email });
+		if (created.error) {
+			setError(created.error.message ?? "Could not start sign-up.");
+			setBusy(false);
+			return;
+		}
+		const sentUp = await signUp.sendEmailCode();
+		if (sentUp.error) {
+			setError(sentUp.error.message ?? "Could not send the code.");
+		} else {
+			setMode("signUp");
+			setPhase("code");
+		}
+		setBusy(false);
 	};
 
 	const verifyCode = async () => {
-		if (!(isLoaded && signIn && signUp) || busy) {
+		if (!(signIn && signUp) || busy) {
 			return;
 		}
 		setBusy(true);
 		setError(null);
-		try {
-			if (mode === "signIn") {
-				const attempt = await signIn.attemptFirstFactor({
-					code,
-					strategy: "email_code",
-				});
-				if (attempt.status === "complete") {
-					await setActiveSignIn({ session: attempt.createdSessionId });
-				} else {
-					setError("Additional verification required — check Clerk settings.");
-				}
-			} else {
-				const attempt = await signUp.attemptEmailAddressVerification({ code });
-				if (attempt.status === "complete") {
-					await setActiveSignUp({ session: attempt.createdSessionId });
-				} else {
-					setError("Sign-up needs more steps — check Clerk settings.");
-				}
-			}
-		} catch (verifyError) {
-			setError(errorMessage(verifyError));
-		} finally {
+
+		const verified =
+			mode === "signIn"
+				? await signIn.emailCode.verifyCode({ code })
+				: await signUp.verifyEmailCode({ code });
+		if (verified.error) {
+			setError(verified.error.message ?? "That code didn't work.");
 			setBusy(false);
+			return;
 		}
+
+		const finalized =
+			mode === "signIn" ? await signIn.finalize() : await signUp.finalize();
+		if (finalized.error) {
+			setError(finalized.error.message ?? "Could not start the session.");
+		}
+		setBusy(false);
 	};
 
 	return (
