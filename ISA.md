@@ -3,7 +3,7 @@ task: Build expo-forge — production-grade Expo template (next-forge philosophy
 project: expo-forge
 effort: E3
 phase: build
-progress: 35/52
+progress: 38/52
 mode: standard
 started: 2026-07-07T14:00:00Z
 updated: 2026-07-07T15:30:00Z
@@ -90,9 +90,9 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 
 ### CLI (create-expo-forge)
 - [x] ISC-31: npm name create-expo-forge published (placeholder ok early to claim)
-- [ ] ISC-32: init wizard prompts generated from package keys.ts schemas with live validation
-- [ ] ISC-33: optional services: skip (blank env) or remove (package + dep + env entry stripped)
-- [ ] ISC-34: --skip-env and non-interactive flags work
+- [x] ISC-32: init wizard prompts generated from package keys.ts schemas with live validation
+- [x] ISC-33: optional services: skip (blank env) or remove (package + dep + env entry stripped)
+- [x] ISC-34: --skip-env and non-interactive flags work
 
 ### Demo app (Cosmos-shaped collections app)
 - [x] ISC-35: onboarding/auth flow — centered editorial title, pill Start, Stack.Protected gating
@@ -172,3 +172,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - ISC-48/49 verified (commit 20d1d89): accessToken client + useSupabase hook (tsc 0), RLS-on-sub migration 0002, svix-verified edge function. ISC-50 [DEFERRED-VERIFY]: needs dashboard setup + function deploy — probe query in packages/backend/supabase/functions/clerk-webhook/README.md.
 - 2026-07-07: Clerk Native API enabled by user (dashboard). Deferred to pre-launch checklist: register iOS app (Team ID + bundle id, AASA) and SSO redirect allowlist (expoforge:// scheme) on Clerk's Native applications page — required for native Apple sign-in/passkeys and locked-down OAuth redirects in production.
 - ISC-31 [x] LIVE PROBE: create-expo-forge@0.0.1 published 2026-07-08T05:32Z by abed42; `bunx create-expo-forge` resolves and prints the CLI banner (verified from a scratch dir).
+- ISC-32/33/34 [x] (commit fb22eec): wizard live-probed twice against local template — full scaffold and remove-variant both bun-install + typecheck green; flags enable non-interactive CI use.
