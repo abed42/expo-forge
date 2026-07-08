@@ -13,6 +13,7 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
 import {
@@ -47,6 +48,7 @@ export default function ProfileScreen() {
 	const { user, isLoaded } = useUser();
 	const { signOut } = useAuth();
 	const [appearance, setAppearance] = useState<AppearancePreference>("system");
+	const insets = useSafeAreaInsets();
 	const [notifications, setNotifications] = useState<NotificationsValue>("Off");
 
 	useEffect(() => {
@@ -219,7 +221,11 @@ export default function ProfileScreen() {
 
 	return (
 		<ScrollView
-			contentContainerStyle={styles.content}
+			// contentInsetAdjustmentBehavior is iOS-only; Android needs the inset applied.
+			contentContainerStyle={[
+				styles.content,
+				Platform.OS === "android" ? { paddingTop: insets.top + 16 } : null,
+			]}
 			contentInsetAdjustmentBehavior="automatic"
 			style={styles.screen}
 		>
