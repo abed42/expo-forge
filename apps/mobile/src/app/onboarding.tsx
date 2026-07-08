@@ -242,7 +242,7 @@ const styles = StyleSheet.create((theme) => ({
 		shadowRadius: 14,
 	},
 	spacerTop: {
-		flex: 0.3,
+		flex: 0.55,
 	},
 	logo: {
 		alignSelf: "center",
