@@ -82,6 +82,12 @@ export default function SignInScreen() {
 			verified.error?.message
 				?.toLowerCase()
 				.includes("already been verified") ?? false;
+		// An existing session means the user IS signed in (stale screen state,
+		// e.g. after a dev refresh) — treat as success and let guards flip.
+		if (verified.error?.message?.toLowerCase().includes("already signed in")) {
+			setBusy(false);
+			return;
+		}
 		if (verified.error && !alreadyVerified) {
 			console.error("[auth] verify failed:", JSON.stringify(verified.error));
 			setError(verified.error.message ?? "That code didn't work.");
@@ -91,7 +97,10 @@ export default function SignInScreen() {
 
 		const finalized =
 			mode === "signIn" ? await signIn.finalize() : await signUp.finalize();
-		if (finalized.error) {
+		if (
+			finalized.error &&
+			!finalized.error.message?.toLowerCase().includes("already signed in")
+		) {
 			console.error("[auth] finalize failed:", JSON.stringify(finalized.error));
 			setError(finalized.error.message ?? "Could not start the session.");
 		}
