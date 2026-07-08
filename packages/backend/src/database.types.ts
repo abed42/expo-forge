@@ -1,4 +1,4 @@
-// This placeholder keeps the package type-safe until `pnpm --filter @repo/backend gen-types` regenerates it.
+// This placeholder keeps the package type-safe until `bun run gen-types` (in packages/backend) regenerates it.
 export type Database = {
 	public: {
 		Tables: Record<string, never>;
