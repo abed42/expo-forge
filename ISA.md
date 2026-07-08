@@ -166,3 +166,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [ ] ISC-51: profile tab shows user identity + working sign-out
 - [ ] ISC-52: Anti: CLERK_SECRET_KEY never appears in any client env file or bundle
 - ISC-35 (live probe, partial): simctl screenshot 2026-07-07 17:34 — onboarding renders per Cosmos ref on iPhone 17 Pro sim (tagline/collage/wordmark/ToS/pill Start). Full [x] after user completes email-code flow to tabs.
+- 2026-07-07: Onboarding collage uses 6 images from cdn.cosmos.so (downloaded into assets/images/onboarding/). PRE-LAUNCH BLOCKER: these belong to their original creators via Cosmos — fine for private dev, must be replaced with neutral/licensed placeholder imagery before the template goes public. Same class as the Expo-wordmark trademark check.
