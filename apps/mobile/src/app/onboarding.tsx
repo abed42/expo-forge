@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import Animated, {
 	Easing,
+	FadeIn,
+	FadeInUp,
 	useAnimatedStyle,
 	useSharedValue,
 	withDelay,
@@ -87,7 +89,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 			index * 260,
 			withRepeat(
 				withTiming(1, {
-					duration: 2600 + index * 340,
+					duration: 4200 + index * 450,
 					easing: Easing.inOut(Easing.sin),
 				}),
 				-1,
@@ -99,7 +101,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: appear.value,
 		transform: [
-			{ translateY: (float.value - 0.5) * (8 + (index % 3) * 3) },
+			{ translateY: (float.value - 0.5) * (5 + (index % 3) * 2) },
 			{ scale: 0.9 + appear.value * 0.1 },
 		],
 	}));
@@ -156,9 +158,11 @@ export default function WelcomeScreen() {
 
 	return (
 		<SafeAreaView style={styles.screen}>
-			<Text style={styles.tagline}>
-				Production grade{"\n"}React Native / Expo Template
-			</Text>
+			<Animated.View entering={FadeIn.delay(950).duration(550)}>
+				<Text style={styles.tagline}>
+					Production grade{"\n"}React Native / Expo Template
+				</Text>
+			</Animated.View>
 			<View style={styles.collage}>
 				{TOP_BLOCKS.map((block, index) => (
 					<FloatingTile
@@ -168,7 +172,8 @@ export default function WelcomeScreen() {
 					/>
 				))}
 			</View>
-			<Image
+			<Animated.Image
+				entering={FadeIn.delay(1050).duration(550)}
 				resizeMode="contain"
 				source={require("../../assets/images/expo-forge-lockup.png")}
 				style={styles.logo}
@@ -182,7 +187,10 @@ export default function WelcomeScreen() {
 					/>
 				))}
 			</View>
-			<View style={styles.footer}>
+			<Animated.View
+				entering={FadeInUp.delay(1250).duration(550).springify().damping(18)}
+				style={styles.footer}
+			>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
 				<Text style={styles.legal}>
 					By creating an account, you agree to our{"\n"}
@@ -224,7 +232,7 @@ export default function WelcomeScreen() {
 				>
 					<Text style={styles.textButtonLabel}>Continue with Email</Text>
 				</Pressable>
-			</View>
+			</Animated.View>
 		</SafeAreaView>
 	);
 }
