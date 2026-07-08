@@ -9,21 +9,21 @@ import { useSession } from "@/lib/session";
 // edge-to-edge with clear gaps, main character largest (Cosmos reference).
 const TOP_BLOCKS = [
 	{
-		top: "32%",
+		top: "46%",
 		left: "7%",
 		width: 78,
 		height: 78,
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "2%",
+		top: "16%",
 		left: "33%",
 		width: 94,
 		height: 120,
 		source: require("../../assets/images/onboarding/collage-2.webp"),
 	},
 	{
-		top: "26%",
+		top: "40%",
 		left: "64%",
 		width: 84,
 		height: 102,
@@ -33,21 +33,21 @@ const TOP_BLOCKS = [
 
 const BOTTOM_BLOCKS = [
 	{
-		top: "12%",
+		top: "26%",
 		left: "8%",
 		width: 78,
 		height: 94,
 		source: require("../../assets/images/onboarding/collage-4.webp"),
 	},
 	{
-		top: "8%",
+		top: "22%",
 		left: "40%",
 		width: 108,
 		height: 134,
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "4%",
+		top: "18%",
 		left: "76%",
 		width: 72,
 		height: 66,
