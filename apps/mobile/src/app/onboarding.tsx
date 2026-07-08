@@ -111,12 +111,14 @@ export default function OnboardingScreen() {
 					<Text style={styles.legalLink}>Privacy Policy</Text>
 				</Text>
 				<Button label="Start" onPress={completeOnboarding} />
+				{/* Page dots — re-enable when onboarding becomes a real multi-slide
+				    carousel; a static indicator over one page is fake UI.
 				<View style={styles.dots}>
 					<View style={[styles.dot, styles.dotActive]} />
 					<View style={styles.dot} />
 					<View style={styles.dot} />
 					<View style={styles.dot} />
-				</View>
+				</View> */}
 			</View>
 		</SafeAreaView>
 	);
