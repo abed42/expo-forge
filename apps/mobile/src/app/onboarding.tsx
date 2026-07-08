@@ -49,12 +49,12 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "50%",
+		top: "36%",
 		left: "68%",
-		width: 98,
-		height: 98,
+		width: 92,
+		height: 157,
 		rotate: "17deg",
-		source: require("../../assets/images/onboarding/collage-7.png"),
+		source: require("../../assets/images/onboarding/collage-8.png"),
 	},
 ] as const;
 
