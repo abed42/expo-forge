@@ -165,3 +165,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [ ] ISC-50: profiles row exists after first sign-up (probe: SELECT by clerk user id)
 - [ ] ISC-51: profile tab shows user identity + working sign-out
 - [ ] ISC-52: Anti: CLERK_SECRET_KEY never appears in any client env file or bundle
+- ISC-35 (live probe, partial): simctl screenshot 2026-07-07 17:34 — onboarding renders per Cosmos ref on iPhone 17 Pro sim (tagline/collage/wordmark/ToS/pill Start). Full [x] after user completes email-code flow to tabs.
