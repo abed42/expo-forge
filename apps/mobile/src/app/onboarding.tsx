@@ -21,66 +21,74 @@ WebBrowser.maybeCompleteAuthSession();
 
 type SSOStrategy = "oauth_apple" | "oauth_google";
 
-// Editorial collage — two loose bands, varied portrait/square tiles spread
-// edge-to-edge with clear gaps, main character largest (Cosmos reference).
+// Fanned-stack layout experiment (scatter version tagged welcome-scatter-v1):
+// overlapping cards, alternating rotation, later tiles stack on top.
 const TOP_BLOCKS = [
 	{
-		top: "42%",
-		left: "6%",
-		width: 62,
-		height: 89,
+		top: "24%",
+		left: "8%",
+		width: 100,
+		height: 143,
+		rotate: "-16deg",
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "12%",
-		left: "30%",
-		width: 96,
-		height: 128,
-		source: require("../../assets/images/onboarding/collage-6.png"),
+		top: "10%",
+		left: "24%",
+		width: 106,
+		height: 150,
+		rotate: "-6deg",
+		source: require("../../assets/images/onboarding/collage-2.webp"),
 	},
 	{
-		top: "36%",
-		left: "57%",
-		width: 74,
-		height: 106,
+		top: "12%",
+		left: "42%",
+		width: 106,
+		height: 152,
+		rotate: "5deg",
 		source: require("../../assets/images/onboarding/collage-3.webp"),
 	},
 	{
-		top: "56%",
-		left: "82%",
-		width: 52,
-		height: 74,
-		source: require("../../assets/images/onboarding/collage-2.webp"),
+		top: "18%",
+		left: "56%",
+		width: 118,
+		height: 157,
+		rotate: "13deg",
+		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 ] as const;
 
 const BOTTOM_BLOCKS = [
 	{
 		top: "22%",
-		left: "6%",
-		width: 66,
-		height: 93,
+		left: "8%",
+		width: 98,
+		height: 139,
+		rotate: "-14deg",
 		source: require("../../assets/images/onboarding/collage-4.webp"),
 	},
 	{
-		top: "58%",
-		left: "26%",
-		width: 56,
-		height: 56,
-		source: require("../../assets/images/onboarding/collage-7.png"),
-	},
-	{
-		top: "16%",
-		left: "40%",
-		width: 104,
-		height: 130,
+		top: "8%",
+		left: "24%",
+		width: 116,
+		height: 145,
+		rotate: "-4deg",
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "12%",
-		left: "78%",
-		width: 64,
-		height: 80,
+		top: "16%",
+		left: "44%",
+		width: 100,
+		height: 100,
+		rotate: "6deg",
+		source: require("../../assets/images/onboarding/collage-7.png"),
+	},
+	{
+		top: "20%",
+		left: "60%",
+		width: 96,
+		height: 120,
+		rotate: "15deg",
 		source: require("../../assets/images/onboarding/collage-5.webp"),
 	},
 ] as const;
@@ -116,6 +124,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 		opacity: appear.value,
 		transform: [
 			{ translateY: (float.value - 0.5) * (5 + (index % 3) * 2) },
+			{ rotate: block.rotate },
 			{ scale: 0.9 + appear.value * 0.1 },
 		],
 	}));
@@ -173,9 +182,7 @@ export default function WelcomeScreen() {
 	return (
 		<SafeAreaView style={styles.screen}>
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
-				<Text style={styles.tagline}>
-					Production grade{"\n"}Expo Template
-				</Text>
+				<Text style={styles.tagline}>Production grade{"\n"}Expo Template</Text>
 			</Animated.View>
 			<View style={styles.collage}>
 				{TOP_BLOCKS.map((block, index) => (
@@ -270,8 +277,12 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	block: {
 		backgroundColor: theme.colors.fill,
-		borderRadius: 12,
+		borderRadius: 14,
 		position: "absolute",
+		shadowColor: "#000000",
+		shadowOffset: { height: 10, width: 0 },
+		shadowOpacity: 0.16,
+		shadowRadius: 14,
 	},
 	logo: {
 		alignSelf: "center",
