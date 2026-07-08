@@ -25,7 +25,7 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
 const DECK_BLOCKS = [
 	{
-		top: "44%",
+		top: "43%",
 		left: "2%",
 		width: 99,
 		height: 141,
@@ -33,7 +33,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "22%",
+		top: "25%",
 		left: "22%",
 		width: 112,
 		height: 140,
@@ -41,7 +41,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "28%",
+		top: "31%",
 		left: "48%",
 		width: 103,
 		height: 137,
@@ -49,7 +49,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "46%",
+		top: "45%",
 		left: "70%",
 		width: 103,
 		height: 137,
@@ -191,7 +191,6 @@ export default function WelcomeScreen() {
 					Template
 				</Text>
 			</Animated.View>
-			<View style={styles.spacerTop} />
 			<View style={styles.collage}>
 				{DECK_BLOCKS.map((block, index) => (
 					<FloatingTile
@@ -303,9 +302,6 @@ const styles = StyleSheet.create((theme) => ({
 		shadowOffset: { height: 10, width: 0 },
 		shadowOpacity: 0.16,
 		shadowRadius: 14,
-	},
-	spacerTop: {
-		flex: 0.22,
 	},
 	logo: {
 		alignSelf: "center",
