@@ -37,6 +37,7 @@ expo-forge comes with batteries included:
 - **Authentication** — Powered by [Clerk](https://clerk.com) via `@clerk/expo` — email code plus Apple/Google SSO
 - **Backend** — [Supabase](https://supabase.com) client factory, an RLS example migration, and generated types
 - **Design System** — Design tokens via [react-native-unistyles](https://www.unistyl.es) v3 (light/dark adaptive), Button/IconButton/Skeleton components, and a NavThemeProvider
+- **System materials** — All glass surfaces (tab bar, header chrome, buttons) use real Liquid Glass APIs (SwiftUI `glassEffect`, `expo-glass-effect`), so they automatically respect the user's iOS 26 appearance setting (Clear/Tinted) and accessibility options like Reduce Transparency
 - **Analytics** — Product analytics via [PostHog](https://posthog.com) (optional)
 - **Observability** — Error tracking via [Sentry](https://sentry.io) (optional)
 - **Payments** — In-app subscriptions via [RevenueCat](https://www.revenuecat.com) (optional)
