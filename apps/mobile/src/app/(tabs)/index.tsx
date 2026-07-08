@@ -1,4 +1,4 @@
-import { Host, Image as SwiftImage } from "@expo/ui/swift-ui";
+import { Host, HStack, Image as SwiftImage } from "@expo/ui/swift-ui";
 import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { IconButton, Skeleton } from "@repo/design-system";
 import { FlashList } from "@shopify/flash-list";
@@ -55,8 +55,20 @@ export default function HomeScreen() {
 		<View style={[styles.headerRow, { marginTop: insets.top }]}>
 			<View style={styles.logoPill}>
 				<Animated.View style={[styles.pillMaterial, materialStyle]}>
-					{canUseGlass ? (
-						<GlassView glassEffectStyle="regular" style={styles.pillFill} />
+					{Platform.OS === "ios" && canUseGlass ? (
+						<Host style={styles.pillFill}>
+							<HStack
+								modifiers={[
+									frame({ height: 44, width: 152 }),
+									glassEffect({
+										glass: { variant: "regular" },
+										shape: "capsule",
+									}),
+								]}
+							>
+								<></>
+							</HStack>
+						</Host>
 					) : (
 						<View style={[styles.pillFill, styles.pillFallback]} />
 					)}
