@@ -6,7 +6,6 @@ import { StyleSheet } from "react-native-unistyles";
 type Row = {
 	label: string;
 	value?: string | null;
-	verified?: boolean;
 	onPress?: () => void;
 };
 
@@ -60,8 +59,6 @@ export default function ProfileScreen() {
 				{
 					label: "Email",
 					value: user?.primaryEmailAddress?.emailAddress,
-					verified:
-						user?.primaryEmailAddress?.verification?.status === "verified",
 				},
 				{ label: "Phone", value: user?.primaryPhoneNumber?.phoneNumber },
 			],
@@ -74,7 +71,6 @@ export default function ProfileScreen() {
 					value: googleAccount
 						? (googleAccount.emailAddress ?? "Connected")
 						: null,
-					verified: Boolean(googleAccount),
 				},
 				{ label: "Apple", value: null },
 			],
@@ -150,14 +146,9 @@ export default function ProfileScreen() {
 									{!isLoaded ? (
 										<Skeleton width={110} />
 									) : row.value ? (
-										<>
-											{row.verified ? (
-												<Text style={styles.verified}>✓</Text>
-											) : null}
-											<Text numberOfLines={1} style={styles.rowValue}>
-												{row.value}
-											</Text>
-										</>
+										<Text numberOfLines={1} style={styles.rowValue}>
+											{row.value}
+										</Text>
 									) : (
 										<Skeleton width={110} />
 									)}
@@ -257,10 +248,6 @@ const styles = StyleSheet.create((theme) => ({
 		...theme.type.body,
 		color: theme.colors.secondary,
 		flexShrink: 1,
-	},
-	verified: {
-		color: theme.colors.secondary,
-		fontSize: 13,
 	},
 	signOut: {
 		alignItems: "center",
