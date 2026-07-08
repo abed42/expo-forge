@@ -47,7 +47,7 @@ export default function OnboardingScreen() {
 			</View>
 			<Image
 				resizeMode="contain"
-				source={require("../../assets/images/logo.png")}
+				source={require("../../assets/images/expo-forge-lockup.png")}
 				style={styles.logo}
 			/>
 			<View style={styles.collage}>
@@ -110,9 +110,9 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	logo: {
 		alignSelf: "center",
-		height: 36,
+		height: 40,
 		tintColor: theme.colors.ink,
-		width: 270,
+		width: 185,
 	},
 	footer: {
 		alignItems: "center",
