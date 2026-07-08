@@ -3,7 +3,7 @@ import { Button } from "@repo/design-system";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Image, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -156,6 +156,7 @@ export default function SignInScreen() {
 								pressed ? styles.ssoButtonPressed : null,
 							]}
 						>
+							<Text style={styles.ssoIcon}>{"\uF8FF"}</Text>
 							<Text style={styles.ssoLabel}>Continue with Apple</Text>
 						</Pressable>
 						<Pressable
@@ -167,6 +168,10 @@ export default function SignInScreen() {
 								pressed ? styles.ssoButtonPressed : null,
 							]}
 						>
+							<Image
+								source={require("../../assets/images/google-g.png")}
+								style={styles.ssoLogo}
+							/>
 							<Text style={styles.ssoLabel}>Continue with Google</Text>
 						</Pressable>
 					</>
@@ -251,9 +256,19 @@ const styles = StyleSheet.create((theme) => ({
 		alignItems: "center",
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.pill,
+		flexDirection: "row",
+		gap: theme.gap(1),
 		justifyContent: "center",
 		minHeight: 48,
 		paddingHorizontal: theme.gap(3),
+	},
+	ssoIcon: {
+		color: theme.colors.ink,
+		fontSize: 18,
+	},
+	ssoLogo: {
+		height: 18,
+		width: 18,
 	},
 	ssoButtonPressed: {
 		opacity: 0.85,
