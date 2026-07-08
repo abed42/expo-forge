@@ -226,7 +226,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	error: {
 		...theme.type.caption,
-		color: theme.colors.accent,
+		color: "#B3261E",
 		textAlign: "center",
 	},
 	actions: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	ssoButton: {
 		alignItems: "center",
-		backgroundColor: theme.colors.accentSoft,
+		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.pill,
 		justifyContent: "center",
 		minHeight: 48,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	ssoLabel: {
 		...theme.type.body,
-		color: theme.colors.onAccentSoft,
+		color: theme.colors.ink,
 		fontWeight: "600",
 	},
 	secondaryLabel: {

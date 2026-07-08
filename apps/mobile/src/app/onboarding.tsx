@@ -162,7 +162,6 @@ const styles = StyleSheet.create((theme) => ({
 		textAlign: "center",
 	},
 	legalLink: {
-		color: theme.colors.accent,
 		textDecorationLine: "underline",
 	},
 	dots: {
