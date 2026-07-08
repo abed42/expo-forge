@@ -1,13 +1,20 @@
 import { IconButton, Skeleton } from "@repo/design-system";
 import { FlashList } from "@shopify/flash-list";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Image, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
+// Gate required: some iOS 26 builds lack the API and crash without it.
+const canUseGlass = isLiquidGlassAvailable();
+
+const HEADER_CONTENT_HEIGHT = 60;
+
 // Home ships as an honest loading state: the FlashList that will render the
-// real feed, hydrated with skeleton items until the data layer lands.
+// real feed, hydrated with skeleton items until the data layer lands. The
+// header floats on liquid glass; the feed scrolls underneath it.
 const SKELETON_ITEMS = [0, 1, 2];
 
 function FeedSeparator() {
@@ -17,30 +24,38 @@ function FeedSeparator() {
 export default function HomeScreen() {
 	const router = useRouter();
 	const { theme } = useUnistyles();
+	const insets = useSafeAreaInsets();
+
+	const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
+
+	const headerContent = (
+		<View style={[styles.headerRow, { marginTop: insets.top }]}>
+			<Image
+				resizeMode="contain"
+				source={require("../../../assets/images/expo-forge-lockup.png")}
+				style={styles.logo}
+			/>
+			<IconButton
+				accessibilityLabel="Search"
+				onPress={() => router.push("/search")}
+			>
+				<SymbolView
+					name="magnifyingglass"
+					size={18}
+					tintColor={theme.colors.ink}
+				/>
+			</IconButton>
+		</View>
+	);
 
 	return (
-		<SafeAreaView edges={["top"]} style={styles.screen}>
-			<View style={styles.header}>
-				<Image
-					resizeMode="contain"
-					source={require("../../../assets/images/expo-forge-lockup.png")}
-					style={styles.logo}
-				/>
-				<IconButton
-					accessibilityLabel="Search"
-					glass
-					onPress={() => router.push("/search")}
-				>
-					<SymbolView
-						name="magnifyingglass"
-						size={18}
-						tintColor={theme.colors.ink}
-					/>
-				</IconButton>
-			</View>
-
+		<View style={styles.screen}>
 			<FlashList
-				contentContainerStyle={styles.feed}
+				contentContainerStyle={{
+					paddingBottom: theme.gap(14),
+					paddingHorizontal: theme.gap(3),
+					paddingTop: headerHeight + theme.gap(1),
+				}}
 				data={SKELETON_ITEMS}
 				ItemSeparatorComponent={FeedSeparator}
 				renderItem={() => (
@@ -57,7 +72,25 @@ export default function HomeScreen() {
 				)}
 				showsVerticalScrollIndicator={false}
 			/>
-		</SafeAreaView>
+			{canUseGlass ? (
+				<GlassView
+					glassEffectStyle="regular"
+					style={[styles.header, { height: headerHeight }]}
+				>
+					{headerContent}
+				</GlassView>
+			) : (
+				<View
+					style={[
+						styles.header,
+						styles.headerFallback,
+						{ height: headerHeight },
+					]}
+				>
+					{headerContent}
+				</View>
+			)}
+		</View>
 	);
 }
 
@@ -65,28 +98,35 @@ const styles = StyleSheet.create((theme) => ({
 	screen: {
 		backgroundColor: theme.colors.surface,
 		flex: 1,
-		gap: theme.gap(1.5),
-		paddingHorizontal: theme.gap(3),
 	},
 	header: {
+		left: 0,
+		position: "absolute",
+		right: 0,
+		top: 0,
+	},
+	headerFallback: {
+		backgroundColor: theme.colors.surface,
+		borderBottomColor: theme.colors.border,
+		borderBottomWidth: 1,
+	},
+	headerRow: {
 		alignItems: "center",
+		flex: 1,
 		flexDirection: "row",
 		justifyContent: "space-between",
-		marginBottom: theme.gap(1),
+		paddingHorizontal: theme.gap(3),
 	},
 	logo: {
 		height: 26,
 		tintColor: theme.colors.ink,
 		width: 120,
 	},
-	feed: {
-		paddingBottom: theme.gap(14),
+	feedItem: {
+		gap: theme.gap(1.5),
 	},
 	separator: {
 		height: theme.gap(4),
-	},
-	feedItem: {
-		gap: theme.gap(1.5),
 	},
 	card: {
 		aspectRatio: 0.88,
