@@ -28,6 +28,10 @@ function RootNavigator() {
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Protected guard={!isSignedIn}>
 				<Stack.Screen name="onboarding" />
+				{/* Declared inside the guard so session activation evicts it —
+				    otherwise it's auto-registered unguarded and the user stays
+				    on it after a successful OTP verify. */}
+				<Stack.Screen name="sign-in" />
 			</Stack.Protected>
 			<Stack.Protected guard={Boolean(isSignedIn)}>
 				<Stack.Screen name="(tabs)" />
