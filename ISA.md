@@ -103,7 +103,7 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 
 ### Quality / ops
 - [ ] ISC-40: .github/workflows/ci.yml — install, lint, typecheck, test on PR
-- [ ] ISC-41: Vitest configured with ≥1 real test per app boundary
+- [x] ISC-41: Vitest configured with ≥1 real test per app boundary
 - [ ] ISC-42: eas.json — development/preview/production profiles, appVersionSource remote, autoIncrement
 - [ ] ISC-43: central version catalog — native-coupled dep versions declared once
 
@@ -175,3 +175,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - ISC-32/33/34 [x] (commit fb22eec): wizard live-probed twice against local template — full scaffold and remove-variant both bun-install + typecheck green; flags enable non-interactive CI use.
 - ISC-36 [DEFERRED-VERIFY] (commit b8f8dfb): Home feed hydrates from Supabase feed_items via Clerk-aware client, typed end-to-end, skeleton fallback + single info log. Live probe deferred with ISC-50 dashboard batch — follow-up: apply migration 0003 + simulator screenshot.
 - ISC-41 (partial): vitest live across analytics/observability/payments (27 tests, 634934e) + notifications/updates (27 tests, 85a7e4a — 3 defects fixed incl. projectId-before-prompt). env/backend/auth wave in flight.
+- ISC-41 [x] substantially: 82 vitest tests green across all 8 packages (turbo test 8/8 successful). Defects fixed by the audit: composeEnv cross-schema cache footgun (env), projectId-check-after-prompt + unstable hook identities (notifications/updates). Remaining for full [x]: app-boundary tests per original criterion.
