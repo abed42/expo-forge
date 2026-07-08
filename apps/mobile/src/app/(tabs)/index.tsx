@@ -1,6 +1,6 @@
 import { IconButton, Skeleton } from "@repo/design-system";
 import { useRouter } from "expo-router";
-import { Image, Text, View } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -25,15 +25,23 @@ export default function HomeScreen() {
 				</IconButton>
 			</View>
 
-			<View style={styles.card} />
-
-			<View style={styles.titleRow}>
-				<Skeleton height={16} width={220} />
-				<Skeleton height={16} width={64} />
-			</View>
-			<Skeleton height={14} width={160} />
-			<Skeleton height={14} width={120} />
-			<Skeleton height={14} width={120} />
+			<ScrollView
+				contentContainerStyle={styles.feed}
+				showsVerticalScrollIndicator={false}
+			>
+				{[0, 1, 2].map((item) => (
+					<View key={item} style={styles.feedItem}>
+						<View style={styles.card} />
+						<View style={styles.titleRow}>
+							<Skeleton height={16} width={220} />
+							<Skeleton height={16} width={64} />
+						</View>
+						<Skeleton height={14} width={160} />
+						<Skeleton height={14} width={120} />
+						<Skeleton height={14} width={120} />
+					</View>
+				))}
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -60,11 +68,18 @@ const styles = StyleSheet.create((theme) => ({
 		color: theme.colors.secondary,
 		fontSize: 26,
 	},
+	feed: {
+		gap: theme.gap(4),
+		paddingBottom: theme.gap(14),
+	},
+	feedItem: {
+		gap: theme.gap(1.5),
+	},
 	card: {
+		aspectRatio: 0.88,
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.card,
-		flex: 0.62,
-		marginBottom: theme.gap(1),
+		marginBottom: theme.gap(0.5),
 	},
 	titleRow: {
 		flexDirection: "row",
