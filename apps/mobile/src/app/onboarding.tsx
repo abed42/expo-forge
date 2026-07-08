@@ -305,9 +305,11 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	logo: {
 		alignSelf: "center",
-		height: 46,
+		height: 58,
+		marginBottom: theme.gap(3),
+		marginTop: theme.gap(1),
 		tintColor: theme.colors.ink,
-		width: 212,
+		width: 268,
 	},
 	footer: {
 		alignSelf: "stretch",
