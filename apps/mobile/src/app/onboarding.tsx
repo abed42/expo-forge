@@ -25,48 +25,48 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // edge-to-edge with clear gaps, main character largest (Cosmos reference).
 const TOP_BLOCKS = [
 	{
-		top: "46%",
+		top: "42%",
 		left: "7%",
-		width: 78,
-		height: 78,
+		width: 66,
+		height: 94,
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "16%",
+		top: "14%",
 		left: "33%",
 		width: 94,
-		height: 120,
+		height: 133,
 		source: require("../../assets/images/onboarding/collage-2.webp"),
 	},
 	{
-		top: "40%",
+		top: "38%",
 		left: "64%",
-		width: 84,
-		height: 102,
+		width: 80,
+		height: 115,
 		source: require("../../assets/images/onboarding/collage-3.webp"),
 	},
 ] as const;
 
 const BOTTOM_BLOCKS = [
 	{
-		top: "26%",
+		top: "24%",
 		left: "8%",
-		width: 78,
-		height: 94,
+		width: 72,
+		height: 102,
 		source: require("../../assets/images/onboarding/collage-4.webp"),
 	},
 	{
-		top: "22%",
+		top: "20%",
 		left: "40%",
 		width: 108,
-		height: 134,
+		height: 135,
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "18%",
+		top: "16%",
 		left: "76%",
-		width: 72,
-		height: 66,
+		width: 68,
+		height: 85,
 		source: require("../../assets/images/onboarding/collage-5.webp"),
 	},
 ] as const;
