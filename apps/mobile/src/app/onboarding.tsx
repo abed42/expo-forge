@@ -188,7 +188,7 @@ export default function WelcomeScreen() {
 				))}
 			</View>
 			<Animated.View
-				entering={FadeInUp.delay(1250).duration(550).springify().damping(18)}
+				entering={FadeIn.delay(1250).duration(550)}
 				style={styles.footer}
 			>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
