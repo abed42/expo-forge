@@ -2,8 +2,16 @@ import { useSSO } from "@repo/auth";
 import * as AuthSession from "expo-auth-session";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
+import Animated, {
+	Easing,
+	useAnimatedStyle,
+	useSharedValue,
+	withDelay,
+	withRepeat,
+	withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -61,6 +69,59 @@ const BOTTOM_BLOCKS = [
 	},
 ] as const;
 
+type TileBlock = (typeof TOP_BLOCKS)[number] | (typeof BOTTOM_BLOCKS)[number];
+
+// Each tile fades/scales in staggered, then drifts on a slow sine loop —
+// the Cosmos "alive" feel. Amplitude and period vary per tile so the
+// collage never moves in lockstep.
+function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
+	const appear = useSharedValue(0);
+	const float = useSharedValue(0);
+
+	useEffect(() => {
+		appear.value = withDelay(
+			150 + index * 110,
+			withTiming(1, { duration: 650, easing: Easing.out(Easing.cubic) }),
+		);
+		float.value = withDelay(
+			index * 260,
+			withRepeat(
+				withTiming(1, {
+					duration: 2600 + index * 340,
+					easing: Easing.inOut(Easing.sin),
+				}),
+				-1,
+				true,
+			),
+		);
+	}, [appear, float, index]);
+
+	const animatedStyle = useAnimatedStyle(() => ({
+		opacity: appear.value,
+		transform: [
+			{ translateY: (float.value - 0.5) * (8 + (index % 3) * 3) },
+			{ scale: 0.9 + appear.value * 0.1 },
+		],
+	}));
+
+	return (
+		<Animated.Image
+			resizeMode="cover"
+			source={block.source}
+			style={[
+				styles.block,
+				{
+					height: block.height,
+					left: block.left,
+					top: block.top,
+					width: block.width,
+				},
+				animatedStyle,
+			]}
+		/>
+	);
+}
+
 // Welcome doubles as the auth entry: SSO completes right here (session
 // activation flips the guards); the email flow pushes to /sign-in.
 export default function WelcomeScreen() {
@@ -99,24 +160,13 @@ export default function WelcomeScreen() {
 				Production grade{"\n"}React Native / Expo Template
 			</Text>
 			<View style={styles.collage}>
-				{/* Collage temporarily hidden — uncomment to restore.
-				{TOP_BLOCKS.map((block) => (
-					<Image
+				{TOP_BLOCKS.map((block, index) => (
+					<FloatingTile
+						block={block}
+						index={index + 0}
 						key={`${block.top}-${block.left}`}
-						resizeMode="cover"
-						source={block.source}
-						style={[
-							styles.block,
-							{
-								height: block.height,
-								left: block.left,
-								top: block.top,
-								width: block.width,
-							},
-						]}
 					/>
 				))}
-				*/}
 			</View>
 			<Image
 				resizeMode="contain"
@@ -124,24 +174,13 @@ export default function WelcomeScreen() {
 				style={styles.logo}
 			/>
 			<View style={styles.collage}>
-				{/* Collage temporarily hidden — uncomment to restore.
-				{BOTTOM_BLOCKS.map((block) => (
-					<Image
+				{BOTTOM_BLOCKS.map((block, index) => (
+					<FloatingTile
+						block={block}
+						index={index + 3}
 						key={`${block.top}-${block.left}`}
-						resizeMode="cover"
-						source={block.source}
-						style={[
-							styles.block,
-							{
-								height: block.height,
-								left: block.left,
-								top: block.top,
-								width: block.width,
-							},
-						]}
 					/>
 				))}
-				*/}
 			</View>
 			<View style={styles.footer}>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
