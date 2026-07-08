@@ -1,23 +1,77 @@
-import { Text, View } from "react-native";
+import { Skeleton } from "@repo/design-system";
+import { useRouter } from "expo-router";
+import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
+// Home ships as an honest loading state: search entry on top, one large
+// media card + text bars skeleton below — the shape the demo feed fills in.
 export default function HomeScreen() {
+	const router = useRouter();
+
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>Home</Text>
-		</View>
+		<SafeAreaView edges={["top"]} style={styles.screen}>
+			<Pressable
+				accessibilityRole="button"
+				onPress={() => router.push("/search")}
+				style={({ pressed }) => [
+					styles.searchBar,
+					pressed ? styles.searchBarPressed : null,
+				]}
+			>
+				<Text style={styles.searchGlyph}>{"⌕"}</Text>
+				<Text style={styles.searchLabel}>Search</Text>
+			</Pressable>
+
+			<View style={styles.card} />
+
+			<View style={styles.titleRow}>
+				<Skeleton height={16} width={220} />
+				<Skeleton height={16} width={64} />
+			</View>
+			<Skeleton height={14} width={160} />
+			<Skeleton height={14} width={120} />
+			<Skeleton height={14} width={120} />
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create((theme) => ({
-	container: {
-		alignItems: "center",
+	screen: {
 		backgroundColor: theme.colors.surface,
 		flex: 1,
-		justifyContent: "center",
+		gap: theme.gap(1.5),
+		paddingHorizontal: theme.gap(3),
 	},
-	title: {
-		...theme.type.largeTitle,
-		color: theme.colors.ink,
+	searchBar: {
+		alignItems: "center",
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.pill,
+		flexDirection: "row",
+		gap: theme.gap(1),
+		marginBottom: theme.gap(1),
+		minHeight: 48,
+		paddingHorizontal: theme.gap(2.5),
+	},
+	searchBarPressed: {
+		opacity: 0.8,
+	},
+	searchGlyph: {
+		color: theme.colors.secondary,
+		fontSize: 20,
+	},
+	searchLabel: {
+		...theme.type.body,
+		color: theme.colors.secondary,
+	},
+	card: {
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.card,
+		flex: 0.62,
+		marginBottom: theme.gap(1),
+	},
+	titleRow: {
+		flexDirection: "row",
+		justifyContent: "space-between",
 	},
 }));
