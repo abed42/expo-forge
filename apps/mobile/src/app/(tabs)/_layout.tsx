@@ -1,5 +1,7 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 
+// Two grouped tabs — no role="search" trigger, so the liquid-glass bar sits
+// as a single centered island. Search lives at the top of Home instead.
 export default function TabsLayout() {
 	return (
 		<NativeTabs>
@@ -8,10 +10,6 @@ export default function TabsLayout() {
 					sf={{ default: "house", selected: "house.fill" }}
 				/>
 				<NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-			</NativeTabs.Trigger>
-			<NativeTabs.Trigger name="search" role="search">
-				<NativeTabs.Trigger.Icon sf="magnifyingglass" />
-				<NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
 			</NativeTabs.Trigger>
 			<NativeTabs.Trigger name="profile">
 				<NativeTabs.Trigger.Icon
