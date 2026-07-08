@@ -227,9 +227,7 @@ const styles = StyleSheet.create((theme) => ({
 	legal: {
 		...theme.type.caption,
 		color: theme.colors.secondary,
-		fontSize: 12.5,
 		fontWeight: "400",
-		lineHeight: 17,
 		marginBottom: theme.gap(0.5),
 		textAlign: "center",
 	},
