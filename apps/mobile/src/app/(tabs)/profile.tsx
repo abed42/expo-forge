@@ -234,16 +234,18 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	signOut: {
 		alignItems: "center",
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.pill,
 		justifyContent: "center",
 		marginTop: theme.gap(1),
-		minHeight: 44,
+		minHeight: 48,
 	},
 	signOutPressed: {
 		opacity: 0.7,
 	},
 	signOutLabel: {
 		...theme.type.body,
-		color: "#B3261E",
+		color: theme.colors.ink,
 		fontWeight: "600",
 	},
 }));
