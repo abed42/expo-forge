@@ -200,12 +200,14 @@ export default function WelcomeScreen() {
 					/>
 				))}
 			</View>
-			<Animated.Image
-				entering={FadeIn.delay(1050).duration(550)}
-				resizeMode="contain"
-				source={require("../../assets/images/expo-forge-lockup.png")}
-				style={styles.logo}
-			/>
+			<View style={styles.logoZone}>
+				<Animated.Image
+					entering={FadeIn.delay(1050).duration(550)}
+					resizeMode="contain"
+					source={require("../../assets/images/expo-forge-lockup.png")}
+					style={styles.logo}
+				/>
+			</View>
 			<Animated.View
 				entering={FadeIn.delay(1250).duration(550)}
 				style={styles.footer}
@@ -303,11 +305,13 @@ const styles = StyleSheet.create((theme) => ({
 		shadowOpacity: 0.16,
 		shadowRadius: 14,
 	},
+	logoZone: {
+		alignItems: "center",
+		flex: 0.5,
+		justifyContent: "center",
+	},
 	logo: {
-		alignSelf: "center",
 		height: 58,
-		marginBottom: theme.gap(3),
-		marginTop: theme.gap(1),
 		tintColor: theme.colors.ink,
 		width: 268,
 	},
