@@ -1,7 +1,24 @@
 import { useAuth, useUser } from "@repo/auth";
 import { Skeleton } from "@repo/design-system";
-import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+	ActionSheetIOS,
+	Alert,
+	Image,
+	Platform,
+	Pressable,
+	ScrollView,
+	Text,
+	View,
+} from "react-native";
 import { StyleSheet } from "react-native-unistyles";
+
+import {
+	APPEARANCE_LABELS,
+	type AppearancePreference,
+	loadAppearance,
+	saveAppearance,
+} from "@/lib/appearance";
 
 type Row = {
 	label: string;
@@ -17,9 +34,50 @@ type Section = {
 // Profile is fed entirely by Clerk's client-side user object — every field
 // Clerk exposes that makes sense on a settings surface. Absent values render
 // skeleton bars instead of empty strings.
+const APPEARANCE_OPTIONS: AppearancePreference[] = ["system", "light", "dark"];
+
 export default function ProfileScreen() {
 	const { user, isLoaded } = useUser();
 	const { signOut } = useAuth();
+	const [appearance, setAppearance] = useState<AppearancePreference>("system");
+
+	useEffect(() => {
+		loadAppearance().then(setAppearance);
+	}, []);
+
+	const pickAppearance = (preference: AppearancePreference) => {
+		setAppearance(preference);
+		saveAppearance(preference);
+	};
+
+	const chooseAppearance = () => {
+		if (Platform.OS === "ios") {
+			ActionSheetIOS.showActionSheetWithOptions(
+				{
+					cancelButtonIndex: APPEARANCE_OPTIONS.length,
+					options: [
+						...APPEARANCE_OPTIONS.map((option) => APPEARANCE_LABELS[option]),
+						"Cancel",
+					],
+				},
+				(index: number) => {
+					const preference = APPEARANCE_OPTIONS[index];
+					if (preference) {
+						pickAppearance(preference);
+					}
+				},
+			);
+			return;
+		}
+		Alert.alert(
+			"Appearance",
+			undefined,
+			APPEARANCE_OPTIONS.map((option) => ({
+				text: APPEARANCE_LABELS[option],
+				onPress: () => pickAppearance(option),
+			})),
+		);
+	};
 
 	const googleAccount = user?.externalAccounts?.find(
 		(account) => account.provider === "google",
@@ -73,6 +131,16 @@ export default function ProfileScreen() {
 						: null,
 				},
 				{ label: "Apple", value: null },
+			],
+		},
+		{
+			title: "App",
+			rows: [
+				{
+					label: "Appearance",
+					value: APPEARANCE_LABELS[appearance],
+					onPress: chooseAppearance,
+				},
 			],
 		},
 		{

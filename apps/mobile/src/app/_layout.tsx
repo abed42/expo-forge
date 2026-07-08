@@ -6,6 +6,10 @@ import { NavThemeProvider } from "@repo/design-system/nav-theme";
 import { initObservability } from "@repo/observability";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { useUnistyles } from "react-native-unistyles";
+
+import { applyAppearance, loadAppearance } from "@/lib/appearance";
 
 initObservability();
 
@@ -32,9 +36,15 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+	const { rt } = useUnistyles();
+
+	useEffect(() => {
+		loadAppearance().then(applyAppearance);
+	}, []);
+
 	return (
 		<NavThemeProvider>
-			<StatusBar style="auto" />
+			<StatusBar style={rt.themeName === "dark" ? "light" : "dark"} />
 			<AuthProvider>
 				<AnalyticsProvider>
 					<RootNavigator />

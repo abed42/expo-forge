@@ -225,7 +225,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	error: {
 		...theme.type.caption,
-		color: "#B3261E",
+		color: theme.colors.danger,
 		textAlign: "center",
 	},
 	actions: {

@@ -44,6 +44,7 @@ const lightColors = {
 	accent: "#D63201",
 	accentSoft: "#FFEBE5",
 	onAccentSoft: "#9E2500",
+	danger: "#B3261E",
 } as const;
 
 const darkColors = {
@@ -56,6 +57,7 @@ const darkColors = {
 	accent: "#FF6A3D",
 	accentSoft: "#330C00",
 	onAccentSoft: "#FF8E6B",
+	danger: "#F2B8B5",
 } as const;
 
 export const lightTheme = {
