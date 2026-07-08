@@ -5,7 +5,8 @@
 		".": "./src/index.ts",
 		"./client": "./src/client.ts",
 		"./database.types": "./src/database.types.ts",
-		"./keys": "./src/keys.ts"
+		"./keys": "./src/keys.ts",
+		"./use-supabase": "./src/use-supabase.ts"
 	},
 	"scripts": {
 		"gen-types": "supabase gen types typescript --local > src/database.types.ts",
@@ -16,9 +17,13 @@
 		"@supabase/supabase-js": "^2.110.1",
 		"zod": "^4.4.3"
 	},
+	"peerDependencies": {
+		"react": "19.2.3"
+	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",
 		"@types/node": "^25.3.5",
+		"@types/react": "~19.2.2",
 		"typescript": "~6.0.3"
 	}
 }
