@@ -268,13 +268,15 @@ const styles = StyleSheet.create((theme) => ({
 	chip: {
 		alignItems: "center",
 		backgroundColor: theme.colors.surface,
+		borderColor: theme.colors.border,
 		borderRadius: 9,
+		borderWidth: 0.5,
 		height: 30,
 		justifyContent: "center",
 		shadowColor: "#000000",
-		shadowOffset: { height: 3, width: 0 },
-		shadowOpacity: 0.16,
-		shadowRadius: 5,
+		shadowOffset: { height: 1, width: 0 },
+		shadowOpacity: 0.07,
+		shadowRadius: 2.5,
 		width: 30,
 	},
 	chipIcon: {
