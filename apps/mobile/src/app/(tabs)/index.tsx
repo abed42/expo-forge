@@ -6,6 +6,7 @@ import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import { useEffect, useState } from "react";
 import { Alert, Image, Platform, Pressable, Text, View } from "react-native";
 import Animated, {
 	interpolate,
@@ -15,6 +16,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
+import {
+	type AppearancePreference,
+	loadAppearance,
+	saveAppearance,
+} from "@/lib/appearance";
 
 import { type FeedItem, useFeed } from "@/lib/feed";
 
@@ -81,6 +87,30 @@ export default function HomeScreen() {
 		status === "ready" && items.length > 0 ? items : SKELETON_ITEMS;
 
 	const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
+	const [appearance, setAppearance] = useState<AppearancePreference>("system");
+
+	useEffect(() => {
+		loadAppearance().then(setAppearance);
+	}, []);
+
+	// Quick toggle next to search; the Profile row remains the full picker.
+	const cycleAppearance = () => {
+		const next: AppearancePreference =
+			appearance === "system"
+				? "dark"
+				: appearance === "dark"
+					? "light"
+					: "system";
+		setAppearance(next);
+		saveAppearance(next);
+	};
+
+	const appearanceSymbol =
+		appearance === "system"
+			? "circle.lefthalf.filled"
+			: appearance === "dark"
+				? "moon.fill"
+				: "sun.max.fill";
 	const scrollY = useSharedValue(0);
 
 	const onScroll = useAnimatedScrollHandler((event) => {
@@ -121,35 +151,48 @@ export default function HomeScreen() {
 					style={styles.logo}
 				/>
 			</View>
-			{Platform.OS === "ios" && canUseGlass ? (
-				// True system glass: SwiftUI .glassEffect with vibrancy and the
-				// interactive press shimmer — same pipeline as the native tab bar.
-				<Host style={styles.searchHost}>
-					<SwiftImage
-						modifiers={[
-							frame({ height: 44, width: 44 }),
-							glassEffect({
-								glass: { interactive: true, variant: "regular" },
-								shape: "circle",
-							}),
-						]}
-						onPress={() => router.push("/search")}
-						size={17}
-						systemName="magnifyingglass"
-					/>
-				</Host>
-			) : (
+			<View style={styles.headerActions}>
 				<IconButton
-					accessibilityLabel="Search"
-					onPress={() => router.push("/search")}
+					accessibilityLabel="Toggle appearance"
+					glass
+					onPress={cycleAppearance}
 				>
 					<SymbolView
-						name="magnifyingglass"
-						size={18}
+						name={appearanceSymbol}
+						size={17}
 						tintColor={theme.colors.ink}
 					/>
 				</IconButton>
-			)}
+				{Platform.OS === "ios" && canUseGlass ? (
+					// True system glass: SwiftUI .glassEffect with vibrancy and the
+					// interactive press shimmer — same pipeline as the native tab bar.
+					<Host style={styles.searchHost}>
+						<SwiftImage
+							modifiers={[
+								frame({ height: 44, width: 44 }),
+								glassEffect({
+									glass: { interactive: true, variant: "regular" },
+									shape: "circle",
+								}),
+							]}
+							onPress={() => router.push("/search")}
+							size={17}
+							systemName="magnifyingglass"
+						/>
+					</Host>
+				) : (
+					<IconButton
+						accessibilityLabel="Search"
+						onPress={() => router.push("/search")}
+					>
+						<SymbolView
+							name="magnifyingglass"
+							size={18}
+							tintColor={theme.colors.ink}
+						/>
+					</IconButton>
+				)}
+			</View>
 		</View>
 	);
 
@@ -177,8 +220,6 @@ export default function HomeScreen() {
 								<Skeleton height={16} width={64} />
 							</View>
 							<Skeleton height={14} width={160} />
-							<Skeleton height={14} width={120} />
-							<Skeleton height={14} width={120} />
 							<TestNotificationButton />
 						</View>
 					) : (
@@ -219,6 +260,11 @@ const styles = StyleSheet.create((theme) => ({
 		position: "absolute",
 		right: 0,
 		top: 0,
+	},
+	headerActions: {
+		alignItems: "center",
+		flexDirection: "row",
+		gap: theme.gap(1),
 	},
 	searchHost: {
 		height: 44,
