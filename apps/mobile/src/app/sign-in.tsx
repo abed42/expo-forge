@@ -69,7 +69,6 @@ export default function SignInScreen() {
 		setBusy(false);
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: interval keyed on countdown state
 	useEffect(() => {
 		if (resendIn <= 0) {
 			return;
@@ -185,6 +184,7 @@ export default function SignInScreen() {
 							<TextInput
 								autoCapitalize="none"
 								autoComplete="email"
+								autoFocus
 								inputMode="email"
 								onChangeText={setEmail}
 								placeholder="you@example.com"
@@ -201,8 +201,10 @@ export default function SignInScreen() {
 						<>
 							<TextInput
 								autoComplete="one-time-code"
+								autoFocus
 								inputMode="numeric"
-								onChangeText={setCode}
+								maxLength={6}
+								onChangeText={onCodeChange}
 								placeholder="123456"
 								style={styles.input}
 								value={code}
@@ -212,6 +214,16 @@ export default function SignInScreen() {
 								label={busy ? "Verifying…" : "Verify"}
 								onPress={verifyCode}
 							/>
+							<Pressable
+								accessibilityRole="button"
+								disabled={busy || resendIn > 0}
+								onPress={resendCode}
+								style={styles.secondaryButton}
+							>
+								<Text style={styles.secondaryLabel}>
+									{resendIn > 0 ? `Resend code in ${resendIn}s` : "Resend code"}
+								</Text>
+							</Pressable>
 							<Pressable
 								accessibilityRole="button"
 								onPress={() => {
