@@ -25,43 +25,35 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
 const DECK_BLOCKS = [
 	{
-		top: "30%",
-		left: "3%",
-		width: 108,
-		height: 154,
-		rotate: "-18deg",
+		top: "22%",
+		left: "5%",
+		width: 112,
+		height: 160,
+		rotate: "-14deg",
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "14%",
-		left: "18%",
-		width: 116,
-		height: 164,
-		rotate: "-9deg",
-		source: require("../../assets/images/onboarding/collage-2.webp"),
-	},
-	{
 		top: "8%",
-		left: "36%",
-		width: 126,
-		height: 158,
-		rotate: "0deg",
+		left: "28%",
+		width: 128,
+		height: 160,
+		rotate: "-3deg",
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
 		top: "14%",
 		left: "52%",
-		width: 120,
-		height: 160,
-		rotate: "10deg",
+		width: 122,
+		height: 163,
+		rotate: "8deg",
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
 		top: "34%",
-		left: "66%",
-		width: 100,
-		height: 100,
-		rotate: "18deg",
+		left: "68%",
+		width: 98,
+		height: 98,
+		rotate: "17deg",
 		source: require("../../assets/images/onboarding/collage-7.png"),
 	},
 ] as const;
@@ -157,6 +149,12 @@ export default function WelcomeScreen() {
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
 				<Text style={styles.tagline}>Production grade{"\n"}Expo Template</Text>
 			</Animated.View>
+			<Animated.Image
+				entering={FadeIn.delay(1050).duration(550)}
+				resizeMode="contain"
+				source={require("../../assets/images/expo-forge-lockup.png")}
+				style={styles.logo}
+			/>
 			<View style={styles.collage}>
 				{DECK_BLOCKS.map((block, index) => (
 					<FloatingTile
@@ -166,12 +164,6 @@ export default function WelcomeScreen() {
 					/>
 				))}
 			</View>
-			<Animated.Image
-				entering={FadeIn.delay(1050).duration(550)}
-				resizeMode="contain"
-				source={require("../../assets/images/expo-forge-lockup.png")}
-				style={styles.logo}
-			/>
 			<Animated.View
 				entering={FadeIn.delay(1250).duration(550)}
 				style={styles.footer}
@@ -251,6 +243,7 @@ const styles = StyleSheet.create((theme) => ({
 	logo: {
 		alignSelf: "center",
 		height: 46,
+		marginTop: theme.gap(2),
 		tintColor: theme.colors.ink,
 		width: 212,
 	},
