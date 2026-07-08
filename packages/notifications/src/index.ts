@@ -1,2 +1,6 @@
 export { notificationsKeys } from "./keys";
-export { registerForPush } from "./register";
+export {
+	type RegisterForPushFailureReason,
+	type RegisterForPushResult,
+	registerForPush,
+} from "./register";

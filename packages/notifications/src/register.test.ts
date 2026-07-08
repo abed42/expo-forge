@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-type MockPermissions = { status: string };
+type MockPermissions = { status: string; canAskAgain?: boolean };
 
 const mockState = vi.hoisted(() => ({
 	isDevice: true,
@@ -53,11 +53,11 @@ const PROJECT_ID = "11111111-2222-3333-4444-555555555555";
 const TOKEN = "ExponentPushToken[unit-test]";
 
 function grant(): MockPermissions {
-	return { status: "granted" };
+	return { status: "granted", canAskAgain: true };
 }
 
-function deny(): MockPermissions {
-	return { status: "denied" };
+function deny(canAskAgain = true): MockPermissions {
+	return { status: "denied", canAskAgain };
 }
 
 describe("registerForPush", () => {
@@ -81,10 +81,13 @@ describe("registerForPush", () => {
 		vi.restoreAllMocks();
 	});
 
-	it("returns null on simulators without touching the notifications API", async () => {
+	it("fails with 'simulator' on simulators without touching the notifications API", async () => {
 		mockState.isDevice = false;
 
-		await expect(registerForPush()).resolves.toBeNull();
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "simulator",
+		});
 
 		expect(console.info).toHaveBeenCalledWith(
 			expect.stringContaining("simulators"),
@@ -95,11 +98,14 @@ describe("registerForPush", () => {
 		expect(getExpoPushTokenAsync).not.toHaveBeenCalled();
 	});
 
-	it("returns null without prompting when no EAS projectId is configured", async () => {
+	it("fails with 'missing-project-id' without prompting when no EAS projectId is configured", async () => {
 		mockState.expoConfig = null;
 		mockState.easConfig = null;
 
-		await expect(registerForPush()).resolves.toBeNull();
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "missing-project-id",
+		});
 
 		expect(console.warn).toHaveBeenCalledWith(
 			expect.stringContaining("projectId"),
@@ -112,7 +118,10 @@ describe("registerForPush", () => {
 	it("creates the Android notification channel before checking permissions", async () => {
 		mockState.platformOS = "android";
 
-		await expect(registerForPush()).resolves.toBe(TOKEN);
+		await expect(registerForPush()).resolves.toEqual({
+			ok: true,
+			token: TOKEN,
+		});
 
 		expect(setNotificationChannelAsync).toHaveBeenCalledWith(
 			"default",
@@ -126,13 +135,19 @@ describe("registerForPush", () => {
 	});
 
 	it("does not create a notification channel on iOS", async () => {
-		await expect(registerForPush()).resolves.toBe(TOKEN);
+		await expect(registerForPush()).resolves.toEqual({
+			ok: true,
+			token: TOKEN,
+		});
 
 		expect(setNotificationChannelAsync).not.toHaveBeenCalled();
 	});
 
 	it("returns the push token without re-prompting when permission is already granted", async () => {
-		await expect(registerForPush()).resolves.toBe(TOKEN);
+		await expect(registerForPush()).resolves.toEqual({
+			ok: true,
+			token: TOKEN,
+		});
 
 		expect(requestPermissionsAsync).not.toHaveBeenCalled();
 		expect(getExpoPushTokenAsync).toHaveBeenCalledWith({
@@ -141,19 +156,32 @@ describe("registerForPush", () => {
 	});
 
 	it("requests permission when undetermined and returns the token once granted", async () => {
-		getPermissionsAsync.mockResolvedValue({ status: "undetermined" });
+		getPermissionsAsync.mockResolvedValue({
+			status: "undetermined",
+			canAskAgain: true,
+		});
 		requestPermissionsAsync.mockResolvedValue(grant());
 
-		await expect(registerForPush()).resolves.toBe(TOKEN);
+		await expect(registerForPush()).resolves.toEqual({
+			ok: true,
+			token: TOKEN,
+		});
 
 		expect(requestPermissionsAsync).toHaveBeenCalledTimes(1);
 	});
 
-	it("returns null when permission is denied after prompting", async () => {
-		getPermissionsAsync.mockResolvedValue({ status: "undetermined" });
+	it("fails with 'denied' when permission is denied after prompting", async () => {
+		getPermissionsAsync.mockResolvedValue({
+			status: "undetermined",
+			canAskAgain: true,
+		});
 		requestPermissionsAsync.mockResolvedValue(deny());
 
-		await expect(registerForPush()).resolves.toBeNull();
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "denied",
+			canAskAgain: true,
+		});
 
 		expect(console.info).toHaveBeenCalledWith(
 			expect.stringContaining("permissions were not granted"),
@@ -161,21 +189,40 @@ describe("registerForPush", () => {
 		expect(getExpoPushTokenAsync).not.toHaveBeenCalled();
 	});
 
+	it("surfaces canAskAgain=false when the OS will no longer show the prompt", async () => {
+		getPermissionsAsync.mockResolvedValue(deny(false));
+		requestPermissionsAsync.mockResolvedValue(deny(false));
+
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "denied",
+			canAskAgain: false,
+		});
+
+		expect(getExpoPushTokenAsync).not.toHaveBeenCalled();
+	});
+
 	it("falls back to Constants.easConfig for the projectId", async () => {
 		mockState.expoConfig = null;
 		mockState.easConfig = { projectId: "eas-config-project" };
 
-		await expect(registerForPush()).resolves.toBe(TOKEN);
+		await expect(registerForPush()).resolves.toEqual({
+			ok: true,
+			token: TOKEN,
+		});
 
 		expect(getExpoPushTokenAsync).toHaveBeenCalledWith({
 			projectId: "eas-config-project",
 		});
 	});
 
-	it("returns null when token retrieval fails with an Error", async () => {
+	it("fails with 'token-failure' when token retrieval fails with an Error", async () => {
 		getExpoPushTokenAsync.mockRejectedValue(new Error("network down"));
 
-		await expect(registerForPush()).resolves.toBeNull();
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "token-failure",
+		});
 
 		expect(console.warn).toHaveBeenCalledWith(
 			expect.stringContaining("Failed to register"),
@@ -183,10 +230,13 @@ describe("registerForPush", () => {
 		);
 	});
 
-	it("returns null when token retrieval fails with a non-Error value", async () => {
+	it("fails with 'token-failure' when token retrieval fails with a non-Error value", async () => {
 		getExpoPushTokenAsync.mockRejectedValue("boom");
 
-		await expect(registerForPush()).resolves.toBeNull();
+		await expect(registerForPush()).resolves.toEqual({
+			ok: false,
+			reason: "token-failure",
+		});
 
 		expect(console.warn).toHaveBeenCalledWith(
 			expect.stringContaining("Failed to register"),

@@ -17,6 +17,25 @@ type EasConfigWithProjectId = {
 	projectId?: string;
 };
 
+export type RegisterForPushFailureReason =
+	| "simulator"
+	| "denied"
+	| "missing-project-id"
+	| "token-failure";
+
+export type RegisterForPushResult =
+	| { ok: true; token: string }
+	| {
+			ok: false;
+			reason: RegisterForPushFailureReason;
+			/**
+			 * Only present on the "denied" path. `false` means the OS will not show
+			 * the permission prompt again — the user must enable notifications from
+			 * system settings.
+			 */
+			canAskAgain?: boolean;
+	  };
+
 function getProjectId(): string | null {
 	const expoConfig = Constants.expoConfig as ExpoConfigWithEasProjectId | null;
 	const easConfig = Constants.easConfig as EasConfigWithProjectId | null;
@@ -24,12 +43,12 @@ function getProjectId(): string | null {
 	return expoConfig?.extra?.eas?.projectId ?? easConfig?.projectId ?? null;
 }
 
-export async function registerForPush(): Promise<string | null> {
+export async function registerForPush(): Promise<RegisterForPushResult> {
 	if (!Device.isDevice) {
 		console.info(
 			"[@repo/notifications] Push registration is unavailable on simulators and emulators.",
 		);
-		return null;
+		return { ok: false, reason: "simulator" };
 	}
 
 	// Check configuration before prompting: without an EAS projectId the
@@ -40,7 +59,7 @@ export async function registerForPush(): Promise<string | null> {
 		console.warn(
 			"[@repo/notifications] Push registration skipped because no EAS projectId is configured.",
 		);
-		return null;
+		return { ok: false, reason: "missing-project-id" };
 	}
 
 	if (Platform.OS === "android") {
@@ -53,24 +72,26 @@ export async function registerForPush(): Promise<string | null> {
 		);
 	}
 
-	const permissions = await Notifications.getPermissionsAsync();
-	let finalStatus = permissions.status;
+	let permissions = await Notifications.getPermissionsAsync();
 
-	if (finalStatus !== "granted") {
-		const requestedPermissions = await Notifications.requestPermissionsAsync();
-		finalStatus = requestedPermissions.status;
+	if (permissions.status !== "granted") {
+		permissions = await Notifications.requestPermissionsAsync();
 	}
 
-	if (finalStatus !== "granted") {
+	if (permissions.status !== "granted") {
 		console.info(
 			"[@repo/notifications] Push registration skipped because notification permissions were not granted.",
 		);
-		return null;
+		return {
+			ok: false,
+			reason: "denied",
+			canAskAgain: permissions.canAskAgain,
+		};
 	}
 
 	try {
 		const token = await Notifications.getExpoPushTokenAsync({ projectId });
-		return token.data;
+		return { ok: true, token: token.data };
 	} catch (error: unknown) {
 		const resolvedError =
 			error instanceof Error
@@ -83,6 +104,6 @@ export async function registerForPush(): Promise<string | null> {
 			"[@repo/notifications] Failed to register for push notifications.",
 			resolvedError,
 		);
-		return null;
+		return { ok: false, reason: "token-failure" };
 	}
 }
