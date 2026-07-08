@@ -7,6 +7,7 @@
 		"./provider": "./src/provider.tsx"
 	},
 	"scripts": {
+		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
