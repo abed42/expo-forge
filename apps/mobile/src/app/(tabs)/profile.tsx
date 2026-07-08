@@ -102,7 +102,6 @@ export default function ProfileScreen() {
 						<Skeleton height={13} width={90} />
 					)}
 				</View>
-				<Text style={styles.chevron}>›</Text>
 			</View>
 
 			{sections.map((section) => (
@@ -130,7 +129,6 @@ export default function ProfileScreen() {
 									) : (
 										<Skeleton width={110} />
 									)}
-									<Text style={styles.chevron}>›</Text>
 								</View>
 							</View>
 						))}
@@ -158,9 +156,9 @@ const styles = StyleSheet.create((theme) => ({
 		flex: 1,
 	},
 	content: {
-		gap: theme.gap(3),
+		gap: theme.gap(2.5),
 		padding: theme.gap(3),
-		paddingBottom: theme.gap(12),
+		paddingBottom: theme.gap(16),
 	},
 	title: {
 		...theme.type.largeTitle,
@@ -202,8 +200,9 @@ const styles = StyleSheet.create((theme) => ({
 	row: {
 		alignItems: "center",
 		flexDirection: "row",
+		gap: theme.gap(2),
 		justifyContent: "space-between",
-		minHeight: 52,
+		minHeight: 48,
 	},
 	rowBorder: {
 		borderTopColor: theme.colors.border,
@@ -216,21 +215,17 @@ const styles = StyleSheet.create((theme) => ({
 	rowRight: {
 		alignItems: "center",
 		flexDirection: "row",
+		flexShrink: 1,
 		gap: theme.gap(1),
-		maxWidth: "60%",
 	},
 	rowValue: {
 		...theme.type.body,
 		color: theme.colors.secondary,
+		flexShrink: 1,
 	},
 	verified: {
 		color: theme.colors.secondary,
 		fontSize: 13,
-	},
-	chevron: {
-		color: theme.colors.secondary,
-		fontSize: 22,
-		fontWeight: "400",
 	},
 	signOut: {
 		alignItems: "center",
