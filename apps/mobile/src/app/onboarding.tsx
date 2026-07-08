@@ -98,7 +98,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 			index * 260,
 			withRepeat(
 				withTiming(1, {
-					duration: 4200 + index * 450,
+					duration: 6400 + index * 600,
 					easing: Easing.inOut(Easing.sin),
 				}),
 				-1,
@@ -110,7 +110,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 	const animatedStyle = useAnimatedStyle(() => ({
 		opacity: appear.value,
 		transform: [
-			{ translateY: (float.value - 0.5) * (5 + (index % 3) * 2) },
+			{ translateY: (float.value - 0.5) * (3 + (index % 3) * 1.5) },
 			{ rotate: block.rotate },
 			{ scale: 0.9 + appear.value * 0.1 },
 		],
