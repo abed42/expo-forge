@@ -1,9 +1,10 @@
 import { IconButton, Skeleton } from "@repo/design-system";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Image, Text, View } from "react-native";
+import { SymbolView } from "expo-symbols";
+import { Image, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native-unistyles";
+import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
 // Home ships as an honest loading state: the FlashList that will render the
 // real feed, hydrated with skeleton items until the data layer lands.
@@ -15,6 +16,7 @@ function FeedSeparator() {
 
 export default function HomeScreen() {
 	const router = useRouter();
+	const { theme } = useUnistyles();
 
 	return (
 		<SafeAreaView edges={["top"]} style={styles.screen}>
@@ -28,7 +30,11 @@ export default function HomeScreen() {
 					accessibilityLabel="Search"
 					onPress={() => router.push("/search")}
 				>
-					<Text style={styles.searchGlyph}>{"⌕"}</Text>
+					<SymbolView
+						name="magnifyingglass"
+						size={18}
+						tintColor={theme.colors.ink}
+					/>
 				</IconButton>
 			</View>
 
@@ -71,10 +77,6 @@ const styles = StyleSheet.create((theme) => ({
 		height: 26,
 		tintColor: theme.colors.ink,
 		width: 120,
-	},
-	searchGlyph: {
-		color: theme.colors.secondary,
-		fontSize: 26,
 	},
 	feed: {
 		paddingBottom: theme.gap(14),
