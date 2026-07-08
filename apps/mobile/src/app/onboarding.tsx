@@ -7,7 +7,6 @@ import { Image, Pressable, Text, View } from "react-native";
 import Animated, {
 	Easing,
 	FadeIn,
-	FadeInUp,
 	useAnimatedStyle,
 	useSharedValue,
 	withDelay,
@@ -169,7 +168,27 @@ export default function WelcomeScreen() {
 	return (
 		<SafeAreaView style={styles.screen}>
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
-				<Text style={styles.tagline}>Production grade{"\n"}Expo Template</Text>
+				<Text style={styles.tagline}>
+					Production grade{" "}
+					<View style={styles.chipCluster}>
+						{PLATFORM_ICONS.map((icon, index) => (
+							<View
+								key={icon.key}
+								style={[
+									styles.chip,
+									{
+										marginLeft: index === 0 ? 0 : -7,
+										transform: [{ rotate: icon.rotate }],
+										zIndex: PLATFORM_ICONS.length - index,
+									},
+								]}
+							>
+								<Image source={icon.source} style={styles.chipIcon} />
+							</View>
+						))}
+					</View>
+					{"\n"}Expo Template
+				</Text>
 			</Animated.View>
 			<View style={styles.spacerTop} />
 			<Animated.Image
