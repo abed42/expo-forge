@@ -25,36 +25,59 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
 const DECK_BLOCKS = [
 	{
-		top: "38%",
-		left: "5%",
-		width: 112,
-		height: 160,
-		rotate: "-14deg",
+		top: "32%",
+		left: "4%",
+		width: 110,
+		height: 157,
+		rotate: "-15deg",
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "24%",
-		left: "28%",
-		width: 128,
-		height: 160,
-		rotate: "-3deg",
+		top: "10%",
+		left: "26%",
+		width: 124,
+		height: 155,
+		rotate: "-4deg",
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "30%",
-		left: "52%",
-		width: 122,
-		height: 163,
-		rotate: "8deg",
+		top: "16%",
+		left: "48%",
+		width: 114,
+		height: 152,
+		rotate: "7deg",
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "36%",
-		left: "64%",
-		width: 108,
-		height: 157,
-		rotate: "17deg",
+		top: "34%",
+		left: "68%",
+		width: 100,
+		height: 145,
+		rotate: "16deg",
 		source: require("../../assets/images/onboarding/collage-8.png"),
+	},
+] as const;
+
+const PLATFORM_ICONS = [
+	{
+		key: "apple",
+		rotate: "-8deg",
+		source: require("../../assets/images/icons/apple.png"),
+	},
+	{
+		key: "android",
+		rotate: "6deg",
+		source: require("../../assets/images/icons/android.png"),
+	},
+	{
+		key: "expo",
+		rotate: "-5deg",
+		source: require("../../assets/images/icons/expo.png"),
+	},
+	{
+		key: "react",
+		rotate: "9deg",
+		source: require("../../assets/images/icons/react.png"),
 	},
 ] as const;
 
@@ -220,6 +243,25 @@ const styles = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.surface,
 		flex: 1,
 		paddingHorizontal: theme.gap(3),
+	},
+	chipCluster: {
+		flexDirection: "row",
+	},
+	chip: {
+		alignItems: "center",
+		backgroundColor: theme.colors.surface,
+		borderRadius: 9,
+		height: 30,
+		justifyContent: "center",
+		shadowColor: "#000000",
+		shadowOffset: { height: 3, width: 0 },
+		shadowOpacity: 0.16,
+		shadowRadius: 5,
+		width: 30,
+	},
+	chipIcon: {
+		height: 18,
+		width: 18,
 	},
 	tagline: {
 		...theme.type.title,
