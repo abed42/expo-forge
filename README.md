@@ -2,13 +2,13 @@
 
 **Production-grade template for Expo apps.**
 
-<!-- Badges go live at launch: npm is unpublished and the repo is private,
-     so shields render "not found" until then.
 <div>
-  <img src="https://img.shields.io/npm/dy/create-expo-forge" alt="" />
   <img src="https://img.shields.io/npm/v/create-expo-forge" alt="" />
-  <img src="https://img.shields.io/github/license/abed42/expo-forge" alt="" />
+  <img src="https://img.shields.io/npm/l/create-expo-forge" alt="" />
 </div>
+
+<!-- Downloads badge joins at launch:
+  <img src="https://img.shields.io/npm/dy/create-expo-forge" alt="" />
 -->
 
 ## Overview
