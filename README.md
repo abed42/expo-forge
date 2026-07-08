@@ -147,7 +147,7 @@ Native-coupled dependency versions live in `tooling/pins.json` as the single sou
 
 - **Hoisted linker required** — `bunfig.toml` forces Bun's hoisted linker because Metro cannot resolve modules through Bun's default isolated layout. Don't remove it.
 - **iOS deployment target 17.0** — required by `@clerk/expo`, set via `expo-build-properties`.
-- **Dev client, not Expo Go** — the template uses native modules that require a development build (`bun ios`), not the Expo Go sandbox.
+- **Dev client, not Expo Go** — this template does not run in Expo Go, by design. Production dependencies ship native code that Go's sandbox doesn't include: react-native-unistyles v3 (Nitro Modules), @clerk/expo (ClerkKit / native Google Sign-In), @sentry/react-native, react-native-purchases — plus config Go can't honor (iOS 17 deployment target, config plugins). Run a development build instead: `bun ios` / `bun android` compiles the dev client once, and everything after is the familiar Metro hot-reload workflow.
 
 ## Scripts
 
