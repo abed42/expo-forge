@@ -9,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useUnistyles } from "react-native-unistyles";
 
+import { UpdateBanner } from "@/components/update-banner";
 import { applyAppearance, loadAppearance } from "@/lib/appearance";
 
 initObservability();
@@ -50,6 +51,8 @@ export default function RootLayout() {
 					<RootNavigator />
 				</AnalyticsProvider>
 			</AuthProvider>
+			{/* Renders null in dev — @repo/updates is guarded behind __DEV__. */}
+			<UpdateBanner />
 		</NavThemeProvider>
 	);
 }

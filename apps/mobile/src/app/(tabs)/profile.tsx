@@ -1,10 +1,12 @@
 import { useAuth, useUser } from "@repo/auth";
 import { Skeleton } from "@repo/design-system";
+import { registerForPush } from "@repo/notifications";
 import { useEffect, useState } from "react";
 import {
 	ActionSheetIOS,
 	Alert,
 	Image,
+	Linking,
 	Platform,
 	Pressable,
 	ScrollView,
@@ -36,10 +38,16 @@ type Section = {
 // skeleton bars instead of empty strings.
 const APPEARANCE_OPTIONS: AppearancePreference[] = ["system", "light", "dark"];
 
+// Push registration is session-scoped for now: the row reflects the latest
+// attempt, and the token is only logged until a backend delivery phase
+// stores it server-side.
+type NotificationsValue = "Off" | "Enabled" | "Unavailable" | "Needs setup";
+
 export default function ProfileScreen() {
 	const { user, isLoaded } = useUser();
 	const { signOut } = useAuth();
 	const [appearance, setAppearance] = useState<AppearancePreference>("system");
+	const [notifications, setNotifications] = useState<NotificationsValue>("Off");
 
 	useEffect(() => {
 		loadAppearance().then(setAppearance);
@@ -77,6 +85,52 @@ export default function ProfileScreen() {
 				onPress: () => pickAppearance(option),
 			})),
 		);
+	};
+
+	const enableNotifications = async () => {
+		const result = await registerForPush();
+
+		if (result.ok) {
+			// Backend delivery is a later phase — for now the token only needs to
+			// be visible to whoever is wiring up a push provider.
+			console.info("[mobile] Expo push token:", result.token);
+			setNotifications("Enabled");
+			return;
+		}
+
+		switch (result.reason) {
+			case "simulator":
+				setNotifications("Unavailable");
+				Alert.alert("Notifications", "Not available in the simulator.");
+				break;
+			case "denied":
+				setNotifications("Off");
+				if (result.canAskAgain === false) {
+					Alert.alert(
+						"Notifications",
+						"Notifications are turned off for this app. Enable them in Settings.",
+						[
+							{ style: "cancel", text: "Not now" },
+							{ onPress: () => Linking.openSettings(), text: "Open Settings" },
+						],
+					);
+				}
+				break;
+			case "missing-project-id":
+				setNotifications("Needs setup");
+				Alert.alert(
+					"Notifications",
+					"Push notifications need an EAS project. Run `eas init` first.",
+				);
+				break;
+			case "token-failure":
+				setNotifications("Off");
+				Alert.alert(
+					"Notifications",
+					"Could not get a push token. Try again later.",
+				);
+				break;
+		}
 	};
 
 	const googleAccount = user?.externalAccounts?.find(
@@ -140,6 +194,11 @@ export default function ProfileScreen() {
 					label: "Appearance",
 					value: APPEARANCE_LABELS[appearance],
 					onPress: chooseAppearance,
+				},
+				{
+					label: "Notifications",
+					value: notifications,
+					onPress: enableNotifications,
 				},
 			],
 		},
