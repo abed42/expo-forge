@@ -51,11 +51,20 @@ export default function HomeScreen() {
 
 	const headerContent = (
 		<View style={[styles.headerRow, { marginTop: insets.top }]}>
-			<Image
-				resizeMode="contain"
-				source={require("../../../assets/images/expo-forge-lockup.png")}
-				style={styles.logo}
-			/>
+			<View style={styles.logoPill}>
+				<Animated.View style={[styles.pillMaterial, materialStyle]}>
+					{canUseGlass ? (
+						<GlassView glassEffectStyle="regular" style={styles.pillFill} />
+					) : (
+						<View style={[styles.pillFill, styles.pillFallback]} />
+					)}
+				</Animated.View>
+				<Image
+					resizeMode="contain"
+					source={require("../../../assets/images/expo-forge-lockup.png")}
+					style={styles.logo}
+				/>
+			</View>
 			<IconButton
 				accessibilityLabel="Search"
 				onPress={() => router.push("/search")}
@@ -104,13 +113,6 @@ export default function HomeScreen() {
 				showsVerticalScrollIndicator={false}
 			/>
 			<View style={[styles.header, { height: headerHeight }]}>
-				<Animated.View style={[styles.material, materialStyle]}>
-					{canUseGlass ? (
-						<GlassView glassEffectStyle="regular" style={styles.materialFill} />
-					) : (
-						<View style={[styles.materialFill, styles.headerFallback]} />
-					)}
-				</Animated.View>
 				{headerContent}
 			</View>
 		</View>
@@ -128,20 +130,27 @@ const styles = StyleSheet.create((theme) => ({
 		right: 0,
 		top: 0,
 	},
-	material: {
+	logoPill: {
+		borderRadius: theme.radius.pill,
+		height: 44,
+		justifyContent: "center",
+		overflow: "hidden",
+		paddingHorizontal: theme.gap(2),
+	},
+	pillMaterial: {
+		borderRadius: theme.radius.pill,
 		bottom: 0,
 		left: 0,
+		overflow: "hidden",
 		position: "absolute",
 		right: 0,
 		top: 0,
 	},
-	materialFill: {
+	pillFill: {
 		flex: 1,
 	},
-	headerFallback: {
-		backgroundColor: theme.colors.surface,
-		borderBottomColor: theme.colors.border,
-		borderBottomWidth: 1,
+	pillFallback: {
+		backgroundColor: theme.colors.fill,
 	},
 	headerRow: {
 		alignItems: "center",
