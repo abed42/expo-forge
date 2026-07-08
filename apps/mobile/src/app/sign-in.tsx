@@ -2,10 +2,11 @@ import { useSignIn, useSignUp } from "@repo/auth";
 import { Button, IconButton } from "@repo/design-system";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Image,
 	KeyboardAvoidingView,
+	Platform,
 	Pressable,
 	Text,
 	TextInput,
@@ -32,6 +33,7 @@ export default function SignInScreen() {
 	const [code, setCode] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
+	const [resendIn, setResendIn] = useState(0);
 
 	const continueWithEmail = async () => {
 		if (!(signIn && signUp) || busy) {
@@ -44,6 +46,7 @@ export default function SignInScreen() {
 		if (!sent.error) {
 			setMode("signIn");
 			setPhase("code");
+			setResendIn(30);
 			setBusy(false);
 			return;
 		}
@@ -61,11 +64,45 @@ export default function SignInScreen() {
 		} else {
 			setMode("signUp");
 			setPhase("code");
+			setResendIn(30);
 		}
 		setBusy(false);
 	};
 
-	const verifyCode = async () => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: interval keyed on countdown state
+	useEffect(() => {
+		if (resendIn <= 0) {
+			return;
+		}
+		const timer = setTimeout(() => setResendIn((value) => value - 1), 1000);
+		return () => clearTimeout(timer);
+	}, [resendIn]);
+
+	const resendCode = async () => {
+		if (!(signIn && signUp) || busy || resendIn > 0) {
+			return;
+		}
+		setError(null);
+		const sent =
+			mode === "signIn"
+				? await signIn.emailCode.sendCode({ emailAddress: email })
+				: await signUp.verifications.sendEmailCode();
+		if (sent.error) {
+			setError(sent.error.message ?? "Could not resend the code.");
+		} else {
+			setResendIn(30);
+		}
+	};
+
+	const onCodeChange = (value: string) => {
+		setCode(value);
+		if (value.length === 6 && !busy) {
+			// Auto-submit when the full code is in — hands stay on the keyboard.
+			void verifyCodeWith(value);
+		}
+	};
+
+	const verifyCodeWith = async (value: string) => {
 		if (!(signIn && signUp) || busy) {
 			return;
 		}
@@ -74,8 +111,8 @@ export default function SignInScreen() {
 
 		const verified =
 			mode === "signIn"
-				? await signIn.emailCode.verifyCode({ code })
-				: await signUp.verifications.verifyEmailCode({ code });
+				? await signIn.emailCode.verifyCode({ code: value })
+				: await signUp.verifications.verifyEmailCode({ code: value });
 		// A consumed verification ("already been verified") means the code was
 		// accepted on a prior attempt — proceed to finalize instead of dead-ending.
 		const alreadyVerified =
@@ -107,9 +144,14 @@ export default function SignInScreen() {
 		setBusy(false);
 	};
 
+	const verifyCode = () => verifyCodeWith(code);
+
 	return (
 		<SafeAreaView style={styles.screen}>
-			<KeyboardAvoidingView behavior="padding" style={styles.avoider}>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				style={styles.avoider}
+			>
 				<View style={styles.header}>
 					<IconButton
 						accessibilityLabel="Back"
