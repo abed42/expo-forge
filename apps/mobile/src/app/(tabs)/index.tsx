@@ -1,11 +1,18 @@
 import { IconButton, Skeleton } from "@repo/design-system";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
-// Home ships as an honest loading state: search entry on top, one large
-// media card + text bars skeleton below — the shape the demo feed fills in.
+// Home ships as an honest loading state: the FlashList that will render the
+// real feed, hydrated with skeleton items until the data layer lands.
+const SKELETON_ITEMS = [0, 1, 2];
+
+function FeedSeparator() {
+	return <View style={styles.separator} />;
+}
+
 export default function HomeScreen() {
 	const router = useRouter();
 
@@ -25,12 +32,12 @@ export default function HomeScreen() {
 				</IconButton>
 			</View>
 
-			<ScrollView
+			<FlashList
 				contentContainerStyle={styles.feed}
-				showsVerticalScrollIndicator={false}
-			>
-				{[0, 1, 2].map((item) => (
-					<View key={item} style={styles.feedItem}>
+				data={SKELETON_ITEMS}
+				ItemSeparatorComponent={FeedSeparator}
+				renderItem={() => (
+					<View style={styles.feedItem}>
 						<View style={styles.card} />
 						<View style={styles.titleRow}>
 							<Skeleton height={16} width={220} />
@@ -40,8 +47,9 @@ export default function HomeScreen() {
 						<Skeleton height={14} width={120} />
 						<Skeleton height={14} width={120} />
 					</View>
-				))}
-			</ScrollView>
+				)}
+				showsVerticalScrollIndicator={false}
+			/>
 		</SafeAreaView>
 	);
 }
@@ -69,8 +77,10 @@ const styles = StyleSheet.create((theme) => ({
 		fontSize: 26,
 	},
 	feed: {
-		gap: theme.gap(4),
 		paddingBottom: theme.gap(14),
+	},
+	separator: {
+		height: theme.gap(4),
 	},
 	feedItem: {
 		gap: theme.gap(1.5),
