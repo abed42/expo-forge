@@ -5,20 +5,21 @@ import { StyleSheet } from "react-native-unistyles";
 
 import { useSession } from "@/lib/session";
 
-// Placeholder collage: monochrome blocks stand in for imagery until the demo
-// data layer lands. Positions echo the scattered-editorial reference.
+// Placeholder collage: monochrome tiles stand in for imagery until the demo
+// data layer lands. Two loose bands, varied portrait/square sizes spread
+// edge-to-edge with clear gaps — per the Cosmos reference.
 const TOP_BLOCKS = [
-	{ top: "8%", left: "8%", size: 72 },
-	{ top: "0%", left: "34%", size: 104 },
-	{ top: "14%", left: "60%", size: 88 },
-	{ top: "36%", left: "80%", size: 56 },
+	{ top: "34%", left: "6%", width: 74, height: 74 },
+	{ top: "4%", left: "30%", width: 92, height: 118 },
+	{ top: "22%", left: "58%", width: 84, height: 100 },
+	{ top: "52%", left: "84%", width: 54, height: 58 },
 ] as const;
 
 const BOTTOM_BLOCKS = [
-	{ top: "10%", left: "6%", size: 84 },
-	{ top: "42%", left: "26%", size: 60 },
-	{ top: "18%", left: "44%", size: 112 },
-	{ top: "8%", left: "78%", size: 68 },
+	{ top: "10%", left: "7%", width: 78, height: 94 },
+	{ top: "52%", left: "28%", width: 58, height: 58 },
+	{ top: "18%", left: "44%", width: 104, height: 128 },
+	{ top: "6%", left: "78%", width: 68, height: 62 },
 ] as const;
 
 export default function OnboardingScreen() {
@@ -36,10 +37,10 @@ export default function OnboardingScreen() {
 						style={[
 							styles.block,
 							{
-								height: block.size,
+								height: block.height,
 								left: block.left,
 								top: block.top,
-								width: block.size,
+								width: block.width,
 							},
 						]}
 					/>
@@ -57,10 +58,10 @@ export default function OnboardingScreen() {
 						style={[
 							styles.block,
 							{
-								height: block.size,
+								height: block.height,
 								left: block.left,
 								top: block.top,
-								width: block.size,
+								width: block.width,
 							},
 						]}
 					/>
