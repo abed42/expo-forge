@@ -1,9 +1,11 @@
+import { Host, Image as SwiftImage } from "@expo/ui/swift-ui";
+import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { IconButton, Skeleton } from "@repo/design-system";
 import { FlashList } from "@shopify/flash-list";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Image, View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import Animated, {
 	interpolate,
 	useAnimatedScrollHandler,
@@ -65,16 +67,35 @@ export default function HomeScreen() {
 					style={styles.logo}
 				/>
 			</View>
-			<IconButton
-				accessibilityLabel="Search"
-				onPress={() => router.push("/search")}
-			>
-				<SymbolView
-					name="magnifyingglass"
-					size={18}
-					tintColor={theme.colors.ink}
-				/>
-			</IconButton>
+			{Platform.OS === "ios" && canUseGlass ? (
+				// True system glass: SwiftUI .glassEffect with vibrancy and the
+				// interactive press shimmer — same pipeline as the native tab bar.
+				<Host style={styles.searchHost}>
+					<SwiftImage
+						modifiers={[
+							frame({ height: 44, width: 44 }),
+							glassEffect({
+								glass: { interactive: true, variant: "regular" },
+								shape: "circle",
+							}),
+						]}
+						onPress={() => router.push("/search")}
+						size={17}
+						systemName="magnifyingglass"
+					/>
+				</Host>
+			) : (
+				<IconButton
+					accessibilityLabel="Search"
+					onPress={() => router.push("/search")}
+				>
+					<SymbolView
+						name="magnifyingglass"
+						size={18}
+						tintColor={theme.colors.ink}
+					/>
+				</IconButton>
+			)}
 		</View>
 	);
 
@@ -131,6 +152,10 @@ const styles = StyleSheet.create((theme) => ({
 		position: "absolute",
 		right: 0,
 		top: 0,
+	},
+	searchHost: {
+		height: 44,
+		width: 44,
 	},
 	logoPill: {
 		borderRadius: theme.radius.pill,
