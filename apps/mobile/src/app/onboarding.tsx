@@ -191,6 +191,14 @@ export default function WelcomeScreen() {
 					Template
 				</Text>
 			</Animated.View>
+			<View style={styles.logoZone}>
+				<Animated.Image
+					entering={FadeIn.delay(1050).duration(550)}
+					resizeMode="contain"
+					source={require("../../assets/images/expo-forge-lockup.png")}
+					style={styles.logo}
+				/>
+			</View>
 			<View style={styles.collage}>
 				{DECK_BLOCKS.map((block, index) => (
 					<FloatingTile
@@ -199,14 +207,6 @@ export default function WelcomeScreen() {
 						key={`${block.top}-${block.left}`}
 					/>
 				))}
-			</View>
-			<View style={styles.logoZone}>
-				<Animated.Image
-					entering={FadeIn.delay(1050).duration(550)}
-					resizeMode="contain"
-					source={require("../../assets/images/expo-forge-lockup.png")}
-					style={styles.logo}
-				/>
 			</View>
 			<Animated.View
 				entering={FadeIn.delay(1250).duration(550)}
@@ -309,7 +309,7 @@ const styles = StyleSheet.create((theme) => ({
 		alignItems: "center",
 		flex: 0.5,
 		justifyContent: "center",
-		paddingBottom: theme.gap(7),
+		paddingTop: theme.gap(7),
 	},
 	logo: {
 		height: 58,
