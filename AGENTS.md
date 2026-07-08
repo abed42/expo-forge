@@ -10,6 +10,15 @@ Production-grade template for Expo apps. Bun workspaces + Turborepo monorepo. On
 - App: `cd apps/mobile && bun ios` / `bun android` — development builds only; this template does not run in Expo Go (native deps: Unistyles/Nitro, ClerkKit, Sentry, RevenueCat).
 - CLI: `bunx tsup` builds `scripts/index.ts` → `dist/index.js`. Test locally: `node dist/index.js init test-app --template <this-repo-path> --yes ...` (see `--help` for non-interactive flags).
 
+## Using this CLI as an agent
+
+For agents inside this template repo exercising the scaffold flow end-to-end (this section is stripped from scaffolded apps):
+
+- Build first (`bunx tsup`), then run from a temp dir (the scaffold lands in cwd): `node dist/index.js init test-app --template <this-repo-path> --json --skip-optional`. Note: the local-template path clones committed HEAD — commit before testing template-content changes.
+- `--json` implies non-interactive: no prompts, no clack UI; missing keys become `"skipped"`. The last line of stdout is exactly one JSON object — `{ ok, appName, directory, bundleId, keys, installed, pendingSteps }` on success, `{ ok: false, error, failedStep }` + exit 1 on failure. Warnings go to stderr.
+- `pendingSteps` entries with `agentRunnable: false` are browser-auth/human steps (`clerk auth login`, `supabase login`, `eas init`, dashboard wiring) — relay them to your user; don't attempt them.
+- Every scaffold also gets `NEXT_STEPS.md` (human-readable pendingSteps, grouped human-vs-agent) and a rewritten `AGENTS.md` via `scripts/scaffold-agents.ts` — anchor-exact string surgery like `scripts/vendors.ts` removalEdits. If you edit this file's title, intro paragraph, the CLI bullet above, the pins intro line, or the "Do not touch" section, update the matching anchors in `scripts/scaffold-agents.ts` or the transform will warn and skip.
+
 ## Version pins — read before touching any dependency
 
 `tooling/pins.json` is the single source for native-coupled versions. Non-negotiable pins with reasons:
