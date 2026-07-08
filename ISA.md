@@ -89,7 +89,7 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [x] ISC-30: every package has keys.ts (Zod schema) consumed by app env composition
 
 ### CLI (create-expo-forge)
-- [ ] ISC-31: npm name create-expo-forge published (placeholder ok early to claim)
+- [x] ISC-31: npm name create-expo-forge published (placeholder ok early to claim)
 - [ ] ISC-32: init wizard prompts generated from package keys.ts schemas with live validation
 - [ ] ISC-33: optional services: skip (blank env) or remove (package + dep + env entry stripped)
 - [ ] ISC-34: --skip-env and non-interactive flags work
@@ -171,3 +171,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 
 - ISC-48/49 verified (commit 20d1d89): accessToken client + useSupabase hook (tsc 0), RLS-on-sub migration 0002, svix-verified edge function. ISC-50 [DEFERRED-VERIFY]: needs dashboard setup + function deploy — probe query in packages/backend/supabase/functions/clerk-webhook/README.md.
 - 2026-07-07: Clerk Native API enabled by user (dashboard). Deferred to pre-launch checklist: register iOS app (Team ID + bundle id, AASA) and SSO redirect allowlist (expoforge:// scheme) on Clerk's Native applications page — required for native Apple sign-in/passkeys and locked-down OAuth redirects in production.
+- ISC-31 [x] LIVE PROBE: create-expo-forge@0.0.1 published 2026-07-08T05:32Z by abed42; `bunx create-expo-forge` resolves and prints the CLI banner (verified from a scratch dir).
