@@ -25,7 +25,7 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
 const DECK_BLOCKS = [
 	{
-		top: "32%",
+		top: "44%",
 		left: "4%",
 		width: 110,
 		height: 157,
@@ -33,7 +33,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "10%",
+		top: "22%",
 		left: "26%",
 		width: 124,
 		height: 155,
@@ -41,7 +41,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "16%",
+		top: "28%",
 		left: "48%",
 		width: 114,
 		height: 152,
@@ -49,7 +49,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "34%",
+		top: "46%",
 		left: "66%",
 		width: 114,
 		height: 152,
