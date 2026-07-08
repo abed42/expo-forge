@@ -3,7 +3,7 @@ task: Build expo-forge — production-grade Expo template (next-forge philosophy
 project: expo-forge
 effort: E3
 phase: build
-progress: 32/52
+progress: 35/52
 mode: standard
 started: 2026-07-07T14:00:00Z
 updated: 2026-07-07T15:30:00Z
@@ -160,11 +160,13 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 
 ### Auth parity with next-forge (added 2026-07-07, user directive: "do as much as next-forge")
 - [ ] ISC-47: sign-in/sign-up screens packaged as @repo/auth RN components (app routes become thin wrappers)
-- [ ] ISC-48: Supabase third-party auth with Clerk — client accessToken getter passes Clerk JWT; RLS policies key on Clerk user id
-- [ ] ISC-49: Clerk webhook -> Supabase Edge Function (svix-verified) syncing user creation/update/deletion
+- [x] ISC-48: Supabase third-party auth with Clerk — client accessToken getter passes Clerk JWT; RLS policies key on Clerk user id
+- [x] ISC-49: Clerk webhook -> Supabase Edge Function (svix-verified) syncing user creation/update/deletion
 - [ ] ISC-50: profiles row exists after first sign-up (probe: SELECT by clerk user id)
 - [ ] ISC-51: profile tab shows user identity + working sign-out
 - [ ] ISC-52: Anti: CLERK_SECRET_KEY never appears in any client env file or bundle
 - ISC-35 (live probe, partial): simctl screenshot 2026-07-07 17:34 — onboarding renders per Cosmos ref on iPhone 17 Pro sim (tagline/collage/wordmark/ToS/pill Start). Full [x] after user completes email-code flow to tabs.
 - 2026-07-07: Onboarding collage uses 6 images from cdn.cosmos.so (downloaded into assets/images/onboarding/). PRE-LAUNCH BLOCKER: these belong to their original creators via Cosmos — fine for private dev, must be replaced with neutral/licensed placeholder imagery before the template goes public. Same class as the Expo-wordmark trademark check.
 - ISC-35 FULL PASS: user completed Google SSO on simulator, landed on native tabs (screenshot 18:28). Clerk user created.
+
+- ISC-48/49 verified (commit 20d1d89): accessToken client + useSupabase hook (tsc 0), RLS-on-sub migration 0002, svix-verified edge function. ISC-50 [DEFERRED-VERIFY]: needs dashboard setup + function deploy — probe query in packages/backend/supabase/functions/clerk-webhook/README.md.
