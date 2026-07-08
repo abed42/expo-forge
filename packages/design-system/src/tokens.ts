@@ -32,22 +32,30 @@ const shared = {
 	},
 } as const;
 
+// Neutral scale from the brand theme (oklch base-* converted to sRGB hex);
+// accent is the brand vermilion scale (oklch accent-*).
 const lightColors = {
-	ink: "#111111",
+	ink: "#0A0A0A",
 	surface: "#FFFFFF",
-	secondary: "#8A8A8E",
-	fill: "#F2F2F2",
+	secondary: "#737373",
+	fill: "#F5F5F5",
 	border: "rgba(0, 0, 0, 0.08)",
 	onInk: "#FFFFFF",
+	accent: "#D63201",
+	accentSoft: "#FFEBE5",
+	onAccentSoft: "#9E2500",
 } as const;
 
 const darkColors = {
 	ink: "#F5F5F5",
-	surface: "#0B0B0B",
-	secondary: lightColors.secondary,
-	fill: "#1C1C1E",
+	surface: "#0A0A0A",
+	secondary: "#A1A1A1",
+	fill: "#262626",
 	border: "rgba(255, 255, 255, 0.10)",
-	onInk: lightColors.ink,
+	onInk: "#0A0A0A",
+	accent: "#FF6A3D",
+	accentSoft: "#330C00",
+	onAccentSoft: "#FF8E6B",
 } as const;
 
 export const lightTheme = {
