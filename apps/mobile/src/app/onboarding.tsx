@@ -50,9 +50,9 @@ const DECK_BLOCKS = [
 	},
 	{
 		top: "34%",
-		left: "68%",
-		width: 100,
-		height: 145,
+		left: "66%",
+		width: 114,
+		height: 152,
 		rotate: "16deg",
 		source: require("../../assets/images/onboarding/collage-8.png"),
 	},
