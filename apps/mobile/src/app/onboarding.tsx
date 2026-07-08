@@ -60,21 +60,25 @@ const DECK_BLOCKS = [
 const PLATFORM_ICONS = [
 	{
 		key: "apple",
+		mono: true,
 		rotate: "-8deg",
 		source: require("../../assets/images/icons/apple.png"),
 	},
 	{
 		key: "android",
+		mono: false,
 		rotate: "6deg",
 		source: require("../../assets/images/icons/android.png"),
 	},
 	{
 		key: "expo",
+		mono: true,
 		rotate: "-5deg",
 		source: require("../../assets/images/icons/expo.png"),
 	},
 	{
 		key: "react",
+		mono: false,
 		rotate: "9deg",
 		source: require("../../assets/images/icons/react.png"),
 	},
@@ -183,7 +187,13 @@ export default function WelcomeScreen() {
 									},
 								]}
 							>
-								<Image source={icon.source} style={styles.chipIcon} />
+								<Image
+									source={icon.source}
+									style={[
+										styles.chipIcon,
+										icon.mono ? styles.chipIconMono : null,
+									]}
+								/>
 							</View>
 						))}
 					</View>{" "}
@@ -268,7 +278,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	chip: {
 		alignItems: "center",
-		backgroundColor: theme.colors.surface,
+		backgroundColor: theme.colors.fill,
 		borderColor: theme.colors.border,
 		borderRadius: 9,
 		borderWidth: 0.5,
@@ -283,6 +293,9 @@ const styles = StyleSheet.create((theme) => ({
 	chipIcon: {
 		height: 18,
 		width: 18,
+	},
+	chipIconMono: {
+		tintColor: theme.colors.ink,
 	},
 	tagline: {
 		...theme.type.title,
