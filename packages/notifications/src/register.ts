@@ -32,6 +32,17 @@ export async function registerForPush(): Promise<string | null> {
 		return null;
 	}
 
+	// Check configuration before prompting: without an EAS projectId the
+	// registration can never succeed, so don't show a permission dialog.
+	const projectId = getProjectId();
+
+	if (!projectId) {
+		console.warn(
+			"[@repo/notifications] Push registration skipped because no EAS projectId is configured.",
+		);
+		return null;
+	}
+
 	if (Platform.OS === "android") {
 		await Notifications.setNotificationChannelAsync(
 			ANDROID_DEFAULT_CHANNEL_ID,
@@ -53,15 +64,6 @@ export async function registerForPush(): Promise<string | null> {
 	if (finalStatus !== "granted") {
 		console.info(
 			"[@repo/notifications] Push registration skipped because notification permissions were not granted.",
-		);
-		return null;
-	}
-
-	const projectId = getProjectId();
-
-	if (!projectId) {
-		console.warn(
-			"[@repo/notifications] Push registration skipped because no EAS projectId is configured.",
 		);
 		return null;
 	}
