@@ -12,7 +12,9 @@
 	"dependencies": {
 		"@clerk/expo": "^3.7.0",
 		"@repo/env": "workspace:*",
+		"expo-auth-session": "~57.0.1",
 		"expo-secure-store": "~57.0.0",
+		"expo-web-browser": "~57.0.0",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
