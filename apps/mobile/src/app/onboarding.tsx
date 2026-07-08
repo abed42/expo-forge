@@ -1,5 +1,6 @@
 import { useSSO } from "@repo/auth";
 import * as AuthSession from "expo-auth-session";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
@@ -17,6 +18,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
 WebBrowser.maybeCompleteAuthSession();
+
+// Gate required: some iOS 26 builds lack the API and crash without it.
+const canUseGlass = isLiquidGlassAvailable();
 
 type SSOStrategy = "oauth_apple" | "oauth_google";
 
@@ -171,21 +175,26 @@ export default function WelcomeScreen() {
 				<Text style={styles.tagline}>
 					Production grade{"\n"}Expo{" "}
 					<View style={styles.chipCluster}>
-						{PLATFORM_ICONS.map((icon, index) => (
-							<View
-								key={icon.key}
-								style={[
-									styles.chip,
-									{
-										marginLeft: index === 0 ? 0 : -7,
-										transform: [{ rotate: icon.rotate }],
-										zIndex: PLATFORM_ICONS.length - index,
-									},
-								]}
-							>
-								<Image source={icon.source} style={styles.chipIcon} />
-							</View>
-						))}
+						{PLATFORM_ICONS.map((icon, index) => {
+							const placement = {
+								marginLeft: index === 0 ? 0 : -7,
+								transform: [{ rotate: icon.rotate }],
+								zIndex: PLATFORM_ICONS.length - index,
+							};
+							return canUseGlass ? (
+								<GlassView
+									glassEffectStyle="regular"
+									key={icon.key}
+									style={[styles.chipGlass, placement]}
+								>
+									<Image source={icon.source} style={styles.chipIcon} />
+								</GlassView>
+							) : (
+								<View key={icon.key} style={[styles.chip, placement]}>
+									<Image source={icon.source} style={styles.chipIcon} />
+								</View>
+							);
+						})}
 					</View>{" "}
 					Template
 				</Text>
@@ -277,6 +286,14 @@ const styles = StyleSheet.create((theme) => ({
 		shadowOffset: { height: 1, width: 0 },
 		shadowOpacity: 0.07,
 		shadowRadius: 2.5,
+		width: 30,
+	},
+	chipGlass: {
+		alignItems: "center",
+		borderRadius: 9,
+		height: 30,
+		justifyContent: "center",
+		overflow: "hidden",
 		width: 30,
 	},
 	chipIcon: {
