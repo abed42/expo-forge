@@ -1,12 +1,13 @@
 import { useAuth, useUser } from "@repo/auth";
 import { Skeleton } from "@repo/design-system";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
 
 type Row = {
 	label: string;
 	value?: string | null;
 	verified?: boolean;
+	onPress?: () => void;
 };
 
 type Section = {
@@ -25,12 +26,37 @@ export default function ProfileScreen() {
 		(account) => account.provider === "google",
 	);
 
+	const editUsername = () => {
+		// iOS-only prompt is fine for the iOS-first template; Android gets a
+		// dedicated edit screen when the demo grows one.
+		Alert.prompt(
+			"Set username",
+			"Requires the Username attribute to be enabled in your Clerk dashboard.",
+			async (value) => {
+				const username = value?.trim();
+				if (!(username && user)) {
+					return;
+				}
+				try {
+					await user.update({ username });
+				} catch (updateError) {
+					const message =
+						(updateError as { errors?: Array<{ message?: string }> })
+							?.errors?.[0]?.message ?? "Could not update username.";
+					Alert.alert("Username", message);
+				}
+			},
+			"plain-text",
+			user?.username ?? "",
+		);
+	};
+
 	const sections: Section[] = [
 		{
 			title: "Account",
 			rows: [
 				{ label: "Name", value: user?.fullName },
-				{ label: "Username", value: user?.username },
+				{ label: "Username", value: user?.username, onPress: editUsername },
 				{
 					label: "Email",
 					value: user?.primaryEmailAddress?.emailAddress,
@@ -109,9 +135,15 @@ export default function ProfileScreen() {
 					<Text style={styles.sectionTitle}>{section.title}</Text>
 					<View>
 						{section.rows.map((row, index) => (
-							<View
+							<Pressable
+								disabled={!row.onPress}
 								key={row.label}
-								style={[styles.row, index > 0 ? styles.rowBorder : null]}
+								onPress={row.onPress}
+								style={({ pressed }) => [
+									styles.row,
+									index > 0 ? styles.rowBorder : null,
+									pressed && row.onPress ? styles.rowPressed : null,
+								]}
 							>
 								<Text style={styles.rowLabel}>{row.label}</Text>
 								<View style={styles.rowRight}>
@@ -130,7 +162,7 @@ export default function ProfileScreen() {
 										<Skeleton width={110} />
 									)}
 								</View>
-							</View>
+							</Pressable>
 						))}
 					</View>
 				</View>
@@ -203,6 +235,9 @@ const styles = StyleSheet.create((theme) => ({
 		gap: theme.gap(2),
 		justifyContent: "space-between",
 		minHeight: 48,
+	},
+	rowPressed: {
+		opacity: 0.6,
 	},
 	rowBorder: {
 		borderTopColor: theme.colors.border,
