@@ -15,7 +15,7 @@
 
 expo-forge is a production-grade template for [Expo](https://expo.dev) apps. It's designed to be a comprehensive starting point for building mobile applications, providing a solid, opinionated foundation with minimal configuration required.
 
-Modeled on [next-forge](https://github.com/vercel/next-forge), expo-forge brings the same philosophy to native mobile: balance speed and quality to help you ship thoroughly-built products faster.
+Modeled on [Hayden Bleasel](https://github.com/haydenbleasel)'s [next-forge](https://github.com/vercel/next-forge), expo-forge brings the same philosophy to native mobile: balance speed and quality to help you ship thoroughly-built products faster.
 
 expo-forge is an independent community template and is not affiliated with Expo. Expo is a trademark of 650 Industries.
 
