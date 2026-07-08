@@ -1,6 +1,12 @@
-# expo-forge
+# ∧ / expo-forge
 
 **Production-grade Turborepo template for Expo apps.**
+
+<div>
+  <img src="https://img.shields.io/npm/dy/create-expo-forge" alt="" />
+  <img src="https://img.shields.io/npm/v/create-expo-forge" alt="" />
+  <img src="https://img.shields.io/github/license/abed42/expo-forge" alt="" />
+</div>
 
 ## Overview
 
@@ -23,6 +29,13 @@ expo-forge is built around five core principles:
 ## Status
 
 expo-forge is a work in progress. The template itself builds and runs today; the `create-expo-forge` CLI is not yet published to npm. Until then, clone the repository directly. (The bare `expo-forge` npm name belongs to an unrelated package — the package will ship as `create-expo-forge`, installed via `bun create expo-forge`.)
+
+## Screenshots
+
+<div>
+  <img src=".github/assets/home.png" width="280" alt="Home feed" />
+  <img src=".github/assets/home-scrolled.png" width="280" alt="Liquid glass header over content" />
+</div>
 
 ## Features
 
