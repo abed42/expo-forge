@@ -11,6 +11,7 @@
 		"lint": "biome check ."
 	},
 	"dependencies": {
+		"@expo/ui": "~57.0.3",
 		"@repo/analytics": "workspace:*",
 		"@repo/auth": "workspace:*",
 		"@repo/backend": "workspace:*",
