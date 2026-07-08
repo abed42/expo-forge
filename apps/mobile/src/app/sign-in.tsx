@@ -1,11 +1,16 @@
-import { useSignIn, useSignUp } from "@repo/auth";
+import { useSignIn, useSignUp, useSSO } from "@repo/auth";
 import { Button } from "@repo/design-system";
+import * as AuthSession from "expo-auth-session";
+import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
+WebBrowser.maybeCompleteAuthSession();
+
 type Phase = "email" | "code";
+type SSOStrategy = "oauth_apple" | "oauth_google";
 type Mode = "signIn" | "signUp";
 
 // Combined email-code sign-in/sign-up on Clerk's Core 3 result-object API:
@@ -15,6 +20,7 @@ type Mode = "signIn" | "signUp";
 export default function SignInScreen() {
 	const { signIn } = useSignIn();
 	const { signUp } = useSignUp();
+	const { startSSOFlow } = useSSO();
 	const [phase, setPhase] = useState<Phase>("email");
 	const [mode, setMode] = useState<Mode>("signIn");
 	const [email, setEmail] = useState("");
@@ -54,6 +60,32 @@ export default function SignInScreen() {
 		setBusy(false);
 	};
 
+	const continueWithSSO = async (strategy: SSOStrategy) => {
+		if (busy) {
+			return;
+		}
+		setBusy(true);
+		setError(null);
+		try {
+			const { createdSessionId, setActive } = await startSSOFlow({
+				strategy,
+				redirectUrl: AuthSession.makeRedirectUri(),
+			});
+			if (createdSessionId && setActive) {
+				await setActive({ session: createdSessionId });
+			} else {
+				setError(
+					"This account needs extra steps — continue with email instead.",
+				);
+			}
+		} catch (ssoError) {
+			console.error("[auth] SSO failed:", JSON.stringify(ssoError));
+			setError("Could not complete sign-in. Try again.");
+		} finally {
+			setBusy(false);
+		}
+	};
+
 	const verifyCode = async () => {
 		if (!(signIn && signUp) || busy) {
 			return;
@@ -68,8 +100,9 @@ export default function SignInScreen() {
 		// A consumed verification ("already been verified") means the code was
 		// accepted on a prior attempt — proceed to finalize instead of dead-ending.
 		const alreadyVerified =
-			verified.error?.message?.toLowerCase().includes("already been verified") ??
-			false;
+			verified.error?.message
+				?.toLowerCase()
+				.includes("already been verified") ?? false;
 		if (verified.error && !alreadyVerified) {
 			console.error("[auth] verify failed:", JSON.stringify(verified.error));
 			setError(verified.error.message ?? "That code didn't work.");
@@ -116,14 +149,25 @@ export default function SignInScreen() {
 						/>
 						<Pressable
 							accessibilityRole="button"
-							onPress={() =>
-								setError(
-									"Apple SSO ships with the SSO phase — enable the provider in your Clerk dashboard first.",
-								)
-							}
-							style={styles.secondaryButton}
+							disabled={busy}
+							onPress={() => continueWithSSO("oauth_apple")}
+							style={({ pressed }) => [
+								styles.ssoButton,
+								pressed ? styles.ssoButtonPressed : null,
+							]}
 						>
-							<Text style={styles.secondaryLabel}>Continue with Apple</Text>
+							<Text style={styles.ssoLabel}>Continue with Apple</Text>
+						</Pressable>
+						<Pressable
+							accessibilityRole="button"
+							disabled={busy}
+							onPress={() => continueWithSSO("oauth_google")}
+							style={({ pressed }) => [
+								styles.ssoButton,
+								pressed ? styles.ssoButtonPressed : null,
+							]}
+						>
+							<Text style={styles.ssoLabel}>Continue with Google</Text>
 						</Pressable>
 					</>
 				) : (
@@ -202,6 +246,22 @@ const styles = StyleSheet.create((theme) => ({
 		alignItems: "center",
 		justifyContent: "center",
 		minHeight: 44,
+	},
+	ssoButton: {
+		alignItems: "center",
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.pill,
+		justifyContent: "center",
+		minHeight: 48,
+		paddingHorizontal: theme.gap(3),
+	},
+	ssoButtonPressed: {
+		opacity: 0.85,
+	},
+	ssoLabel: {
+		...theme.type.body,
+		color: theme.colors.ink,
+		fontWeight: "600",
 	},
 	secondaryLabel: {
 		...theme.type.body,
