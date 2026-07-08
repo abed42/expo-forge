@@ -174,7 +174,7 @@ export default function WelcomeScreen() {
 		<SafeAreaView style={styles.screen}>
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
 				<Text style={styles.tagline}>
-					Production grade{"\n"}React Native / Expo Template
+					Production grade{"\n"}Expo Template
 				</Text>
 			</Animated.View>
 			<View style={styles.collage}>
