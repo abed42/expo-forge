@@ -1,5 +1,5 @@
 import * as Updates from "expo-updates";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 declare const __DEV__: boolean;
 
@@ -10,6 +10,11 @@ export type UpdateStatus =
 	| "downloading"
 	| "ready"
 	| "error";
+
+export type UpdateStatusSink = {
+	setStatus(status: UpdateStatus): void;
+	setError(error: Error | null): void;
+};
 
 export type UseUpdateStatusResult = {
 	status: UpdateStatus;
@@ -30,63 +35,87 @@ export function runtimeVersion(): string | null {
 	return Updates.runtimeVersion ?? null;
 }
 
+/**
+ * Core check → fetch state machine behind `useUpdateStatus`.
+ * Exported so the logic can be exercised outside of a React renderer.
+ */
+export async function runUpdateCheck(
+	sink: UpdateStatusSink,
+	isDev: boolean,
+): Promise<void> {
+	if (isDev || !Updates.isEnabled) {
+		sink.setStatus("idle");
+		sink.setError(null);
+		return;
+	}
+
+	try {
+		sink.setError(null);
+		sink.setStatus("checking");
+
+		const update = await Updates.checkForUpdateAsync();
+
+		if (!update.isAvailable) {
+			sink.setStatus("idle");
+			return;
+		}
+
+		sink.setStatus("available");
+		sink.setStatus("downloading");
+		await Updates.fetchUpdateAsync();
+		sink.setStatus("ready");
+	} catch (error: unknown) {
+		sink.setError(
+			createError(
+				error,
+				"[@repo/updates] Failed to check for or fetch an update",
+			),
+		);
+		sink.setStatus("error");
+	}
+}
+
+/**
+ * Core reload routine behind `useUpdateStatus`.
+ * Exported so the logic can be exercised outside of a React renderer.
+ */
+export async function runReload(
+	sink: UpdateStatusSink,
+	isDev: boolean,
+): Promise<void> {
+	if (isDev || !Updates.isEnabled) {
+		sink.setStatus("idle");
+		sink.setError(null);
+		return;
+	}
+
+	try {
+		sink.setError(null);
+		await Updates.reloadAsync();
+	} catch (error: unknown) {
+		sink.setError(
+			createError(
+				error,
+				"[@repo/updates] Failed to reload the app after an update",
+			),
+		);
+		sink.setStatus("error");
+	}
+}
+
 export function useUpdateStatus(): UseUpdateStatusResult {
 	const [status, setStatus] = useState<UpdateStatus>("idle");
 	const [error, setError] = useState<Error | null>(null);
 
-	async function check(): Promise<void> {
-		if (__DEV__ || !Updates.isEnabled) {
-			setStatus("idle");
-			setError(null);
-			return;
-		}
+	const check = useCallback(
+		() => runUpdateCheck({ setStatus, setError }, __DEV__),
+		[],
+	);
 
-		try {
-			setError(null);
-			setStatus("checking");
-
-			const update = await Updates.checkForUpdateAsync();
-
-			if (!update.isAvailable) {
-				setStatus("idle");
-				return;
-			}
-
-			setStatus("available");
-			setStatus("downloading");
-			await Updates.fetchUpdateAsync();
-			setStatus("ready");
-		} catch (error: unknown) {
-			const resolvedError = createError(
-				error,
-				"[@repo/updates] Failed to check for or fetch an update",
-			);
-
-			setError(resolvedError);
-			setStatus("error");
-		}
-	}
-
-	async function reload(): Promise<void> {
-		if (__DEV__ || !Updates.isEnabled) {
-			setStatus("idle");
-			setError(null);
-			return;
-		}
-
-		try {
-			setError(null);
-			await Updates.reloadAsync();
-		} catch (error: unknown) {
-			const resolvedError = createError(
-				error,
-				"[@repo/updates] Failed to reload the app after an update",
-			);
-
-			setError(resolvedError);
-			setStatus("error");
-		}
-	}
+	const reload = useCallback(
+		() => runReload({ setStatus, setError }, __DEV__),
+		[],
+	);
 
 	return {
 		status,

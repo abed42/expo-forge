@@ -6,6 +6,7 @@
 		"./use-update-status": "./src/use-update-status.ts"
 	},
 	"scripts": {
+		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
