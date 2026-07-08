@@ -54,7 +54,7 @@ export const buildPendingSteps = (
 				title: "Authenticate the Clerk CLI",
 				kind: "browser",
 				agentRunnable: false,
-				command: "clerk auth login",
+				command: "bunx clerk auth login",
 				url: "https://dashboard.clerk.com",
 				detail:
 					"Opens a browser for authentication — needs a human. Create the Clerk application at dashboard.clerk.com first if one doesn't exist yet.",
@@ -65,7 +65,7 @@ export const buildPendingSteps = (
 				kind: "terminal",
 				agentRunnable: true,
 				command:
-					"cd apps/mobile && clerk link --app <app_id> && clerk env pull",
+					"cd apps/mobile && bunx clerk link --app <app_id> && bunx clerk env pull",
 				detail:
 					"Writes EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY into apps/mobile/.env.local. WARNING: `clerk env pull` also writes CLERK_SECRET_KEY (it assumes a server app) — delete that line, secrets never live in the client env. Verify: `rg CLERK_SECRET_KEY apps/mobile/.env.local` must return no match.",
 			},
@@ -79,7 +79,7 @@ export const buildPendingSteps = (
 				title: "Authenticate the Supabase CLI",
 				kind: "browser",
 				agentRunnable: false,
-				command: "supabase login",
+				command: "bunx supabase login",
 				url: "https://supabase.com/dashboard",
 				detail:
 					"Opens a browser for authentication — needs a human. Create the Supabase project at supabase.com/dashboard first if one doesn't exist yet.",
@@ -90,7 +90,7 @@ export const buildPendingSteps = (
 				kind: "terminal",
 				agentRunnable: true,
 				command:
-					"cd packages/backend && supabase link --project-ref <ref> && supabase projects api-keys --project-ref <ref>",
+					"cd packages/backend && bunx supabase link --project-ref <ref> && bunx supabase projects api-keys --project-ref <ref>",
 				detail:
 					"Copy the sb_publishable_... key into EXPO_PUBLIC_SUPABASE_KEY and set EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co in apps/mobile/.env.local. (New projects issue sb_publishable_ keys; the legacy anon JWT is retired.)",
 			},
@@ -134,7 +134,7 @@ export const buildPendingSteps = (
 			agentRunnable: true,
 			command: "cd packages/backend && supabase db push",
 			detail:
-				"Applies the template migrations (profiles + RLS, demo feed). Requires the project to be linked first (`supabase link`).",
+				"Applies the template migrations (profiles + RLS, demo feed). Requires the project to be linked first (`bunx supabase link`). All CLI steps use `bunx` so nothing needs global installation; `bun add -g clerk` / `brew install supabase/tap/supabase` are optional.",
 		},
 		{
 			id: "eas-init",
@@ -199,6 +199,11 @@ export const renderNextSteps = (
 		"steps that need a human in a browser (interactive auth), and steps a coding",
 		"agent — or you — can run in a terminal or editor. Machine-readable version:",
 		"re-run the wizard with `--json`.",
+		"",
+		"**If you are a coding agent** (Claude Code, Codex, Cursor, opencode, …):",
+		"execute the Agent / terminal steps yourself — every command works without",
+		"global installs (CLIs run via `bunx`) — and relay the browser steps to your",
+		"user one at a time, waiting for confirmation before continuing.",
 		"",
 		"## You (browser)",
 		"",
