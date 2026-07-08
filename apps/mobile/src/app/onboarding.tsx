@@ -210,9 +210,9 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	logo: {
 		alignSelf: "center",
-		height: 40,
+		height: 46,
 		tintColor: theme.colors.ink,
-		width: 185,
+		width: 212,
 	},
 	footer: {
 		alignSelf: "stretch",
