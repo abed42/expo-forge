@@ -3,7 +3,14 @@ import { Button, IconButton } from "@repo/design-system";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
-import { Image, Pressable, Text, TextInput, View } from "react-native";
+import {
+	Image,
+	KeyboardAvoidingView,
+	Pressable,
+	Text,
+	TextInput,
+	View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
@@ -93,80 +100,82 @@ export default function SignInScreen() {
 
 	return (
 		<SafeAreaView style={styles.screen}>
-			<View style={styles.header}>
-				<IconButton
-					accessibilityLabel="Back"
-					glass
-					onPress={() => router.back()}
-				>
-					<SymbolView
-						name="chevron.left"
-						size={17}
-						tintColor={theme.colors.ink}
+			<KeyboardAvoidingView behavior="padding" style={styles.avoider}>
+				<View style={styles.header}>
+					<IconButton
+						accessibilityLabel="Back"
+						glass
+						onPress={() => router.back()}
+					>
+						<SymbolView
+							name="chevron.left"
+							size={17}
+							tintColor={theme.colors.ink}
+						/>
+					</IconButton>
+				</View>
+				<View style={styles.hero}>
+					<Text style={styles.title}>Welcome</Text>
+					<Image
+						resizeMode="contain"
+						source={require("../../assets/images/expo-forge-lockup.png")}
+						style={styles.logo}
 					/>
-				</IconButton>
-			</View>
-			<View style={styles.hero}>
-				<Text style={styles.title}>Welcome</Text>
-				<Image
-					resizeMode="contain"
-					source={require("../../assets/images/expo-forge-lockup.png")}
-					style={styles.logo}
-				/>
-				<Text style={styles.subtitle}>
-					{phase === "email"
-						? "Sign in to sync your collections across devices."
-						: `Enter the code we sent to ${email}.`}
-				</Text>
-				{error ? <Text style={styles.error}>{error}</Text> : null}
-			</View>
-			<View style={styles.actions}>
-				{phase === "email" ? (
-					<>
-						<TextInput
-							autoCapitalize="none"
-							autoComplete="email"
-							inputMode="email"
-							onChangeText={setEmail}
-							placeholder="you@example.com"
-							style={styles.input}
-							value={email}
-						/>
-						<Button
-							disabled={busy || email.length === 0}
-							label={busy ? "Sending code…" : "Continue with Email"}
-							onPress={continueWithEmail}
-						/>
-					</>
-				) : (
-					<>
-						<TextInput
-							autoComplete="one-time-code"
-							inputMode="numeric"
-							onChangeText={setCode}
-							placeholder="123456"
-							style={styles.input}
-							value={code}
-						/>
-						<Button
-							disabled={busy || code.length === 0}
-							label={busy ? "Verifying…" : "Verify"}
-							onPress={verifyCode}
-						/>
-						<Pressable
-							accessibilityRole="button"
-							onPress={() => {
-								setPhase("email");
-								setCode("");
-								setError(null);
-							}}
-							style={styles.secondaryButton}
-						>
-							<Text style={styles.secondaryLabel}>Use a different email</Text>
-						</Pressable>
-					</>
-				)}
-			</View>
+					<Text style={styles.subtitle}>
+						{phase === "email"
+							? "Sign in to sync your collections across devices."
+							: `Enter the code we sent to ${email}.`}
+					</Text>
+					{error ? <Text style={styles.error}>{error}</Text> : null}
+				</View>
+				<View style={styles.actions}>
+					{phase === "email" ? (
+						<>
+							<TextInput
+								autoCapitalize="none"
+								autoComplete="email"
+								inputMode="email"
+								onChangeText={setEmail}
+								placeholder="you@example.com"
+								style={styles.input}
+								value={email}
+							/>
+							<Button
+								disabled={busy || email.length === 0}
+								label={busy ? "Sending code…" : "Continue with Email"}
+								onPress={continueWithEmail}
+							/>
+						</>
+					) : (
+						<>
+							<TextInput
+								autoComplete="one-time-code"
+								inputMode="numeric"
+								onChangeText={setCode}
+								placeholder="123456"
+								style={styles.input}
+								value={code}
+							/>
+							<Button
+								disabled={busy || code.length === 0}
+								label={busy ? "Verifying…" : "Verify"}
+								onPress={verifyCode}
+							/>
+							<Pressable
+								accessibilityRole="button"
+								onPress={() => {
+									setPhase("email");
+									setCode("");
+									setError(null);
+								}}
+								style={styles.secondaryButton}
+							>
+								<Text style={styles.secondaryLabel}>Use a different email</Text>
+							</Pressable>
+						</>
+					)}
+				</View>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 }
@@ -176,6 +185,9 @@ const styles = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.surface,
 		flex: 1,
 		paddingHorizontal: theme.gap(3),
+	},
+	avoider: {
+		flex: 1,
 	},
 	header: {
 		alignItems: "flex-start",

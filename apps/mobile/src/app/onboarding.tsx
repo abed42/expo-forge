@@ -156,9 +156,8 @@ export default function WelcomeScreen() {
 			});
 			if (createdSessionId && setActive) {
 				await setActive({ session: createdSessionId });
-			} else {
-				setError("This account needs extra steps — continue with email.");
 			}
+			// A dismissed/incomplete SSO sheet is not an error — stay quiet.
 		} catch (ssoError) {
 			console.error("[auth] SSO failed:", JSON.stringify(ssoError));
 			setError("Could not complete sign-in. Try again.");
