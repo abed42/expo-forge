@@ -4,6 +4,12 @@ import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Image, View } from "react-native";
+import Animated, {
+	interpolate,
+	useAnimatedScrollHandler,
+	useAnimatedStyle,
+	useSharedValue,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
@@ -17,6 +23,10 @@ const HEADER_CONTENT_HEIGHT = 60;
 // header floats on liquid glass; the feed scrolls underneath it.
 const SKELETON_ITEMS = [0, 1, 2];
 
+const AnimatedFlashList = Animated.createAnimatedComponent(
+	FlashList,
+) as unknown as typeof FlashList;
+
 function FeedSeparator() {
 	return <View style={styles.separator} />;
 }
@@ -27,6 +37,17 @@ export default function HomeScreen() {
 	const insets = useSafeAreaInsets();
 
 	const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
+	const scrollY = useSharedValue(0);
+
+	const onScroll = useAnimatedScrollHandler((event) => {
+		scrollY.value = event.contentOffset.y;
+	});
+
+	// Header material fades in over the first 32pt of scroll — at rest the
+	// bar is invisible and the screen reads as one clean surface.
+	const materialStyle = useAnimatedStyle(() => ({
+		opacity: interpolate(scrollY.value, [0, 32], [0, 1], "clamp"),
+	}));
 
 	const headerContent = (
 		<View style={[styles.headerRow, { marginTop: insets.top }]}>
@@ -50,7 +71,9 @@ export default function HomeScreen() {
 
 	return (
 		<View style={styles.screen}>
-			<FlashList
+			<AnimatedFlashList
+				onScroll={onScroll}
+				scrollEventThrottle={16}
 				contentContainerStyle={{
 					paddingBottom: theme.gap(14),
 					paddingHorizontal: theme.gap(3),
@@ -72,24 +95,16 @@ export default function HomeScreen() {
 				)}
 				showsVerticalScrollIndicator={false}
 			/>
-			{canUseGlass ? (
-				<GlassView
-					glassEffectStyle="regular"
-					style={[styles.header, { height: headerHeight }]}
-				>
-					{headerContent}
-				</GlassView>
-			) : (
-				<View
-					style={[
-						styles.header,
-						styles.headerFallback,
-						{ height: headerHeight },
-					]}
-				>
-					{headerContent}
-				</View>
-			)}
+			<View style={[styles.header, { height: headerHeight }]}>
+				<Animated.View style={[styles.material, materialStyle]}>
+					{canUseGlass ? (
+						<GlassView glassEffectStyle="regular" style={styles.materialFill} />
+					) : (
+						<View style={[styles.materialFill, styles.headerFallback]} />
+					)}
+				</Animated.View>
+				{headerContent}
+			</View>
 		</View>
 	);
 }
@@ -104,6 +119,16 @@ const styles = StyleSheet.create((theme) => ({
 		position: "absolute",
 		right: 0,
 		top: 0,
+	},
+	material: {
+		bottom: 0,
+		left: 0,
+		position: "absolute",
+		right: 0,
+		top: 0,
+	},
+	materialFill: {
+		flex: 1,
 	},
 	headerFallback: {
 		backgroundColor: theme.colors.surface,
