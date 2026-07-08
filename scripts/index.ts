@@ -1,34 +1,54 @@
 #!/usr/bin/env node
-import { parseArgs } from "node:util";
+import { Command } from "commander";
+import { type InitOptions, initialize, templateUrl } from "./initialize";
 
 // next-forge pattern: this file compiles to dist/index.js and is the only
-// artifact published to npm. The template itself is fetched from GitHub at
+// artifact published to npm. The template itself is cloned from GitHub at
 // init time, never bundled.
 
-const HELP = `
-  ∧ expo-forge — production-grade template for Expo apps
+const withInitOptions = (command: Command): Command =>
+	command
+		.argument("[name]", "app name (kebab-case) — also the target directory")
+		.option("--name <name>", "app name (overrides the positional)")
+		.option(
+			"--bundle-id <id>",
+			"reverse-DNS bundle identifier (default: com.example.<name>)",
+		)
+		.option(
+			"--template <url-or-path>",
+			"template git URL or local path",
+			templateUrl,
+		)
+		.option("--clerk-key <key>", "Clerk publishable key (pk_...)")
+		.option("--supabase-url <url>", "Supabase project URL (https://...)")
+		.option("--supabase-key <key>", "Supabase publishable key")
+		.option(
+			"--skip-optional",
+			"skip optional vendors (PostHog, Sentry, RevenueCat) without prompting",
+		)
+		.option(
+			"--remove <vendors>",
+			"comma-separated optional vendors to strip out (posthog,sentry,revenuecat)",
+		)
+		.option(
+			"--yes",
+			"non-interactive: use flags and defaults, leave unanswered keys blank",
+		)
+		.action((name: string | undefined, _options: InitOptions, cmd: Command) => {
+			// optsWithGlobals: the root command defines the same flags as the
+			// `init` subcommand, and commander stores flags parsed after the
+			// subcommand name on the root — merge both.
+			const options = cmd.optsWithGlobals() as InitOptions;
+			return initialize({ ...options, name: options.name ?? name });
+		});
 
-  Usage:
-    bun create expo-forge [name]     scaffold a new app (coming soon)
-    create-expo-forge init [name]
+const program = new Command()
+	.name("create-expo-forge")
+	.description("∧ expo-forge — production-grade template for Expo apps");
 
-  The init wizard is under active development. Until it ships:
-    git clone https://github.com/abed42/expo-forge.git
+withInitOptions(program);
+withInitOptions(
+	program.command("init").description("Scaffold a new expo-forge app"),
+);
 
-  Docs: https://expo-forge.com
-`;
-
-function main() {
-	const { positionals } = parseArgs({ allowPositionals: true, strict: false });
-	const command = positionals[0];
-
-	if (command === "init") {
-		console.log(HELP);
-		console.log("  init is not implemented yet — watch the repo for v0.1.\n");
-		return;
-	}
-
-	console.log(HELP);
-}
-
-main();
+program.parse();
