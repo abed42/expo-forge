@@ -192,12 +192,6 @@ export default function WelcomeScreen() {
 				</Text>
 			</Animated.View>
 			<View style={styles.spacerTop} />
-			<Animated.Image
-				entering={FadeIn.delay(1050).duration(550)}
-				resizeMode="contain"
-				source={require("../../assets/images/expo-forge-lockup.png")}
-				style={styles.logo}
-			/>
 			<View style={styles.collage}>
 				{DECK_BLOCKS.map((block, index) => (
 					<FloatingTile
@@ -207,6 +201,12 @@ export default function WelcomeScreen() {
 					/>
 				))}
 			</View>
+			<Animated.Image
+				entering={FadeIn.delay(1050).duration(550)}
+				resizeMode="contain"
+				source={require("../../assets/images/expo-forge-lockup.png")}
+				style={styles.logo}
+			/>
 			<Animated.View
 				entering={FadeIn.delay(1250).duration(550)}
 				style={styles.footer}
