@@ -177,3 +177,5 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - ISC-41 (partial): vitest live across analytics/observability/payments (27 tests, 634934e) + notifications/updates (27 tests, 85a7e4a — 3 defects fixed incl. projectId-before-prompt). env/backend/auth wave in flight.
 - ISC-41 [x] substantially: 82 vitest tests green across all 8 packages (turbo test 8/8 successful). Defects fixed by the audit: composeEnv cross-schema cache footgun (env), projectId-check-after-prompt + unstable hook identities (notifications/updates). Remaining for full [x]: app-boundary tests per original criterion.
 - ISC-40 [x] (a452b30): ci.yml proven locally (turbo 18/18, 5s); first real Actions run triggered by this push. ISC-42 [x]: eas.json profiles existed; EAS Workflows pair added (dormant until eas init + EXPO_TOKEN).
+- ISC-28/29 [x] (4ad2c81): notifications + updates now demoed — Profile row with discriminated failure states (simulator/denied+Settings/eas-init), OTA ready banner with AppState-aware check. 83 tests green.
+- ISC-40 CONFIRMED on GitHub: two successful Actions runs (28922228384, 28922250720) — 29s cold / 18s cached.
