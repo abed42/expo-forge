@@ -25,7 +25,7 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
 const DECK_BLOCKS = [
 	{
-		top: "22%",
+		top: "38%",
 		left: "5%",
 		width: 112,
 		height: 160,
@@ -33,7 +33,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "8%",
+		top: "24%",
 		left: "28%",
 		width: 128,
 		height: 160,
@@ -41,7 +41,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "14%",
+		top: "30%",
 		left: "52%",
 		width: 122,
 		height: 163,
@@ -49,7 +49,7 @@ const DECK_BLOCKS = [
 		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "34%",
+		top: "50%",
 		left: "68%",
 		width: 98,
 		height: 98,
@@ -149,6 +149,7 @@ export default function WelcomeScreen() {
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
 				<Text style={styles.tagline}>Production grade{"\n"}Expo Template</Text>
 			</Animated.View>
+			<View style={styles.spacerTop} />
 			<Animated.Image
 				entering={FadeIn.delay(1050).duration(550)}
 				resizeMode="contain"
@@ -240,10 +241,12 @@ const styles = StyleSheet.create((theme) => ({
 		shadowOpacity: 0.16,
 		shadowRadius: 14,
 	},
+	spacerTop: {
+		flex: 0.3,
+	},
 	logo: {
 		alignSelf: "center",
 		height: 46,
-		marginTop: theme.gap(2),
 		tintColor: theme.colors.ink,
 		width: 212,
 	},
