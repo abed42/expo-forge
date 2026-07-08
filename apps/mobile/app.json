@@ -1,44 +1,45 @@
 {
-	"expo": {
-		"name": "Expo Forge",
-		"slug": "expo-forge-demo",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"scheme": "expoforge",
-		"userInterfaceStyle": "automatic",
-		"experiments": {
-			"typedRoutes": true,
-			"tsconfigPaths": true
-		},
-		"plugins": [
-			"@clerk/expo",
-			"expo-secure-store",
-			"expo-router",
-			"expo-system-ui",
-			[
-				"expo-build-properties",
-				{
-					"ios": {
-						"deploymentTarget": "17.0"
-					}
-				}
-			]
-		],
-		"ios": {
-			"bundleIdentifier": "com.stephanos62.expo-forge-demo",
-			"icon": {
-				"light": "./assets/images/icon/icon-light.png",
-				"dark": "./assets/images/icon/icon-dark.png",
-				"tinted": "./assets/images/icon/icon-tinted.png"
-			}
-		},
-		"icon": "./assets/images/icon/icon-light.png",
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/images/icon/icon-light.png",
-				"monochromeImage": "./assets/images/icon/icon-monochrome.png",
-				"backgroundColor": "#FFFFFF"
-			}
-		}
-	}
+  "expo": {
+    "name": "Expo Forge",
+    "slug": "expo-forge-demo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "expoforge",
+    "userInterfaceStyle": "automatic",
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    },
+    "plugins": [
+      "@clerk/expo",
+      "expo-secure-store",
+      "expo-router",
+      "expo-system-ui",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
+          }
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.stephanos62.expo-forge-demo",
+      "icon": {
+        "light": "./assets/images/icon/icon-light.png",
+        "dark": "./assets/images/icon/icon-dark.png",
+        "tinted": "./assets/images/icon/icon-tinted.png"
+      }
+    },
+    "icon": "./assets/images/icon/icon-light.png",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon/icon-light.png",
+        "monochromeImage": "./assets/images/icon/icon-monochrome.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.stephanos62.expoforgedemo"
+    }
+  }
 }
