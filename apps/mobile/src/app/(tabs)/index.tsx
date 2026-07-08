@@ -1,11 +1,12 @@
 import { Host, HStack, Image as SwiftImage } from "@expo/ui/swift-ui";
 import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { IconButton, Skeleton } from "@repo/design-system";
+import { sendTestNotification } from "@repo/notifications";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Image, Platform, Text, View } from "react-native";
+import { Alert, Image, Platform, Pressable, Text, View } from "react-native";
 import Animated, {
 	interpolate,
 	useAnimatedScrollHandler,
@@ -39,6 +40,35 @@ const AnimatedFlashList = Animated.createAnimatedComponent(
 
 function FeedSeparator() {
 	return <View style={styles.separator} />;
+}
+
+// Demo affordance: proves the notification pipeline end-to-end — tap, then a
+// real OS banner arrives ~2s later (works in the simulator; local, no push).
+function TestNotificationButton() {
+	const onPress = async () => {
+		const result = await sendTestNotification();
+		if (!result.ok) {
+			Alert.alert(
+				"Notifications",
+				result.reason === "denied"
+					? "Permission denied — enable notifications in Settings."
+					: "Could not schedule the test notification.",
+			);
+		}
+	};
+
+	return (
+		<Pressable
+			accessibilityRole="button"
+			onPress={onPress}
+			style={({ pressed }) => [
+				styles.testButton,
+				pressed ? styles.testButtonPressed : null,
+			]}
+		>
+			<Text style={styles.testButtonLabel}>Send test notification</Text>
+		</Pressable>
+	);
 }
 
 export default function HomeScreen() {
@@ -135,6 +165,7 @@ export default function HomeScreen() {
 				}}
 				data={listData}
 				ItemSeparatorComponent={FeedSeparator}
+				ListFooterComponent={TestNotificationButton}
 				keyExtractor={(item) =>
 					typeof item === "number" ? `skeleton-${item}` : item.id
 				}
@@ -248,6 +279,22 @@ const styles = StyleSheet.create((theme) => ({
 	titleRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
+	},
+	testButton: {
+		alignItems: "center",
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.pill,
+		justifyContent: "center",
+		marginTop: theme.gap(4),
+		minHeight: 48,
+	},
+	testButtonPressed: {
+		opacity: 0.8,
+	},
+	testButtonLabel: {
+		...theme.type.body,
+		color: theme.colors.ink,
+		fontWeight: "600",
 	},
 	itemTitle: {
 		...theme.type.body,
