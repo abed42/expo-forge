@@ -1,6 +1,6 @@
-import { Skeleton } from "@repo/design-system";
+import { IconButton, Skeleton } from "@repo/design-system";
 import { useRouter } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -17,17 +17,12 @@ export default function HomeScreen() {
 					source={require("../../../assets/images/expo-forge-lockup.png")}
 					style={styles.logo}
 				/>
-				<Pressable
-					accessibilityRole="button"
+				<IconButton
+					accessibilityLabel="Search"
 					onPress={() => router.push("/search")}
-					style={({ pressed }) => [
-						styles.searchBar,
-						pressed ? styles.searchBarPressed : null,
-					]}
 				>
 					<Text style={styles.searchGlyph}>{"⌕"}</Text>
-					<Text style={styles.searchLabel}>Search</Text>
-				</Pressable>
+				</IconButton>
 			</View>
 
 			<View style={styles.card} />
@@ -53,7 +48,7 @@ const styles = StyleSheet.create((theme) => ({
 	header: {
 		alignItems: "center",
 		flexDirection: "row",
-		gap: theme.gap(2),
+		justifyContent: "space-between",
 		marginBottom: theme.gap(1),
 	},
 	logo: {
@@ -61,26 +56,9 @@ const styles = StyleSheet.create((theme) => ({
 		tintColor: theme.colors.ink,
 		width: 120,
 	},
-	searchBar: {
-		alignItems: "center",
-		backgroundColor: theme.colors.fill,
-		borderRadius: theme.radius.pill,
-		flex: 1,
-		flexDirection: "row",
-		gap: theme.gap(1),
-		minHeight: 48,
-		paddingHorizontal: theme.gap(2.5),
-	},
-	searchBarPressed: {
-		opacity: 0.8,
-	},
 	searchGlyph: {
 		color: theme.colors.secondary,
 		fontSize: 26,
-	},
-	searchLabel: {
-		...theme.type.body,
-		color: theme.colors.secondary,
 	},
 	card: {
 		backgroundColor: theme.colors.fill,
