@@ -6,7 +6,7 @@ export type TestNotificationResult =
 
 let handlerInstalled = false;
 
-// Fires a real OS banner ~2s after the call — the demo proof that the
+// Fires a real OS banner immediately — the demo proof that the
 // notification pipeline (permissions + scheduling + foreground display) is
 // wired. Local-only: no push token, no EAS project required, simulator-safe.
 export async function sendTestNotification(): Promise<TestNotificationResult> {
@@ -37,10 +37,9 @@ export async function sendTestNotification(): Promise<TestNotificationResult> {
 				body: "Notifications are wired. This banner came from the OS, not the app.",
 				title: "expo-forge 🔨",
 			},
-			trigger: {
-				seconds: 2,
-				type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-			},
+			// null trigger = present immediately; a timed trigger is "no earlier
+			// than", so even 2s can stretch on iOS.
+			trigger: null,
 		});
 		return { ok: true };
 	} catch (error) {
