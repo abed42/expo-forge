@@ -28,6 +28,28 @@ Production-grade template for Expo apps. Bun workspaces + Turborepo monorepo. On
 - **Glass**: all glass uses system APIs (`expo-glass-effect` GlassView, `@expo/ui` SwiftUI `glassEffect`) gated behind `isLiquidGlassAvailable()` with fill/hairline fallbacks. Never fake glass with translucent washes.
 - **Icons**: SF Symbols need Android counterparts — NativeTabs icons take `sf` + `md` (Material) props; never ship an Apple private-use glyph (U+F8FF) in a cross-platform string.
 
+## Generating env keys via CLIs (preferred over dashboard copy-paste)
+
+Both required vendors can populate `apps/mobile/.env.local` from their CLIs:
+
+```bash
+# Clerk — writes EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY (run from apps/mobile)
+clerk auth login
+clerk link --app <app_id>        # or `clerk init` for a new Clerk app
+clerk env pull
+```
+⚠️ `clerk env pull` also writes `CLERK_SECRET_KEY` (it assumes a server app). **Delete that line** — secrets never live in the client env. Verify with: `rg CLERK_SECRET_KEY apps/mobile/.env.local` → no match.
+
+```bash
+# Supabase — fetch the publishable key + project URL (run from packages/backend)
+supabase login
+supabase link --project-ref <ref>
+supabase projects api-keys --project-ref <ref>   # copy the publishable key
+# EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
+# EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_...
+```
+Note: new Supabase projects issue `sb_publishable_…` keys (the legacy "anon" JWT is retired) — that value goes in `EXPO_PUBLIC_SUPABASE_KEY`. `supabase db push` from `packages/backend` applies migrations (0002 profiles/RLS, 0003 demo feed).
+
 ## Verification expectations
 
 Every change: `tsc --noEmit` and `biome check` on touched surfaces, `vitest run` where the package has tests, and no new lint suppressions (the repo has zero — keep it that way; restructure instead). UI changes on iOS should be visually verified in the simulator; Android parity checks matter for safe-area (contentInsetAdjustmentBehavior is iOS-only) and icon sources.

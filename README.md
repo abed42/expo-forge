@@ -136,7 +136,9 @@ expo-forge/
     └── pins.json            # Single source for native-coupled versions
 ```
 
-### Version pinning
+#> **Tip:** both key sets can come from CLIs instead of dashboards — `clerk env pull` (after `clerk link`) writes the Clerk publishable key, and `supabase projects api-keys` prints the Supabase publishable key. If you use `clerk env pull`, delete the `CLERK_SECRET_KEY` line it adds — secrets don't belong in client env files.
+
+## Version pinning
 
 Native-coupled dependency versions live in `tooling/pins.json` as the single source of truth: Expo SDK 57, React Native 0.86, React 19.2, and friends. Two pins are deliberate and load-bearing:
 
