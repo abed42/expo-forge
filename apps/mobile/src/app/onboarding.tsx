@@ -21,79 +21,52 @@ WebBrowser.maybeCompleteAuthSession();
 
 type SSOStrategy = "oauth_apple" | "oauth_google";
 
-// Fanned-stack layout experiment (scatter version tagged welcome-scatter-v1):
-// overlapping cards, alternating rotation, later tiles stack on top.
-const TOP_BLOCKS = [
+// Single fanned deck: five cards in an arc, center card largest,
+// later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
+const DECK_BLOCKS = [
 	{
-		top: "24%",
-		left: "8%",
-		width: 100,
-		height: 143,
-		rotate: "-16deg",
+		top: "30%",
+		left: "3%",
+		width: 108,
+		height: 154,
+		rotate: "-18deg",
 		source: require("../../assets/images/onboarding/collage-1.webp"),
 	},
 	{
-		top: "10%",
-		left: "24%",
-		width: 106,
-		height: 150,
-		rotate: "-6deg",
+		top: "14%",
+		left: "18%",
+		width: 116,
+		height: 164,
+		rotate: "-9deg",
 		source: require("../../assets/images/onboarding/collage-2.webp"),
 	},
 	{
-		top: "12%",
-		left: "42%",
-		width: 106,
-		height: 152,
-		rotate: "5deg",
-		source: require("../../assets/images/onboarding/collage-3.webp"),
-	},
-	{
-		top: "18%",
-		left: "56%",
-		width: 118,
-		height: 157,
-		rotate: "13deg",
-		source: require("../../assets/images/onboarding/collage-6.png"),
-	},
-] as const;
-
-const BOTTOM_BLOCKS = [
-	{
-		top: "22%",
-		left: "8%",
-		width: 98,
-		height: 139,
-		rotate: "-14deg",
-		source: require("../../assets/images/onboarding/collage-4.webp"),
-	},
-	{
 		top: "8%",
-		left: "24%",
-		width: 116,
-		height: 145,
-		rotate: "-4deg",
+		left: "36%",
+		width: 126,
+		height: 158,
+		rotate: "0deg",
 		source: require("../../assets/images/onboarding/main.webp"),
 	},
 	{
-		top: "16%",
-		left: "44%",
-		width: 100,
-		height: 100,
-		rotate: "6deg",
-		source: require("../../assets/images/onboarding/collage-7.png"),
+		top: "14%",
+		left: "52%",
+		width: 120,
+		height: 160,
+		rotate: "10deg",
+		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
-		top: "20%",
-		left: "60%",
-		width: 96,
-		height: 120,
-		rotate: "15deg",
-		source: require("../../assets/images/onboarding/collage-5.webp"),
+		top: "34%",
+		left: "66%",
+		width: 100,
+		height: 100,
+		rotate: "18deg",
+		source: require("../../assets/images/onboarding/collage-7.png"),
 	},
 ] as const;
 
-type TileBlock = (typeof TOP_BLOCKS)[number] | (typeof BOTTOM_BLOCKS)[number];
+type TileBlock = (typeof DECK_BLOCKS)[number];
 
 // Each tile fades/scales in staggered, then drifts on a slow sine loop —
 // the Cosmos "alive" feel. Amplitude and period vary per tile so the
@@ -185,10 +158,10 @@ export default function WelcomeScreen() {
 				<Text style={styles.tagline}>Production grade{"\n"}Expo Template</Text>
 			</Animated.View>
 			<View style={styles.collage}>
-				{TOP_BLOCKS.map((block, index) => (
+				{DECK_BLOCKS.map((block, index) => (
 					<FloatingTile
 						block={block}
-						index={index + 0}
+						index={index}
 						key={`${block.top}-${block.left}`}
 					/>
 				))}
@@ -199,15 +172,6 @@ export default function WelcomeScreen() {
 				source={require("../../assets/images/expo-forge-lockup.png")}
 				style={styles.logo}
 			/>
-			<View style={styles.collage}>
-				{BOTTOM_BLOCKS.map((block, index) => (
-					<FloatingTile
-						block={block}
-						index={index + 3}
-						key={`${block.top}-${block.left}`}
-					/>
-				))}
-			</View>
 			<Animated.View
 				entering={FadeIn.delay(1250).duration(550)}
 				style={styles.footer}
