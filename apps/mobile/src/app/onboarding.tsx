@@ -110,9 +110,9 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	logo: {
 		alignSelf: "center",
-		height: 48,
+		height: 36,
 		tintColor: theme.colors.ink,
-		width: 132,
+		width: 270,
 	},
 	footer: {
 		alignItems: "center",
