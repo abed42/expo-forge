@@ -58,6 +58,7 @@ export default function HomeScreen() {
 					) : (
 						<View style={[styles.pillFill, styles.pillFallback]} />
 					)}
+					<View style={styles.pillScrim} />
 				</Animated.View>
 				<Image
 					resizeMode="contain"
@@ -151,6 +152,15 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	pillFallback: {
 		backgroundColor: theme.colors.fill,
+	},
+	pillScrim: {
+		backgroundColor: theme.colors.surface,
+		bottom: 0,
+		left: 0,
+		opacity: 0.55,
+		position: "absolute",
+		right: 0,
+		top: 0,
 	},
 	headerRow: {
 		alignItems: "center",
