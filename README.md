@@ -98,6 +98,28 @@ Both `create-expo-forge [name]` and `create-expo-forge init [name]` accept:
 | `--skip-optional` | Skip optional vendors (PostHog, Sentry, RevenueCat) without prompting |
 | `--remove <vendors>` | Comma-separated optional vendors to strip out: `posthog,sentry,revenuecat` |
 | `--yes` | Non-interactive: use flags and defaults, leave unanswered keys blank |
+| `--json` | Agent mode: non-interactive, no UI; print one machine-readable JSON result as the last line of stdout |
+
+#### Set up with a coding agent
+
+The wizard is agent-friendly. `--json` runs it fully non-interactively (missing keys are marked skipped, never prompted) and prints exactly one JSON object as the last line of stdout. One-shot:
+
+```sh
+bun create expo-forge my-app --bundle-id com.acme.myapp --skip-optional --json
+```
+
+On success the JSON is:
+
+```
+{ ok: true, appName, directory, bundleId,
+  keys: { clerk, supabaseUrl, supabaseKey, posthog, sentry, revenuecat },  // "set" | "skipped" | "removed"
+  installed,      // bun install succeeded
+  pendingSteps }  // [{ id, title, kind: "browser"|"terminal"|"editor", agentRunnable, command?, url?, detail }]
+```
+
+`pendingSteps` is generated from the actual scaffold state — skipped Clerk/Supabase keys produce the exact CLI recovery steps (`clerk env pull`, `supabase link` + `api-keys`), and the standing steps (first `bun ios` build, `supabase db push`, `eas init`, Clerk↔Supabase dashboard wiring) are always present. Steps with `agentRunnable: false` are browser logins and dashboard actions — the only parts that need a human; an agent can run everything else and should relay those to its user. On failure the last line is `{ ok: false, error, failedStep }` and the process exits 1.
+
+Every scaffold also receives a human-readable `NEXT_STEPS.md` (same steps as checkboxes, grouped "you (browser)" vs "agent/terminal") and a scaffold-appropriate `AGENTS.md` rewritten from this repo's maintainer guide.
 
 ### Setup
 

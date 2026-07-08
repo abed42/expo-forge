@@ -34,6 +34,10 @@ const withInitOptions = (command: Command): Command =>
 			"--yes",
 			"non-interactive: use flags and defaults, leave unanswered keys blank",
 		)
+		.option(
+			"--json",
+			"agent mode: non-interactive, no UI; print one machine-readable JSON result object as the last line of stdout",
+		)
 		.action((name: string | undefined, _options: InitOptions, cmd: Command) => {
 			// optsWithGlobals: the root command defines the same flags as the
 			// `init` subcommand, and commander stores flags parsed after the

@@ -13,6 +13,13 @@ import {
 	spinner,
 	text,
 } from "@clack/prompts";
+import { transformScaffoldAgentsMd } from "./scaffold-agents";
+import {
+	buildPendingSteps,
+	type KeyReport,
+	type KeyStatus,
+	renderNextSteps,
+} from "./steps";
 import {
 	type RemovablePackage,
 	removalEdits,
@@ -33,6 +40,7 @@ export type InitOptions = {
 	skipOptional?: boolean;
 	remove?: string;
 	yes?: boolean;
+	json?: boolean;
 };
 
 type VendorDecision = {
@@ -52,6 +60,46 @@ const flagEnvValues = (
 	EXPO_PUBLIC_SUPABASE_URL: options.supabaseUrl,
 	EXPO_PUBLIC_SUPABASE_KEY: options.supabaseKey,
 });
+
+// UI seam: interactive mode renders clack; --json mode stays silent on stdout
+// (reserved for the single JSON result line) and routes warnings to stderr.
+type UiSpinner = {
+	start: (message?: string) => void;
+	message: (message?: string) => void;
+	stop: (message?: string) => void;
+};
+
+type Ui = {
+	intro: (message: string) => void;
+	outro: (message: string) => void;
+	note: (message: string, title?: string) => void;
+	warn: (message: string) => void;
+	error: (message: string) => void;
+	spinner: () => UiSpinner;
+};
+
+const createUi = (json: boolean): Ui =>
+	json
+		? {
+				intro: () => {},
+				outro: () => {},
+				note: () => {},
+				warn: (message) => console.error(`warn: ${message}`),
+				error: (message) => console.error(`error: ${message}`),
+				spinner: () => ({
+					start: () => {},
+					message: () => {},
+					stop: () => {},
+				}),
+			}
+		: {
+				intro,
+				outro,
+				note: (message, title) => note(message, title),
+				warn: (message) => log.warn(message),
+				error: (message) => log.error(message),
+				spinner,
+			};
 
 const bail = (): never => {
 	cancel("Operation cancelled.");
@@ -100,7 +148,9 @@ const resolveName = async (options: InitOptions): Promise<string> => {
 	}
 
 	if (options.yes) {
-		throw new Error("--yes requires an app name (positional or --name).");
+		throw new Error(
+			`${options.json ? "--json" : "--yes"} runs non-interactively and requires an app name (positional or --name).`,
+		);
 	}
 
 	const value = await text({
@@ -249,6 +299,8 @@ const writeReadme = async (targetDir: string, name: string) => {
 		"",
 		"Environment keys live in `apps/mobile/.env.local` (see `.env.example`).",
 		"",
+		"Remaining setup steps live in [NEXT_STEPS.md](NEXT_STEPS.md).",
+		"",
 	].join("\n");
 
 	await writeFile(join(targetDir, "README.md"), readme);
@@ -371,6 +423,7 @@ const collectVendor = async (
 const removeVendorPackage = async (
 	targetDir: string,
 	pkg: RemovablePackage,
+	warn: (message: string) => void,
 ) => {
 	await rm(join(targetDir, "packages", pkg), {
 		recursive: true,
@@ -389,7 +442,7 @@ const removeVendorPackage = async (
 		const content = await readFile(filePath, "utf8");
 
 		if (!content.includes(edit.find)) {
-			log.warn(
+			warn(
 				`Removal anchor not found in ${edit.file} — leaving it untouched. Remove the @repo/${pkg} reference manually.`,
 			);
 			continue;
@@ -428,53 +481,111 @@ const writeEnvFile = async (targetDir: string, decisions: VendorDecision[]) => {
 	);
 };
 
-export const initialize = async (options: InitOptions) => {
-	try {
-		intro("∧ expo-forge");
+// Collapses vendor decisions into the per-key statuses the --json contract
+// reports and the pending-step generator consumes.
+const buildKeyReport = (decisions: VendorDecision[]): KeyReport => {
+	const byId = new Map(decisions.map((d) => [d.vendor.id, d]));
 
-		const name = await resolveName(options);
+	const status = (id: Vendor["id"], env: string): KeyStatus => {
+		const decision = byId.get(id);
+		if (!decision || decision.action === "remove") {
+			return "removed";
+		}
+		return decision.values[env] ? "set" : "skipped";
+	};
+
+	return {
+		clerk: status("clerk", "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"),
+		supabaseUrl: status("supabase", "EXPO_PUBLIC_SUPABASE_URL"),
+		supabaseKey: status("supabase", "EXPO_PUBLIC_SUPABASE_KEY"),
+		posthog: status("posthog", "EXPO_PUBLIC_POSTHOG_KEY"),
+		sentry: status("sentry", "EXPO_PUBLIC_SENTRY_DSN"),
+		revenuecat: status("revenuecat", "EXPO_PUBLIC_REVENUECAT_API_KEY"),
+	};
+};
+
+export const initialize = async (options: InitOptions) => {
+	const json = Boolean(options.json);
+	const ui = createUi(json);
+	// --json implies non-interactive: missing values are skipped, never prompted.
+	const effective: InitOptions = json ? { ...options, yes: true } : options;
+	// Tracks the phase for the { ok: false, failedStep } error contract.
+	let failedStep = "validate-options";
+
+	try {
+		ui.intro("∧ expo-forge");
+
+		const name = await resolveName(effective);
 		const targetDir = join(process.cwd(), name);
 
 		if (existsSync(targetDir)) {
 			throw new Error(`Directory "${name}" already exists.`);
 		}
 
-		const bundleId = await resolveBundleId(options, name);
-		const removeSet = parseRemoveFlag(options);
-		const template = options.template ?? templateUrl;
+		const bundleId = await resolveBundleId(effective, name);
+		const removeSet = parseRemoveFlag(effective);
+		const template = effective.template ?? templateUrl;
 
-		const scaffold = spinner();
+		failedStep = "clone-template";
+		const scaffold = ui.spinner();
 		scaffold.start(`Cloning expo-forge from ${template}...`);
 		cloneTemplate(template, targetDir);
+
+		failedStep = "strip-internals";
 		scaffold.message("Stripping template internals...");
 		await stripInternals(targetDir);
+
+		failedStep = "transform-scaffold";
 		scaffold.message("Renaming app...");
 		await transformRootPackageJson(targetDir, name);
 		await writeReadme(targetDir, name);
 		await renameApp(targetDir, name, bundleId);
+		await transformScaffoldAgentsMd(targetDir, name, ui.warn);
 		scaffold.stop(`Scaffolded ${name} (${bundleId}).`);
 
+		failedStep = "collect-vendors";
 		const decisions: VendorDecision[] = [];
 		for (const vendor of vendors) {
-			decisions.push(await collectVendor(vendor, options, removeSet));
+			decisions.push(await collectVendor(vendor, effective, removeSet));
 		}
 
-		const finalize = spinner();
+		failedStep = "apply-vendors";
+		const finalize = ui.spinner();
 		finalize.start("Finalizing...");
 
 		for (const decision of decisions) {
 			if (decision.action === "remove" && decision.vendor.pkg) {
 				finalize.message(`Removing packages/${decision.vendor.pkg}...`);
-				await removeVendorPackage(targetDir, decision.vendor.pkg);
+				await removeVendorPackage(targetDir, decision.vendor.pkg, ui.warn);
 			}
 		}
 
 		finalize.message("Writing apps/mobile/.env.local...");
 		await writeEnvFile(targetDir, decisions);
 
+		failedStep = "install";
 		finalize.message("Installing dependencies with bun (may take a minute)...");
-		run("bun", ["install"], targetDir);
-		finalize.stop("Dependencies installed.");
+		let installed = true;
+		try {
+			run("bun", ["install"], targetDir);
+		} catch (error) {
+			// Non-fatal: the scaffold is complete; surface install as a pending step.
+			installed = false;
+			ui.warn(
+				`bun install failed — run it manually in ${name}/. (${
+					error instanceof Error ? error.message : error
+				})`,
+			);
+		}
+
+		failedStep = "write-next-steps";
+		const keys = buildKeyReport(decisions);
+		const pendingSteps = buildPendingSteps(keys, installed);
+		await writeFile(
+			join(targetDir, "NEXT_STEPS.md"),
+			renderNextSteps(name, pendingSteps),
+		);
+		finalize.stop(installed ? "Dependencies installed." : "Finalized.");
 
 		const blankRequired = decisions.flatMap((decision) =>
 			decision.vendor.required
@@ -485,14 +596,15 @@ export const initialize = async (options: InitOptions) => {
 		);
 
 		if (blankRequired.length > 0) {
-			log.warn(
+			ui.warn(
 				`Required keys skipped — the app fails loud at boot until you set: ${blankRequired.join(", ")}`,
 			);
 		}
 
-		note(
+		ui.note(
 			[
 				`cd ${name}`,
+				"NEXT_STEPS.md               # full checklist — browser steps need you, the rest an agent can run",
 				"cd apps/mobile && bun ios   # dev-client build — Xcode required, iOS 17.0 target",
 				"apps/mobile/.env.local      # add any skipped keys (Clerk: dashboard.clerk.com)",
 				"eas init                    # when you're ready for EAS builds",
@@ -500,14 +612,34 @@ export const initialize = async (options: InitOptions) => {
 			"Next steps",
 		);
 
-		outro("Your expo-forge app is ready.");
+		ui.outro("Your expo-forge app is ready.");
+
+		if (json) {
+			// Contract: exactly one JSON object, the last line on stdout.
+			console.log(
+				JSON.stringify({
+					ok: true,
+					appName: name,
+					directory: targetDir,
+					bundleId,
+					keys,
+					installed,
+					pendingSteps,
+				}),
+			);
+		}
 	} catch (error) {
 		const message =
 			error instanceof Error
 				? error.message
 				: `Failed to initialize project: ${error}`;
 
-		log.error(message);
+		if (json) {
+			console.log(JSON.stringify({ ok: false, error: message, failedStep }));
+		} else {
+			log.error(message);
+		}
+
 		process.exit(1);
 	}
 };
