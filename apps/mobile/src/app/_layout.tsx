@@ -7,14 +7,12 @@ import { initObservability } from "@repo/observability";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
-import { SessionProvider, useSession } from "@/lib/session";
-
 initObservability();
 
-// Declarative gating (amber pattern): route availability derives from
-// session + Clerk auth state, not imperative redirects.
+// Declarative gating (amber pattern): the welcome screen doubles as auth
+// entry, so the only session state is Clerk's. Email flow is a push within
+// the unauthenticated group.
 function RootNavigator() {
-	const { onboarded } = useSession();
 	const { isLoaded, isSignedIn } = useAuth();
 
 	if (!isLoaded) {
@@ -23,13 +21,10 @@ function RootNavigator() {
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
-			<Stack.Protected guard={!onboarded}>
+			<Stack.Protected guard={!isSignedIn}>
 				<Stack.Screen name="onboarding" />
 			</Stack.Protected>
-			<Stack.Protected guard={onboarded && !isSignedIn}>
-				<Stack.Screen name="sign-in" />
-			</Stack.Protected>
-			<Stack.Protected guard={onboarded && Boolean(isSignedIn)}>
+			<Stack.Protected guard={Boolean(isSignedIn)}>
 				<Stack.Screen name="(tabs)" />
 			</Stack.Protected>
 		</Stack>
@@ -42,9 +37,7 @@ export default function RootLayout() {
 			<StatusBar style="auto" />
 			<AuthProvider>
 				<AnalyticsProvider>
-					<SessionProvider>
-						<RootNavigator />
-					</SessionProvider>
+					<RootNavigator />
 				</AnalyticsProvider>
 			</AuthProvider>
 		</NavThemeProvider>

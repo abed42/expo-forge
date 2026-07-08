@@ -1,9 +1,15 @@
-import { Button } from "@repo/design-system";
-import { Image, Text, View } from "react-native";
+import { useSSO } from "@repo/auth";
+import * as AuthSession from "expo-auth-session";
+import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useState } from "react";
+import { Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
-import { useSession } from "@/lib/session";
+WebBrowser.maybeCompleteAuthSession();
+
+type SSOStrategy = "oauth_apple" | "oauth_google";
 
 // Editorial collage — two loose bands, varied portrait/square tiles spread
 // edge-to-edge with clear gaps, main character largest (Cosmos reference).
@@ -55,13 +61,42 @@ const BOTTOM_BLOCKS = [
 	},
 ] as const;
 
-export default function OnboardingScreen() {
-	const { completeOnboarding } = useSession();
+// Welcome doubles as the auth entry: SSO completes right here (session
+// activation flips the guards); the email flow pushes to /sign-in.
+export default function WelcomeScreen() {
+	const { startSSOFlow } = useSSO();
+	const router = useRouter();
+	const [error, setError] = useState<string | null>(null);
+	const [busy, setBusy] = useState(false);
+
+	const continueWithSSO = async (strategy: SSOStrategy) => {
+		if (busy) {
+			return;
+		}
+		setBusy(true);
+		setError(null);
+		try {
+			const { createdSessionId, setActive } = await startSSOFlow({
+				strategy,
+				redirectUrl: AuthSession.makeRedirectUri(),
+			});
+			if (createdSessionId && setActive) {
+				await setActive({ session: createdSessionId });
+			} else {
+				setError("This account needs extra steps — continue with email.");
+			}
+		} catch (ssoError) {
+			console.error("[auth] SSO failed:", JSON.stringify(ssoError));
+			setError("Could not complete sign-in. Try again.");
+		} finally {
+			setBusy(false);
+		}
+	};
 
 	return (
 		<SafeAreaView style={styles.screen}>
 			<Text style={styles.tagline}>
-				Everything wired,{"\n"}nothing to configure
+				Production grade{"\n"}React Native / Expo Template
 			</Text>
 			<View style={styles.collage}>
 				{TOP_BLOCKS.map((block) => (
@@ -105,20 +140,47 @@ export default function OnboardingScreen() {
 				))}
 			</View>
 			<View style={styles.footer}>
+				{error ? <Text style={styles.error}>{error}</Text> : null}
 				<Text style={styles.legal}>
 					By creating an account, you agree to our{"\n"}
 					<Text style={styles.legalLink}>Terms of Service</Text> and{" "}
 					<Text style={styles.legalLink}>Privacy Policy</Text>
 				</Text>
-				<Button label="Start" onPress={completeOnboarding} />
-				{/* Page dots — re-enable when onboarding becomes a real multi-slide
-				    carousel; a static indicator over one page is fake UI.
-				<View style={styles.dots}>
-					<View style={[styles.dot, styles.dotActive]} />
-					<View style={styles.dot} />
-					<View style={styles.dot} />
-					<View style={styles.dot} />
-				</View> */}
+				<Pressable
+					accessibilityRole="button"
+					disabled={busy}
+					onPress={() => continueWithSSO("oauth_apple")}
+					style={({ pressed }) => [
+						styles.primaryButton,
+						pressed ? styles.buttonPressed : null,
+					]}
+				>
+					<Text style={styles.primaryIcon}>{""}</Text>
+					<Text style={styles.primaryLabel}>Continue with Apple</Text>
+				</Pressable>
+				<Pressable
+					accessibilityRole="button"
+					disabled={busy}
+					onPress={() => continueWithSSO("oauth_google")}
+					style={({ pressed }) => [
+						styles.secondaryButton,
+						pressed ? styles.buttonPressed : null,
+					]}
+				>
+					<Image
+						source={require("../../assets/images/google-g.png")}
+						style={styles.googleLogo}
+					/>
+					<Text style={styles.secondaryLabel}>Continue with Google</Text>
+				</Pressable>
+				<Pressable
+					accessibilityRole="button"
+					disabled={busy}
+					onPress={() => router.push("/sign-in")}
+					style={styles.textButton}
+				>
+					<Text style={styles.textButtonLabel}>Continue with Email</Text>
+				</Pressable>
 			</View>
 		</SafeAreaView>
 	);
@@ -143,7 +205,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	block: {
 		backgroundColor: theme.colors.fill,
-		borderRadius: 2,
+		borderRadius: 12,
 		position: "absolute",
 	},
 	logo: {
@@ -153,32 +215,72 @@ const styles = StyleSheet.create((theme) => ({
 		width: 185,
 	},
 	footer: {
-		alignItems: "center",
-		gap: theme.gap(2),
+		alignSelf: "stretch",
+		gap: theme.gap(1.5),
 		paddingBottom: theme.gap(1),
+	},
+	error: {
+		...theme.type.caption,
+		color: theme.colors.secondary,
+		textAlign: "center",
 	},
 	legal: {
 		...theme.type.caption,
 		color: theme.colors.secondary,
 		fontWeight: "400",
+		marginBottom: theme.gap(0.5),
 		textAlign: "center",
 	},
 	legalLink: {
 		textDecorationLine: "underline",
 	},
-	dots: {
+	primaryButton: {
+		alignItems: "center",
+		backgroundColor: theme.colors.ink,
+		borderRadius: theme.radius.pill,
 		flexDirection: "row",
 		gap: theme.gap(1),
-		marginTop: theme.gap(1),
+		justifyContent: "center",
+		minHeight: 48,
 	},
-	dot: {
+	primaryIcon: {
+		color: theme.colors.onInk,
+		fontSize: 18,
+	},
+	primaryLabel: {
+		...theme.type.body,
+		color: theme.colors.onInk,
+		fontWeight: "600",
+	},
+	secondaryButton: {
+		alignItems: "center",
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.pill,
-		height: 4,
-		width: 12,
+		flexDirection: "row",
+		gap: theme.gap(1),
+		justifyContent: "center",
+		minHeight: 48,
 	},
-	dotActive: {
-		backgroundColor: theme.colors.ink,
-		width: 28,
+	googleLogo: {
+		height: 18,
+		width: 18,
+	},
+	secondaryLabel: {
+		...theme.type.body,
+		color: theme.colors.ink,
+		fontWeight: "600",
+	},
+	textButton: {
+		alignItems: "center",
+		justifyContent: "center",
+		minHeight: 40,
+	},
+	textButtonLabel: {
+		...theme.type.body,
+		color: theme.colors.secondary,
+		fontWeight: "600",
+	},
+	buttonPressed: {
+		opacity: 0.85,
 	},
 }));
