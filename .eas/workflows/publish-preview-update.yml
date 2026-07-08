@@ -1,0 +1,16 @@
+# Publishes an OTA update to the "preview" branch on every push to main.
+# Push triggers require the GitHub repo to be connected to the EAS project
+# (expo.dev → project → GitHub). See README "CI" for activation steps.
+name: Publish preview update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish_preview_update:
+    name: Publish preview update
+    type: update
+    params:
+      branch: preview

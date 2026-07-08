@@ -162,6 +162,17 @@ bun run fix     # biome check --write .
 
 Linting and formatting are handled by [Biome](https://biomejs.dev) 2.
 
+### CI
+
+Every push to `main` and every pull request runs `.github/workflows/ci.yml`: Bun (version pinned by the `packageManager` field) installs with a frozen lockfile, then `bunx turbo lint typecheck test` fans out across all workspaces — Biome lint, `tsc --noEmit`, and Vitest suites — with the Turborepo cache persisted between runs.
+
+Two [EAS Workflows](https://docs.expo.dev/eas/workflows/) live in `.eas/workflows/`:
+
+- `create-production-builds.yml` — manual trigger (`eas workflow:run create-production-builds.yml`), builds iOS + Android with the `production` profile
+- `publish-preview-update.yml` — on push to `main`, publishes an OTA update to the `preview` branch
+
+They are syntax-complete but dormant until the project is linked to EAS. One-time activation: run `eas init` to create the EAS project and `eas.json` (the `.eas/` directory must sit next to `eas.json` — move it if `eas init` places `eas.json` in `apps/mobile/`), connect the GitHub repo to the EAS project on [expo.dev](https://expo.dev) so push triggers fire, and add an `EXPO_TOKEN` [access token](https://expo.dev/settings/access-tokens) as a repo secret for any CI-driven `eas` CLI calls.
+
 ## Roadmap
 
 - CLI wizard (`create-expo-forge`) with schema-driven env prompts and optional-vendor removal
