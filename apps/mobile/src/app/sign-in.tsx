@@ -94,7 +94,11 @@ export default function SignInScreen() {
 	return (
 		<SafeAreaView style={styles.screen}>
 			<View style={styles.header}>
-				<IconButton accessibilityLabel="Back" onPress={() => router.back()}>
+				<IconButton
+					accessibilityLabel="Back"
+					glass
+					onPress={() => router.back()}
+				>
 					<SymbolView
 						name="chevron.left"
 						size={17}

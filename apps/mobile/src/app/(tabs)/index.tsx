@@ -28,6 +28,7 @@ export default function HomeScreen() {
 				/>
 				<IconButton
 					accessibilityLabel="Search"
+					glass
 					onPress={() => router.push("/search")}
 				>
 					<SymbolView
