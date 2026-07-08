@@ -2,10 +2,10 @@ import { Host, HStack, Image as SwiftImage } from "@expo/ui/swift-ui";
 import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { IconButton, Skeleton } from "@repo/design-system";
 import { FlashList } from "@shopify/flash-list";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Image, Platform, View } from "react-native";
+import { Image, Platform, Text, View } from "react-native";
 import Animated, {
 	interpolate,
 	useAnimatedScrollHandler,
@@ -15,15 +15,23 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
+import { type FeedItem, useFeed } from "@/lib/feed";
+
 // Gate required: some iOS 26 builds lack the API and crash without it.
 const canUseGlass = isLiquidGlassAvailable();
 
 const HEADER_CONTENT_HEIGHT = 60;
 
-// Home ships as an honest loading state: the FlashList that will render the
-// real feed, hydrated with skeleton items until the data layer lands. The
-// header floats on liquid glass; the feed scrolls underneath it.
+// The feed hydrates from Supabase (public.feed_items, migration 0003).
+// While loading — and whenever Supabase is unset, errors, or returns no rows —
+// the list falls back to these skeleton items, so Home never crashes and
+// always renders an honest state. The header floats on liquid glass; the
+// feed scrolls underneath it.
 const SKELETON_ITEMS = [0, 1, 2];
+
+// One FlashList carries both worlds: numbers render skeletons, rows render
+// the real feed.
+type FeedListItem = FeedItem | number;
 
 const AnimatedFlashList = Animated.createAnimatedComponent(
 	FlashList,
@@ -37,6 +45,10 @@ export default function HomeScreen() {
 	const router = useRouter();
 	const { theme } = useUnistyles();
 	const insets = useSafeAreaInsets();
+	const { items, status } = useFeed();
+
+	const listData: readonly FeedListItem[] =
+		status === "ready" && items.length > 0 ? items : SKELETON_ITEMS;
 
 	const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
 	const scrollY = useSharedValue(0);
@@ -66,7 +78,7 @@ export default function HomeScreen() {
 									}),
 								]}
 							>
-								<></>
+								{null}
 							</HStack>
 						</Host>
 					) : (
@@ -121,20 +133,41 @@ export default function HomeScreen() {
 					paddingHorizontal: theme.gap(3),
 					paddingTop: headerHeight + theme.gap(1),
 				}}
-				data={SKELETON_ITEMS}
+				data={listData}
 				ItemSeparatorComponent={FeedSeparator}
-				renderItem={() => (
-					<View style={styles.feedItem}>
-						<View style={styles.card} />
-						<View style={styles.titleRow}>
-							<Skeleton height={16} width={220} />
-							<Skeleton height={16} width={64} />
+				keyExtractor={(item) =>
+					typeof item === "number" ? `skeleton-${item}` : item.id
+				}
+				renderItem={({ item }) =>
+					typeof item === "number" ? (
+						<View style={styles.feedItem}>
+							<View style={styles.card} />
+							<View style={styles.titleRow}>
+								<Skeleton height={16} width={220} />
+								<Skeleton height={16} width={64} />
+							</View>
+							<Skeleton height={14} width={160} />
+							<Skeleton height={14} width={120} />
+							<Skeleton height={14} width={120} />
 						</View>
-						<Skeleton height={14} width={160} />
-						<Skeleton height={14} width={120} />
-						<Skeleton height={14} width={120} />
-					</View>
-				)}
+					) : (
+						<View style={styles.feedItem}>
+							<View style={[styles.card, styles.cardClip]}>
+								{item.image_url ? (
+									<Image
+										resizeMode="cover"
+										source={{ uri: item.image_url }}
+										style={styles.cardImage}
+									/>
+								) : null}
+							</View>
+							<Text style={styles.itemTitle}>{item.title}</Text>
+							{item.subtitle ? (
+								<Text style={styles.itemSubtitle}>{item.subtitle}</Text>
+							) : null}
+						</View>
+					)
+				}
 				showsVerticalScrollIndicator={false}
 			/>
 			<View style={[styles.header, { height: headerHeight }]}>
@@ -215,5 +248,13 @@ const styles = StyleSheet.create((theme) => ({
 	titleRow: {
 		flexDirection: "row",
 		justifyContent: "space-between",
+	},
+	itemTitle: {
+		...theme.type.body,
+		color: theme.colors.ink,
+	},
+	itemSubtitle: {
+		...theme.type.caption,
+		color: theme.colors.secondary,
 	},
 }));

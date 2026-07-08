@@ -1,5 +1,5 @@
 import { useAuth } from "@repo/auth";
-import { useSupabase } from "@repo/backend";
+import { useSupabase, useSupabaseIfConfigured } from "@repo/backend";
 
 /**
  * Clerk-authenticated Supabase client (third-party auth).
@@ -19,4 +19,14 @@ import { useSupabase } from "@repo/backend";
 export function useSupabaseClient() {
 	const { getToken } = useAuth();
 	return useSupabase(getToken);
+}
+
+/**
+ * Nullable variant of `useSupabaseClient` for screens that should degrade
+ * gracefully instead of failing loud: returns `null` when the Supabase env
+ * vars are unset (e.g. keyless boots under EXPO_PUBLIC_SKIP_ENV_VALIDATION).
+ */
+export function useSupabaseClientIfConfigured() {
+	const { getToken } = useAuth();
+	return useSupabaseIfConfigured(getToken);
 }
