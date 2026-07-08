@@ -97,12 +97,12 @@ export default function SignInScreen() {
 				</IconButton>
 			</View>
 			<View style={styles.hero}>
+				<Text style={styles.title}>Welcome</Text>
 				<Image
 					resizeMode="contain"
 					source={require("../../assets/images/expo-forge-lockup.png")}
 					style={styles.logo}
 				/>
-				<Text style={styles.title}>Welcome</Text>
 				<Text style={styles.subtitle}>
 					{phase === "email"
 						? "Sign in to sync your collections across devices."
@@ -184,13 +184,13 @@ const styles = StyleSheet.create((theme) => ({
 		justifyContent: "center",
 	},
 	logo: {
-		height: 32,
+		height: 52,
 		marginBottom: theme.gap(1),
 		tintColor: theme.colors.ink,
-		width: 148,
+		width: 240,
 	},
 	title: {
-		...theme.type.largeTitle,
+		...theme.type.title,
 		color: theme.colors.ink,
 	},
 	subtitle: {
