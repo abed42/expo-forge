@@ -305,7 +305,7 @@ const styles = StyleSheet.create((theme) => ({
 		shadowRadius: 14,
 	},
 	spacerTop: {
-		flex: 0.4,
+		flex: 0.22,
 	},
 	logo: {
 		alignSelf: "center",
