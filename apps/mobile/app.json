@@ -25,7 +25,20 @@
 			]
 		],
 		"ios": {
-			"bundleIdentifier": "com.stephanos62.expo-forge-demo"
+			"bundleIdentifier": "com.stephanos62.expo-forge-demo",
+			"icon": {
+				"light": "./assets/images/icon/icon-light.png",
+				"dark": "./assets/images/icon/icon-dark.png",
+				"tinted": "./assets/images/icon/icon-tinted.png"
+			}
+		},
+		"icon": "./assets/images/icon/icon-light.png",
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/images/icon/icon-light.png",
+				"monochromeImage": "./assets/images/icon/icon-monochrome.png",
+				"backgroundColor": "#FFFFFF"
+			}
 		}
 	}
 }
