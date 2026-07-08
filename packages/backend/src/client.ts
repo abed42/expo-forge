@@ -33,6 +33,19 @@ export type CreateSupabaseClientOptions = {
 
 let defaultClient: SupabaseClient<Database> | null = null;
 
+/**
+ * Whether the Supabase env vars are present in this bundle. Lets callers
+ * degrade gracefully (skeletons, empty states) instead of hitting the
+ * fail-loud factories below — e.g. under EXPO_PUBLIC_SKIP_ENV_VALIDATION.
+ */
+export function isSupabaseConfigured(): boolean {
+	// Metro statically inlines process.env.EXPO_PUBLIC_* member expressions in client bundles.
+	return Boolean(
+		process.env.EXPO_PUBLIC_SUPABASE_URL &&
+			process.env.EXPO_PUBLIC_SUPABASE_KEY,
+	);
+}
+
 function resolveSupabaseEnv(): { supabaseUrl: string; supabaseKey: string } {
 	// Metro statically inlines process.env.EXPO_PUBLIC_* member expressions in client bundles.
 	const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;

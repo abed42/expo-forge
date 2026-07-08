@@ -97,6 +97,10 @@ Third-party auth is a handshake; RLS stays inert until both dashboards agree.
    (e.g. `https://your-app.clerk.accounts.dev`).
 2. Deploy the webhook function and set `CLERK_WEBHOOK_SIGNING_SECRET`
    (function README).
+3. Apply migrations — `supabase db push` (or paste `supabase/migrations/*.sql`
+   into the SQL editor). `0003_feed_items.sql` creates and seeds the public
+   demo `feed_items` table the Home tab hydrates from; until it is applied the
+   app falls back to skeleton placeholders.
 
 ## Env
 
