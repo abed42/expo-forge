@@ -81,9 +81,17 @@ export default function HomeScreen() {
 				}}
 				data={SKELETON_ITEMS}
 				ItemSeparatorComponent={FeedSeparator}
-				renderItem={() => (
+				renderItem={({ index }) => (
 					<View style={styles.feedItem}>
-						<View style={styles.card} />
+						{index === 0 ? (
+							<Image
+								resizeMode="cover"
+								source={require("../../../assets/images/onboarding/main.webp")}
+								style={styles.card}
+							/>
+						) : (
+							<View style={styles.card} />
+						)}
 						<View style={styles.titleRow}>
 							<Skeleton height={16} width={220} />
 							<Skeleton height={16} width={64} />
