@@ -20,8 +20,29 @@ type ComposeEnvResult<Schemas extends readonly AnyZodObject[]> = z.infer<
 	MergeSchema<Schemas>
 >;
 
-let cachedEnv: unknown;
-let hasCachedEnv = false;
+// Cache is keyed by the identity of the schema tuple, not module-global.
+// A single global cache was a footgun: the second composeEnv call with a
+// DIFFERENT schema set would silently return the first call's result —
+// skipping validation of its own variables entirely. Keying by schema
+// identity keeps the "parse once" behavior for repeated identical calls
+// (schemas are module-level constants) while different compositions each
+// get their own validated result.
+const schemaIds = new WeakMap<AnyZodObject, number>();
+let nextSchemaId = 0;
+const cachedEnvs = new Map<string, unknown>();
+
+function cacheKeyFor(schemas: readonly AnyZodObject[]): string {
+	return schemas
+		.map((schema) => {
+			let id = schemaIds.get(schema);
+			if (id === undefined) {
+				id = nextSchemaId++;
+				schemaIds.set(schema, id);
+			}
+			return id;
+		})
+		.join(",");
+}
 
 function mergeSchemas<Schemas extends readonly AnyZodObject[]>(
 	schemas: Schemas,
@@ -53,15 +74,15 @@ function formatEnvError(error: z.ZodError): string {
 export function composeEnv<Schemas extends readonly AnyZodObject[]>(
 	...schemas: Schemas
 ): ComposeEnvResult<Schemas> {
-	if (hasCachedEnv) {
-		return cachedEnv as ComposeEnvResult<Schemas>;
+	if (process.env.EXPO_PUBLIC_SKIP_ENV_VALIDATION === "true") {
+		// Validation is explicitly disabled, so we trust the caller's schemas and cast the raw env object.
+		return process.env as unknown as ComposeEnvResult<Schemas>;
 	}
 
-	if (process.env.EXPO_PUBLIC_SKIP_ENV_VALIDATION === "true") {
-		// Validation is explicitly disabled, so we trust the caller's schemas and cast the raw env object once.
-		cachedEnv = process.env as unknown as ComposeEnvResult<Schemas>;
-		hasCachedEnv = true;
-		return cachedEnv as ComposeEnvResult<Schemas>;
+	const cacheKey = cacheKeyFor(schemas);
+
+	if (cachedEnvs.has(cacheKey)) {
+		return cachedEnvs.get(cacheKey) as ComposeEnvResult<Schemas>;
 	}
 
 	const mergedSchema = mergeSchemas(schemas);
@@ -75,7 +96,6 @@ export function composeEnv<Schemas extends readonly AnyZodObject[]>(
 
 	// Metro only statically inlines member expressions like process.env.EXPO_PUBLIC_FOO in app code.
 	// This whole-object parse is for validation; runtime consumers should still read EXPO_PUBLIC_* via static member access.
-	cachedEnv = result.data;
-	hasCachedEnv = true;
+	cachedEnvs.set(cacheKey, result.data);
 	return result.data as ComposeEnvResult<Schemas>;
 }

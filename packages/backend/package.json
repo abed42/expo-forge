@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"gen-types": "supabase gen types typescript --local > src/database.types.ts",
+		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
