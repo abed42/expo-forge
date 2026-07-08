@@ -1,7 +1,7 @@
 import { useSignIn, useSignUp } from "@repo/auth";
 import { Button } from "@repo/design-system";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Image, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -90,6 +90,11 @@ export default function SignInScreen() {
 	return (
 		<SafeAreaView style={styles.screen}>
 			<View style={styles.hero}>
+				<Image
+					resizeMode="contain"
+					source={require("../../assets/images/expo-forge-lockup.png")}
+					style={styles.logo}
+				/>
 				<Text style={styles.title}>Welcome</Text>
 				<Text style={styles.subtitle}>
 					{phase === "email"
@@ -160,6 +165,12 @@ const styles = StyleSheet.create((theme) => ({
 		flex: 1,
 		gap: theme.gap(1.5),
 		justifyContent: "center",
+	},
+	logo: {
+		height: 32,
+		marginBottom: theme.gap(1),
+		tintColor: theme.colors.ink,
+		width: 148,
 	},
 	title: {
 		...theme.type.largeTitle,
