@@ -31,7 +31,7 @@ expo-forge is built around five core principles:
 
 ## Status
 
-expo-forge is a work in progress. The template itself builds and runs today; the `create-expo-forge` CLI is not yet published to npm. Until then, clone the repository directly. (The bare `expo-forge` npm name belongs to an unrelated package — the package will ship as `create-expo-forge`, installed via `bun create expo-forge`.)
+expo-forge is a work in progress. The template itself builds and runs today; the `create-expo-forge` CLI v0.1 is in the repo, publishing soon. Until then, clone the repository directly. (The bare `expo-forge` npm name belongs to an unrelated package — the package ships as `create-expo-forge`, installed via `bun create expo-forge`.)
 
 ## Features
 
@@ -67,21 +67,41 @@ Optional vendor packages no-op when their keys are unset — the app runs with j
 
 ### Installation
 
-Clone the repository and install dependencies:
+Scaffold a new app with the init wizard (once the package is published):
 
 ```sh
-git clone <your-fork-or-this-repo> my-app
-cd my-app
-bun install
+bun create expo-forge my-app
 ```
 
-Once published, this becomes:
+The wizard clones the template, renames the app and bundle identifier, prompts for your vendor keys with live validation (every key is skippable — add it later in `apps/mobile/.env.local`), lets you remove the optional vendors entirely (package, deps, and wiring stripped cleanly), and runs `bun install`.
+
+Until it's published, clone the repository and run the CLI locally:
 
 ```sh
-bun create expo-forge
+git clone https://github.com/abed42/expo-forge.git
+cd expo-forge && bun install && bunx tsup
+cd .. && node expo-forge/dist/index.js init my-app --template ./expo-forge
 ```
+
+#### CLI flags
+
+Both `create-expo-forge [name]` and `create-expo-forge init [name]` accept:
+
+| Flag | Description |
+| --- | --- |
+| `--name <name>` | App name in kebab-case (overrides the positional) |
+| `--bundle-id <id>` | Reverse-DNS bundle identifier (default: `com.example.<name>`) |
+| `--template <url-or-path>` | Template git URL or local path (default: this repo) |
+| `--clerk-key <key>` | Clerk publishable key (`pk_...`) |
+| `--supabase-url <url>` | Supabase project URL (`https://...`) |
+| `--supabase-key <key>` | Supabase publishable key |
+| `--skip-optional` | Skip optional vendors (PostHog, Sentry, RevenueCat) without prompting |
+| `--remove <vendors>` | Comma-separated optional vendors to strip out: `posthog,sentry,revenuecat` |
+| `--yes` | Non-interactive: use flags and defaults, leave unanswered keys blank |
 
 ### Setup
+
+If you cloned manually instead of using the wizard:
 
 1. Copy `.env.example` to `.env` and fill in the required keys: your Clerk publishable key (`EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`) and Supabase URL and publishable key (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`)
 2. Optionally add PostHog, Sentry, or RevenueCat keys — each vendor stays inert until its key is set

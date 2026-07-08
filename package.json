@@ -49,5 +49,9 @@
 		"tsup": "^8.5.1",
 		"turbo": "^2.8.14",
 		"typescript": "~6.0.3"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.7.0",
+		"commander": "^15.0.0"
 	}
 }
