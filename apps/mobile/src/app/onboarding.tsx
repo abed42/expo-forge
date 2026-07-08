@@ -1,5 +1,5 @@
 import { Button } from "@repo/design-system";
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
@@ -45,7 +45,14 @@ export default function OnboardingScreen() {
 					/>
 				))}
 			</View>
-			<Text style={styles.wordmark}>FORGE</Text>
+			<View style={styles.lockup}>
+				<Image
+					resizeMode="contain"
+					source={require("../../assets/images/expo-wordmark.png")}
+					style={styles.lockupLogo}
+				/>
+				<Text style={styles.wordmark}>forge</Text>
+			</View>
 			<View style={styles.collage}>
 				{BOTTOM_BLOCKS.map((block) => (
 					<View
@@ -104,9 +111,20 @@ const styles = StyleSheet.create((theme) => ({
 		borderWidth: 1,
 		position: "absolute",
 	},
+	lockup: {
+		alignItems: "center",
+		flexDirection: "row",
+		gap: theme.gap(1),
+		justifyContent: "center",
+	},
+	lockupLogo: {
+		height: 38,
+		tintColor: theme.colors.ink,
+		width: 135,
+	},
 	wordmark: {
 		color: theme.colors.ink,
-		fontSize: 46,
+		fontSize: 42,
 		fontWeight: "800",
 		letterSpacing: -1.2,
 		textAlign: "center",
