@@ -1,5 +1,6 @@
 import { useSignIn, useSignUp } from "@repo/auth";
-import { Button } from "@repo/design-system";
+import { Button, IconButton } from "@repo/design-system";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +14,7 @@ type Mode = "signIn" | "signUp";
 // both journeys. finalize() converts the completed attempt into the active
 // session, which flips the Stack.Protected guards in _layout.
 export default function SignInScreen() {
+	const router = useRouter();
 	const { signIn } = useSignIn();
 	const { signUp } = useSignUp();
 	const [phase, setPhase] = useState<Phase>("email");
@@ -89,6 +91,11 @@ export default function SignInScreen() {
 
 	return (
 		<SafeAreaView style={styles.screen}>
+			<View style={styles.header}>
+				<IconButton accessibilityLabel="Back" onPress={() => router.back()}>
+					<Text style={styles.backGlyph}>{"\u2039"}</Text>
+				</IconButton>
+			</View>
 			<View style={styles.hero}>
 				<Image
 					resizeMode="contain"
@@ -159,6 +166,16 @@ const styles = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.surface,
 		flex: 1,
 		paddingHorizontal: theme.gap(3),
+	},
+	header: {
+		alignItems: "flex-start",
+		paddingTop: theme.gap(1),
+	},
+	backGlyph: {
+		color: theme.colors.ink,
+		fontSize: 26,
+		lineHeight: 28,
+		marginTop: -2,
 	},
 	hero: {
 		alignItems: "center",
