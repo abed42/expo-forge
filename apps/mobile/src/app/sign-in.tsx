@@ -65,7 +65,13 @@ export default function SignInScreen() {
 			mode === "signIn"
 				? await signIn.emailCode.verifyCode({ code })
 				: await signUp.verifications.verifyEmailCode({ code });
-		if (verified.error) {
+		// A consumed verification ("already been verified") means the code was
+		// accepted on a prior attempt — proceed to finalize instead of dead-ending.
+		const alreadyVerified =
+			verified.error?.message?.toLowerCase().includes("already been verified") ??
+			false;
+		if (verified.error && !alreadyVerified) {
+			console.error("[auth] verify failed:", JSON.stringify(verified.error));
 			setError(verified.error.message ?? "That code didn't work.");
 			setBusy(false);
 			return;
@@ -74,6 +80,7 @@ export default function SignInScreen() {
 		const finalized =
 			mode === "signIn" ? await signIn.finalize() : await signUp.finalize();
 		if (finalized.error) {
+			console.error("[auth] finalize failed:", JSON.stringify(finalized.error));
 			setError(finalized.error.message ?? "Could not start the session.");
 		}
 		setBusy(false);
