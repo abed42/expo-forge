@@ -11,6 +11,8 @@
 			"tsconfigPaths": true
 		},
 		"plugins": [
+			"@clerk/expo",
+			"expo-secure-store",
 			"expo-router",
 			"expo-system-ui",
 			[
