@@ -170,3 +170,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - ISC-35 FULL PASS: user completed Google SSO on simulator, landed on native tabs (screenshot 18:28). Clerk user created.
 
 - ISC-48/49 verified (commit 20d1d89): accessToken client + useSupabase hook (tsc 0), RLS-on-sub migration 0002, svix-verified edge function. ISC-50 [DEFERRED-VERIFY]: needs dashboard setup + function deploy — probe query in packages/backend/supabase/functions/clerk-webhook/README.md.
+- 2026-07-07: Clerk Native API enabled by user (dashboard). Deferred to pre-launch checklist: register iOS app (Team ID + bundle id, AASA) and SSO redirect allowlist (expoforge:// scheme) on Clerk's Native applications page — required for native Apple sign-in/passkeys and locked-down OAuth redirects in production.
