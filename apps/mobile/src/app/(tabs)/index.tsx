@@ -93,11 +93,13 @@ export default function HomeScreen() {
 				renderItem={({ index }) => (
 					<View style={styles.feedItem}>
 						{index === 0 ? (
-							<Image
-								resizeMode="cover"
-								source={require("../../../assets/images/onboarding/main.webp")}
-								style={styles.card}
-							/>
+							<View style={[styles.card, styles.cardClip]}>
+								<Image
+									resizeMode="cover"
+									source={require("../../../assets/images/onboarding/main.webp")}
+									style={styles.cardImage}
+								/>
+							</View>
 						) : (
 							<View style={styles.card} />
 						)}
@@ -175,6 +177,13 @@ const styles = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.card,
 		marginBottom: theme.gap(0.5),
+	},
+	cardClip: {
+		overflow: "hidden",
+	},
+	cardImage: {
+		height: "100%",
+		width: "100%",
 	},
 	titleRow: {
 		flexDirection: "row",
