@@ -141,6 +141,11 @@ export default function WelcomeScreen() {
 			</View>
 			<View style={styles.footer}>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
+				<Text style={styles.legal}>
+					By creating an account, you agree to our{"\n"}
+					<Text style={styles.legalLink}>Terms of Service</Text> and{" "}
+					<Text style={styles.legalLink}>Privacy Policy</Text>
+				</Text>
 				<Pressable
 					accessibilityRole="button"
 					disabled={busy}
@@ -176,11 +181,6 @@ export default function WelcomeScreen() {
 				>
 					<Text style={styles.textButtonLabel}>Continue with Email</Text>
 				</Pressable>
-				<Text style={styles.legal}>
-					By creating an account, you agree to our{"\n"}
-					<Text style={styles.legalLink}>Terms of Service</Text> and{" "}
-					<Text style={styles.legalLink}>Privacy Policy</Text>
-				</Text>
 			</View>
 		</SafeAreaView>
 	);
@@ -227,8 +227,10 @@ const styles = StyleSheet.create((theme) => ({
 	legal: {
 		...theme.type.caption,
 		color: theme.colors.secondary,
+		fontSize: 11,
 		fontWeight: "400",
-		marginTop: theme.gap(0.5),
+		lineHeight: 15,
+		marginBottom: theme.gap(0.5),
 		textAlign: "center",
 	},
 	legalLink: {
