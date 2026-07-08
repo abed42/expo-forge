@@ -95,7 +95,7 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [ ] ISC-34: --skip-env and non-interactive flags work
 
 ### Demo app (Cosmos-shaped collections app)
-- [ ] ISC-35: onboarding/auth flow — centered editorial title, pill Start, Stack.Protected gating
+- [x] ISC-35: onboarding/auth flow — centered editorial title, pill Start, Stack.Protected gating
 - [ ] ISC-36: home — masonry media feed (FlashList), unadorned images, thin-underline segmented tabs
 - [ ] ISC-37: item detail via Apple-zoom link transition + native context menu on cells
 - [ ] ISC-38: profile page per Cosmos ref — circular icon buttons, centered identity stack, chip shortcuts, masonry
@@ -167,3 +167,4 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - [ ] ISC-52: Anti: CLERK_SECRET_KEY never appears in any client env file or bundle
 - ISC-35 (live probe, partial): simctl screenshot 2026-07-07 17:34 — onboarding renders per Cosmos ref on iPhone 17 Pro sim (tagline/collage/wordmark/ToS/pill Start). Full [x] after user completes email-code flow to tabs.
 - 2026-07-07: Onboarding collage uses 6 images from cdn.cosmos.so (downloaded into assets/images/onboarding/). PRE-LAUNCH BLOCKER: these belong to their original creators via Cosmos — fine for private dev, must be replaced with neutral/licensed placeholder imagery before the template goes public. Same class as the Expo-wordmark trademark check.
+- ISC-35 FULL PASS: user completed Google SSO on simulator, landed on native tabs (screenshot 18:28). Clerk user created.
