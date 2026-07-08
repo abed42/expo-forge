@@ -169,7 +169,7 @@ export default function WelcomeScreen() {
 		<SafeAreaView style={styles.screen}>
 			<Animated.View entering={FadeIn.delay(950).duration(550)}>
 				<Text style={styles.tagline}>
-					Production grade{" "}
+					Production grade{"\n"}Expo{" "}
 					<View style={styles.chipCluster}>
 						{PLATFORM_ICONS.map((icon, index) => (
 							<View
@@ -186,8 +186,8 @@ export default function WelcomeScreen() {
 								<Image source={icon.source} style={styles.chipIcon} />
 							</View>
 						))}
-					</View>
-					{"\n"}Expo Template
+					</View>{" "}
+					Template
 				</Text>
 			</Animated.View>
 			<View style={styles.spacerTop} />
