@@ -99,6 +99,7 @@ export default function WelcomeScreen() {
 				Production grade{"\n"}React Native / Expo Template
 			</Text>
 			<View style={styles.collage}>
+				{/* Collage temporarily hidden — uncomment to restore.
 				{TOP_BLOCKS.map((block) => (
 					<Image
 						key={`${block.top}-${block.left}`}
@@ -115,6 +116,7 @@ export default function WelcomeScreen() {
 						]}
 					/>
 				))}
+				*/}
 			</View>
 			<Image
 				resizeMode="contain"
@@ -122,6 +124,7 @@ export default function WelcomeScreen() {
 				style={styles.logo}
 			/>
 			<View style={styles.collage}>
+				{/* Collage temporarily hidden — uncomment to restore.
 				{BOTTOM_BLOCKS.map((block) => (
 					<Image
 						key={`${block.top}-${block.left}`}
@@ -138,6 +141,7 @@ export default function WelcomeScreen() {
 						]}
 					/>
 				))}
+				*/}
 			</View>
 			<View style={styles.footer}>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
