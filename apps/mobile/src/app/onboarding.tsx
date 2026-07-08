@@ -34,9 +34,9 @@ const TOP_BLOCKS = [
 	{
 		top: "12%",
 		left: "30%",
-		width: 90,
+		width: 96,
 		height: 128,
-		source: require("../../assets/images/onboarding/collage-2.webp"),
+		source: require("../../assets/images/onboarding/collage-6.png"),
 	},
 	{
 		top: "36%",
@@ -49,8 +49,8 @@ const TOP_BLOCKS = [
 		top: "56%",
 		left: "82%",
 		width: 52,
-		height: 69,
-		source: require("../../assets/images/onboarding/collage-6.png"),
+		height: 74,
+		source: require("../../assets/images/onboarding/collage-2.webp"),
 	},
 ] as const;
 
