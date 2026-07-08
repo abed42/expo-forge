@@ -22,7 +22,7 @@ export function createSupabaseClient(
 
 	// Metro statically inlines process.env.EXPO_PUBLIC_* member expressions in client bundles.
 	const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-	const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+	const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_KEY;
 
 	if (!supabaseUrl) {
 		throw new Error(
@@ -30,13 +30,13 @@ export function createSupabaseClient(
 		);
 	}
 
-	if (!supabaseAnonKey) {
+	if (!supabaseKey) {
 		throw new Error(
-			"[@repo/backend] Missing required environment variable EXPO_PUBLIC_SUPABASE_ANON_KEY.",
+			"[@repo/backend] Missing required environment variable EXPO_PUBLIC_SUPABASE_KEY.",
 		);
 	}
 
-	supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+	supabaseClient = createClient<Database>(supabaseUrl, supabaseKey, {
 		auth: {
 			storage: options.storage,
 			storageKey: options.storageKey ?? "expo-forge-auth",
