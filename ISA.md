@@ -3,7 +3,7 @@ task: Build expo-forge — production-grade Expo template (next-forge philosophy
 project: expo-forge
 effort: E3
 phase: build
-progress: 32/46
+progress: 32/52
 mode: standard
 started: 2026-07-07T14:00:00Z
 updated: 2026-07-07T15:30:00Z
@@ -157,3 +157,11 @@ A cloneable, wizard-installed Expo monorepo template where `bun install` + typec
 - ISC-35 (partial): onboarding + sign-in code-complete with Stack.Protected gating (tsc + biome clean); [x] deferred until simulator screenshot probe.
 - 2026-07-07: TEMPLATE GOTCHA (shipped): @clerk/expo v3 links ClerkKit via SPM and requires iOS deploymentTarget >= 17.0; Expo SDK 57 defaults to 16.4 → pod install post-install hook crashes ("package_product_dependencies for nil") with the real cause buried: "[Expo] @clerk/expo was not linked: requires iOS 17.0 but app targets 16.4". Fix encoded: expo-build-properties plugin with ios.deploymentTarget 17.0. The CLI wizard must set this whenever auth is kept.
 - 2026-07-07: TEMPLATE GOTCHA (shipped): @clerk/expo -> @clerk/react peer-installs react-dom; bun resolves it to latest, which breaks React's exact-version requirement at runtime ("Incompatible React versions"). Fix encoded: root package.json overrides pin react AND react-dom to the SDK's exact react version. Belongs in tooling/pins.json discipline.
+
+### Auth parity with next-forge (added 2026-07-07, user directive: "do as much as next-forge")
+- [ ] ISC-47: sign-in/sign-up screens packaged as @repo/auth RN components (app routes become thin wrappers)
+- [ ] ISC-48: Supabase third-party auth with Clerk — client accessToken getter passes Clerk JWT; RLS policies key on Clerk user id
+- [ ] ISC-49: Clerk webhook -> Supabase Edge Function (svix-verified) syncing user creation/update/deletion
+- [ ] ISC-50: profiles row exists after first sign-up (probe: SELECT by clerk user id)
+- [ ] ISC-51: profile tab shows user identity + working sign-out
+- [ ] ISC-52: Anti: CLERK_SECRET_KEY never appears in any client env file or bundle
