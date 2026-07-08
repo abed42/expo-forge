@@ -165,7 +165,6 @@ export default function HomeScreen() {
 				}}
 				data={listData}
 				ItemSeparatorComponent={FeedSeparator}
-				ListFooterComponent={TestNotificationButton}
 				keyExtractor={(item) =>
 					typeof item === "number" ? `skeleton-${item}` : item.id
 				}
@@ -180,6 +179,7 @@ export default function HomeScreen() {
 							<Skeleton height={14} width={160} />
 							<Skeleton height={14} width={120} />
 							<Skeleton height={14} width={120} />
+							<TestNotificationButton />
 						</View>
 					) : (
 						<View style={styles.feedItem}>
@@ -196,6 +196,7 @@ export default function HomeScreen() {
 							{item.subtitle ? (
 								<Text style={styles.itemSubtitle}>{item.subtitle}</Text>
 							) : null}
+							<TestNotificationButton />
 						</View>
 					)
 				}
@@ -285,7 +286,7 @@ const styles = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.pill,
 		justifyContent: "center",
-		marginTop: theme.gap(4),
+		marginTop: theme.gap(1),
 		minHeight: 48,
 	},
 	testButtonPressed: {

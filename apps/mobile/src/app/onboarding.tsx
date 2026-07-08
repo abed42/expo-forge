@@ -356,9 +356,9 @@ const styles = StyleSheet.create((theme) => ({
 		minHeight: 48,
 	},
 	primaryIcon: {
-		height: 21,
+		height: 24,
 		tintColor: theme.colors.onInk,
-		width: 21,
+		width: 24,
 	},
 	primaryLabel: {
 		...theme.type.body,
