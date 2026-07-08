@@ -1,16 +1,11 @@
-import { useSignIn, useSignUp, useSSO } from "@repo/auth";
+import { useSignIn, useSignUp } from "@repo/auth";
 import { Button } from "@repo/design-system";
-import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
-import { Image, Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native-unistyles";
 
-WebBrowser.maybeCompleteAuthSession();
-
 type Phase = "email" | "code";
-type SSOStrategy = "oauth_apple" | "oauth_google";
 type Mode = "signIn" | "signUp";
 
 // Combined email-code sign-in/sign-up on Clerk's Core 3 result-object API:
@@ -20,7 +15,6 @@ type Mode = "signIn" | "signUp";
 export default function SignInScreen() {
 	const { signIn } = useSignIn();
 	const { signUp } = useSignUp();
-	const { startSSOFlow } = useSSO();
 	const [phase, setPhase] = useState<Phase>("email");
 	const [mode, setMode] = useState<Mode>("signIn");
 	const [email, setEmail] = useState("");
@@ -58,32 +52,6 @@ export default function SignInScreen() {
 			setPhase("code");
 		}
 		setBusy(false);
-	};
-
-	const continueWithSSO = async (strategy: SSOStrategy) => {
-		if (busy) {
-			return;
-		}
-		setBusy(true);
-		setError(null);
-		try {
-			const { createdSessionId, setActive } = await startSSOFlow({
-				strategy,
-				redirectUrl: AuthSession.makeRedirectUri(),
-			});
-			if (createdSessionId && setActive) {
-				await setActive({ session: createdSessionId });
-			} else {
-				setError(
-					"This account needs extra steps — continue with email instead.",
-				);
-			}
-		} catch (ssoError) {
-			console.error("[auth] SSO failed:", JSON.stringify(ssoError));
-			setError("Could not complete sign-in. Try again.");
-		} finally {
-			setBusy(false);
-		}
 	};
 
 	const verifyCode = async () => {
@@ -147,33 +115,6 @@ export default function SignInScreen() {
 							label={busy ? "Sending code…" : "Continue with Email"}
 							onPress={continueWithEmail}
 						/>
-						<Pressable
-							accessibilityRole="button"
-							disabled={busy}
-							onPress={() => continueWithSSO("oauth_apple")}
-							style={({ pressed }) => [
-								styles.ssoButton,
-								pressed ? styles.ssoButtonPressed : null,
-							]}
-						>
-							<Text style={styles.ssoIcon}>{"\uF8FF"}</Text>
-							<Text style={styles.ssoLabel}>Continue with Apple</Text>
-						</Pressable>
-						<Pressable
-							accessibilityRole="button"
-							disabled={busy}
-							onPress={() => continueWithSSO("oauth_google")}
-							style={({ pressed }) => [
-								styles.ssoButton,
-								pressed ? styles.ssoButtonPressed : null,
-							]}
-						>
-							<Image
-								source={require("../../assets/images/google-g.png")}
-								style={styles.ssoLogo}
-							/>
-							<Text style={styles.ssoLabel}>Continue with Google</Text>
-						</Pressable>
 					</>
 				) : (
 					<>
@@ -252,31 +193,8 @@ const styles = StyleSheet.create((theme) => ({
 		justifyContent: "center",
 		minHeight: 44,
 	},
-	ssoButton: {
-		alignItems: "center",
-		backgroundColor: theme.colors.fill,
-		borderRadius: theme.radius.pill,
-		flexDirection: "row",
-		gap: theme.gap(1),
-		justifyContent: "center",
-		minHeight: 48,
-		paddingHorizontal: theme.gap(3),
-	},
-	ssoIcon: {
-		color: theme.colors.ink,
-		fontSize: 18,
-	},
-	ssoLogo: {
-		height: 18,
-		width: 18,
-	},
 	ssoButtonPressed: {
 		opacity: 0.85,
-	},
-	ssoLabel: {
-		...theme.type.body,
-		color: theme.colors.ink,
-		fontWeight: "600",
 	},
 	secondaryLabel: {
 		...theme.type.body,
