@@ -309,6 +309,7 @@ const styles = StyleSheet.create((theme) => ({
 		alignItems: "center",
 		flex: 0.5,
 		justifyContent: "center",
+		paddingBottom: theme.gap(7),
 	},
 	logo: {
 		height: 58,
