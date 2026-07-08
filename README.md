@@ -1,6 +1,6 @@
 # ∧ / expo-forge
 
-**Production-grade Turborepo template for Expo apps.**
+**Production-grade template for Expo apps.**
 
 <div>
   <img src="https://img.shields.io/npm/dy/create-expo-forge" alt="" />
@@ -10,7 +10,7 @@
 
 ## Overview
 
-expo-forge is a production-grade [Turborepo](https://turborepo.com) template for [Expo](https://expo.dev) apps. It's designed to be a comprehensive starting point for building mobile applications, providing a solid, opinionated foundation with minimal configuration required.
+expo-forge is a production-grade template for [Expo](https://expo.dev) apps. It's designed to be a comprehensive starting point for building mobile applications, providing a solid, opinionated foundation with minimal configuration required.
 
 Modeled on [next-forge](https://github.com/vercel/next-forge), expo-forge brings the same philosophy to native mobile: balance speed and quality to help you ship thoroughly-built products faster.
 
