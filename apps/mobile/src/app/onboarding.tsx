@@ -1,6 +1,5 @@
 import { useSSO } from "@repo/auth";
 import * as AuthSession from "expo-auth-session";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";

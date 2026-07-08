@@ -41,7 +41,9 @@
 	},
 	"expo": {
 		"install": {
-			"exclude": ["react-native-reanimated"]
+			"exclude": [
+				"react-native-reanimated"
+			]
 		}
 	},
 	"devDependencies": {

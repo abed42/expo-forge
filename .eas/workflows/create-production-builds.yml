@@ -1,0 +1,22 @@
+# Manually triggered production builds for both platforms.
+# Run with: eas workflow:run create-production-builds.yml
+# Requires the project to be linked to EAS (`eas init`) — see README "CI".
+name: Create production builds
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_ios:
+    name: Build iOS app
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  build_android:
+    name: Build Android app
+    type: build
+    params:
+      platform: android
+      profile: production
