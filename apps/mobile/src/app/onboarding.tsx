@@ -5,21 +5,54 @@ import { StyleSheet } from "react-native-unistyles";
 
 import { useSession } from "@/lib/session";
 
-// Placeholder collage: monochrome tiles stand in for imagery until the demo
-// data layer lands. Two loose bands, varied portrait/square sizes spread
-// edge-to-edge with clear gaps — per the Cosmos reference.
+// Editorial collage — two loose bands, varied portrait/square tiles spread
+// edge-to-edge with clear gaps, main character largest (Cosmos reference).
 const TOP_BLOCKS = [
-	{ top: "34%", left: "6%", width: 74, height: 74 },
-	{ top: "4%", left: "30%", width: 92, height: 118 },
-	{ top: "22%", left: "58%", width: 84, height: 100 },
-	{ top: "52%", left: "84%", width: 54, height: 58 },
+	{
+		top: "32%",
+		left: "7%",
+		width: 78,
+		height: 78,
+		source: require("../../assets/images/onboarding/collage-1.webp"),
+	},
+	{
+		top: "2%",
+		left: "33%",
+		width: 94,
+		height: 120,
+		source: require("../../assets/images/onboarding/collage-2.webp"),
+	},
+	{
+		top: "26%",
+		left: "64%",
+		width: 84,
+		height: 102,
+		source: require("../../assets/images/onboarding/collage-3.webp"),
+	},
 ] as const;
 
 const BOTTOM_BLOCKS = [
-	{ top: "10%", left: "7%", width: 78, height: 94 },
-	{ top: "52%", left: "28%", width: 58, height: 58 },
-	{ top: "18%", left: "44%", width: 104, height: 128 },
-	{ top: "6%", left: "78%", width: 68, height: 62 },
+	{
+		top: "12%",
+		left: "8%",
+		width: 78,
+		height: 94,
+		source: require("../../assets/images/onboarding/collage-4.webp"),
+	},
+	{
+		top: "8%",
+		left: "40%",
+		width: 108,
+		height: 134,
+		source: require("../../assets/images/onboarding/main.webp"),
+	},
+	{
+		top: "4%",
+		left: "76%",
+		width: 72,
+		height: 66,
+		source: require("../../assets/images/onboarding/collage-5.webp"),
+	},
 ] as const;
 
 export default function OnboardingScreen() {
@@ -32,8 +65,10 @@ export default function OnboardingScreen() {
 			</Text>
 			<View style={styles.collage}>
 				{TOP_BLOCKS.map((block) => (
-					<View
+					<Image
 						key={`${block.top}-${block.left}`}
+						resizeMode="cover"
+						source={block.source}
 						style={[
 							styles.block,
 							{
@@ -53,8 +88,10 @@ export default function OnboardingScreen() {
 			/>
 			<View style={styles.collage}>
 				{BOTTOM_BLOCKS.map((block) => (
-					<View
+					<Image
 						key={`${block.top}-${block.left}`}
+						resizeMode="cover"
+						source={block.source}
 						style={[
 							styles.block,
 							{
@@ -104,9 +141,7 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	block: {
 		backgroundColor: theme.colors.fill,
-		borderColor: theme.colors.border,
 		borderRadius: 2,
-		borderWidth: 1,
 		position: "absolute",
 	},
 	logo: {
