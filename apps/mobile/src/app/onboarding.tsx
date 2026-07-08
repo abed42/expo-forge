@@ -14,7 +14,7 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native-unistyles";
+import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -141,6 +141,7 @@ function FloatingTile({ block, index }: { block: TileBlock; index: number }) {
 // Welcome doubles as the auth entry: SSO completes right here (session
 // activation flips the guards); the email flow pushes to /sign-in.
 export default function WelcomeScreen() {
+	const { theme } = useUnistyles();
 	const { startSSOFlow } = useSSO();
 	const router = useRouter();
 	const [error, setError] = useState<string | null>(null);
@@ -191,7 +192,7 @@ export default function WelcomeScreen() {
 									source={icon.source}
 									style={[
 										styles.chipIcon,
-										icon.mono ? styles.chipIconMono : null,
+										icon.mono ? { tintColor: theme.colors.ink } : null,
 									]}
 								/>
 							</View>
@@ -293,9 +294,6 @@ const styles = StyleSheet.create((theme) => ({
 	chipIcon: {
 		height: 18,
 		width: 18,
-	},
-	chipIconMono: {
-		tintColor: theme.colors.ink,
 	},
 	tagline: {
 		...theme.type.title,
