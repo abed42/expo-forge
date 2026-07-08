@@ -26,7 +26,7 @@ type SSOStrategy = "oauth_apple" | "oauth_google";
 const DECK_BLOCKS = [
 	{
 		top: "44%",
-		left: "8%",
+		left: "2%",
 		width: 99,
 		height: 141,
 		rotate: "-15deg",
@@ -34,7 +34,7 @@ const DECK_BLOCKS = [
 	},
 	{
 		top: "22%",
-		left: "26%",
+		left: "22%",
 		width: 112,
 		height: 140,
 		rotate: "-4deg",
@@ -42,7 +42,7 @@ const DECK_BLOCKS = [
 	},
 	{
 		top: "28%",
-		left: "45%",
+		left: "48%",
 		width: 103,
 		height: 137,
 		rotate: "7deg",
@@ -50,7 +50,7 @@ const DECK_BLOCKS = [
 	},
 	{
 		top: "46%",
-		left: "61%",
+		left: "70%",
 		width: 103,
 		height: 137,
 		rotate: "16deg",
