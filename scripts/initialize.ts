@@ -592,6 +592,12 @@ export const initialize = async (options: InitOptions) => {
 			);
 		}
 
+		if (installed) {
+			failedStep = "format-transformed-sources";
+			finalize.message("Formatting transformed app sources...");
+			run("bunx", ["biome", "check", "--write", "apps/mobile/src"], targetDir);
+		}
+
 		failedStep = "write-next-steps";
 		const keys = buildKeyReport(decisions);
 		const pendingSteps = buildPendingSteps(keys, installed);
