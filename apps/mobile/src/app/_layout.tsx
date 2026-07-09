@@ -42,6 +42,7 @@ function RootNavigator() {
 				    users can land on search/detail after sign-out. */}
 				<Stack.Screen name="search" options={{ animation: "fade" }} />
 				<Stack.Screen name="item/[id]" />
+				<Stack.Screen name="paywall" />
 			</Stack.Protected>
 		</Stack>
 	);

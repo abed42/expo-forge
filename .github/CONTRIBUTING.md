@@ -18,13 +18,14 @@ expo-forge uses [Bun](https://bun.sh) workspaces with [Turborepo](https://turbor
 
 ```sh
 bun install
-cp .env.example .env   # add your Clerk + Supabase keys
+cp apps/mobile/.env.example apps/mobile/.env.local   # ONLY path Expo loads
+# edit apps/mobile/.env.local — a repo-root .env is ignored by Metro
 bun typecheck          # turbo typecheck across the workspace
 bun lint               # turbo lint (Biome)
 bun run fix            # biome check --write .
 ```
 
-To run the app, use the dev-client workflow (not Expo Go):
+To run the app, use the dev-client workflow (not Expo Go). Restart Metro after any `EXPO_PUBLIC_*` change:
 
 ```sh
 cd apps/mobile && bun ios

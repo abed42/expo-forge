@@ -125,9 +125,17 @@ Every scaffold also receives a human-readable `NEXT_STEPS.md` (same steps as che
 
 If you cloned manually instead of using the wizard:
 
-1. Copy `.env.example` to `.env` and fill in the required keys: your Clerk publishable key (`EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`) and Supabase URL and publishable key (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`)
-2. Optionally add PostHog, Sentry, or RevenueCat keys — each vendor stays inert until its key is set
-3. Build and run the dev client:
+1. **Env lives only under the app** (Expo project root = `apps/mobile/`):
+
+```sh
+cp apps/mobile/.env.example apps/mobile/.env.local
+```
+
+Fill in the required keys in `apps/mobile/.env.local`: Clerk publishable key (`EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`) and Supabase URL + publishable key (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`). Optionally add PostHog, Sentry, or RevenueCat — each vendor stays inert until its key is set.
+
+> A repo-root `.env` / `.env.local` is **not** loaded. Keys there will look present in your editor and still be `undefined` at runtime.
+
+2. Build and run the dev client (restart Metro after any `EXPO_PUBLIC_*` change):
 
 ```sh
 cd apps/mobile && bun ios
@@ -142,7 +150,7 @@ expo-forge uses a monorepo structure managed by Turborepo with Bun workspaces:
 ```
 expo-forge/
 ├── apps/
-│   └── mobile/              # Expo app (welcome, auth, home, profile)
+│   └── mobile/              # Expo app — .env.local lives HERE (next to app.json)
 ├── packages/
 │   ├── auth/                # Clerk (@clerk/expo)
 │   ├── backend/             # Supabase client, RLS migration, types
@@ -158,7 +166,7 @@ expo-forge/
     └── pins.json            # Single source for native-coupled versions
 ```
 
-#> **Tip:** both key sets can come from CLIs instead of dashboards — `clerk env pull` (after `clerk link`) writes the Clerk publishable key, and `supabase projects api-keys` prints the Supabase publishable key. If you use `clerk env pull`, delete the `CLERK_SECRET_KEY` line it adds — secrets don't belong in client env files.
+#> **Tip:** both key sets can come from CLIs instead of dashboards — `clerk env pull` (after `clerk link`, run from `apps/mobile`) writes the Clerk publishable key into `apps/mobile/.env.local`, and `supabase projects api-keys` prints the Supabase publishable key for the same file. If you use `clerk env pull`, delete the `CLERK_SECRET_KEY` line it adds — secrets don't belong in client env files.
 
 ## Version pinning
 
