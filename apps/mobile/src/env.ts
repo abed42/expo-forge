@@ -3,6 +3,7 @@ import { authKeys } from "@repo/auth/keys";
 import { backendKeys } from "@repo/backend/keys";
 import { composeEnv } from "@repo/env";
 import { observabilityKeys } from "@repo/observability";
+import { paymentsKeys } from "@repo/payments";
 
 // Importing this module validates the app's composed env once at boot —
 // missing required keys fail loud with the full variable list.
@@ -12,4 +13,5 @@ export const env = composeEnv(
 	backendKeys,
 	analyticsKeys,
 	observabilityKeys,
+	paymentsKeys,
 );

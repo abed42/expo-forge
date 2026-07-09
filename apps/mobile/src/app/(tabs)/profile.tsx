@@ -1,6 +1,8 @@
 import { useAuth, useUser } from "@repo/auth";
-import { Skeleton } from "@repo/design-system";
+import { Chip, IconButton, Skeleton } from "@repo/design-system";
 import { registerForPush } from "@repo/notifications";
+import { useRouter } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
 import {
 	ActionSheetIOS,
@@ -14,7 +16,7 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native-unistyles";
+import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
 import {
 	APPEARANCE_LABELS,
@@ -22,31 +24,18 @@ import {
 	loadAppearance,
 	saveAppearance,
 } from "@/lib/appearance";
+import { useFeed } from "@/lib/feed";
 
-type Row = {
-	label: string;
-	value?: string | null;
-	onPress?: () => void;
-};
-
-type Section = {
-	title: string;
-	rows: Row[];
-};
-
-// Profile is fed entirely by Clerk's client-side user object — every field
-// Clerk exposes that makes sense on a settings surface. Absent values render
-// skeleton bars instead of empty strings.
-const APPEARANCE_OPTIONS: AppearancePreference[] = ["system", "light", "dark"];
-
-// Push registration is session-scoped for now: the row reflects the latest
-// attempt, and the token is only logged until a backend delivery phase
-// stores it server-side.
 type NotificationsValue = "Off" | "Enabled" | "Unavailable" | "Needs setup";
 
+const APPEARANCE_OPTIONS: AppearancePreference[] = ["system", "light", "dark"];
+
 export default function ProfileScreen() {
+	const router = useRouter();
+	const { theme } = useUnistyles();
 	const { user, isLoaded } = useUser();
 	const { signOut } = useAuth();
+	const { items } = useFeed();
 	const [appearance, setAppearance] = useState<AppearancePreference>("system");
 	const insets = useSafeAreaInsets();
 	const [notifications, setNotifications] = useState<NotificationsValue>("Off");
@@ -93,8 +82,6 @@ export default function ProfileScreen() {
 		const result = await registerForPush();
 
 		if (result.ok) {
-			// Backend delivery is a later phase — for now the token only needs to
-			// be visible to whoever is wiring up a push provider.
 			console.info("[mobile] Expo push token:", result.token);
 			setNotifications("Enabled");
 			return;
@@ -138,10 +125,11 @@ export default function ProfileScreen() {
 	const googleAccount = user?.externalAccounts?.find(
 		(account) => account.provider === "google",
 	);
+	const appleAccount = user?.externalAccounts?.find(
+		(account) => account.provider === "apple",
+	);
 
 	const editUsername = () => {
-		// iOS-only prompt is fine for the iOS-first template; Android gets a
-		// dedicated edit screen when the demo grows one.
 		Alert.prompt(
 			"Set username",
 			"Requires the Username attribute to be enabled in your Clerk dashboard.",
@@ -164,64 +152,10 @@ export default function ProfileScreen() {
 		);
 	};
 
-	const sections: Section[] = [
-		{
-			title: "Account",
-			rows: [
-				{ label: "Name", value: user?.fullName },
-				{ label: "Username", value: user?.username, onPress: editUsername },
-				{
-					label: "Email",
-					value: user?.primaryEmailAddress?.emailAddress,
-				},
-				{ label: "Phone", value: user?.primaryPhoneNumber?.phoneNumber },
-			],
-		},
-		{
-			title: "Connections",
-			rows: [
-				{
-					label: "Google",
-					value: googleAccount
-						? (googleAccount.emailAddress ?? "Connected")
-						: null,
-				},
-				{ label: "Apple", value: null },
-			],
-		},
-		{
-			title: "App",
-			rows: [
-				{
-					label: "Appearance",
-					value: APPEARANCE_LABELS[appearance],
-					onPress: chooseAppearance,
-				},
-				{
-					label: "Notifications",
-					value: notifications,
-					onPress: enableNotifications,
-				},
-			],
-		},
-		{
-			title: "Security",
-			rows: [
-				{
-					label: "Two-factor auth",
-					value: user ? (user.twoFactorEnabled ? "On" : "Off") : null,
-				},
-				{
-					label: "Passkeys",
-					value: user ? `${user.passkeys?.length ?? 0}` : null,
-				},
-			],
-		},
-	];
+	const masonryPreview = items.slice(0, 6);
 
 	return (
 		<ScrollView
-			// contentInsetAdjustmentBehavior is iOS-only; Android needs the inset applied.
 			contentContainerStyle={[
 				styles.content,
 				Platform.OS === "android" ? { paddingTop: insets.top + 16 } : null,
@@ -229,68 +163,140 @@ export default function ProfileScreen() {
 			contentInsetAdjustmentBehavior="automatic"
 			style={styles.screen}
 		>
-			<Text style={styles.title}>Profile</Text>
+			<View style={styles.topBar}>
+				<Text style={styles.title}>Profile</Text>
+				<IconButton accessibilityLabel="Sign out" onPress={() => signOut()}>
+					<SymbolView
+						name="rectangle.portrait.and.arrow.right"
+						size={17}
+						tintColor={theme.colors.ink}
+					/>
+				</IconButton>
+			</View>
 
 			<View style={styles.identity}>
 				{isLoaded && user?.imageUrl ? (
 					<Image source={{ uri: user.imageUrl }} style={styles.avatar} />
 				) : (
-					<Skeleton height={56} radius={28} width={56} />
+					<Skeleton height={88} radius={44} width={88} />
 				)}
-				<View style={styles.identityText}>
-					{isLoaded && user?.fullName ? (
-						<Text style={styles.name}>{user.fullName}</Text>
-					) : (
-						<Skeleton height={18} width={140} />
-					)}
-					{isLoaded && user ? (
-						<Text style={styles.identitySub}>
-							Joined{" "}
-							{user.createdAt
-								? new Date(user.createdAt).toLocaleDateString(undefined, {
-										month: "long",
-										year: "numeric",
-									})
-								: "recently"}
-						</Text>
-					) : (
-						<Skeleton height={13} width={90} />
-					)}
+				{isLoaded && user?.fullName ? (
+					<Text style={styles.name}>{user.fullName}</Text>
+				) : (
+					<Skeleton height={22} width={160} />
+				)}
+				{isLoaded && user ? (
+					<Text style={styles.identitySub}>
+						{user.username
+							? `@${user.username}`
+							: (user.primaryEmailAddress?.emailAddress ?? "Signed in")}
+					</Text>
+				) : (
+					<Skeleton height={14} width={120} />
+				)}
+			</View>
+
+			<View style={styles.chips}>
+				<Chip
+					count={masonryPreview.length || undefined}
+					icon={
+						<SymbolView
+							name="square.grid.2x2"
+							size={14}
+							tintColor={theme.colors.ink}
+						/>
+					}
+					label="Feed"
+					onPress={() => router.push("/")}
+				/>
+				<Chip
+					icon={
+						<SymbolView
+							name={
+								appearance === "dark"
+									? "moon.fill"
+									: appearance === "light"
+										? "sun.max.fill"
+										: "circle.lefthalf.filled"
+							}
+							size={14}
+							tintColor={theme.colors.ink}
+						/>
+					}
+					label={APPEARANCE_LABELS[appearance]}
+					onPress={chooseAppearance}
+				/>
+				<Chip
+					icon={
+						<SymbolView name="bell" size={14} tintColor={theme.colors.ink} />
+					}
+					label={notifications}
+					onPress={enableNotifications}
+				/>
+			</View>
+
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Account</Text>
+				<Pressable
+					onPress={editUsername}
+					style={({ pressed }) => [
+						styles.row,
+						pressed ? styles.rowPressed : null,
+					]}
+				>
+					<Text style={styles.rowLabel}>Username</Text>
+					<Text style={styles.rowValue}>
+						{user?.username ? `@${user.username}` : "Set"}
+					</Text>
+				</Pressable>
+				<View style={[styles.row, styles.rowBorder]}>
+					<Text style={styles.rowLabel}>Email</Text>
+					<Text numberOfLines={1} style={styles.rowValue}>
+						{user?.primaryEmailAddress?.emailAddress ?? "—"}
+					</Text>
+				</View>
+				<View style={[styles.row, styles.rowBorder]}>
+					<Text style={styles.rowLabel}>Google</Text>
+					<Text numberOfLines={1} style={styles.rowValue}>
+						{googleAccount
+							? (googleAccount.emailAddress ?? "Connected")
+							: "Not connected"}
+					</Text>
+				</View>
+				<View style={[styles.row, styles.rowBorder]}>
+					<Text style={styles.rowLabel}>Apple</Text>
+					<Text numberOfLines={1} style={styles.rowValue}>
+						{appleAccount
+							? (appleAccount.emailAddress ?? "Connected")
+							: "Not connected"}
+					</Text>
 				</View>
 			</View>
 
-			{sections.map((section) => (
-				<View key={section.title} style={styles.section}>
-					<Text style={styles.sectionTitle}>{section.title}</Text>
-					<View>
-						{section.rows.map((row, index) => (
+			{masonryPreview.length > 0 ? (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Recent</Text>
+					<View style={styles.masonry}>
+						{masonryPreview.map((item) => (
 							<Pressable
-								disabled={!row.onPress}
-								key={row.label}
-								onPress={row.onPress}
-								style={({ pressed }) => [
-									styles.row,
-									index > 0 ? styles.rowBorder : null,
-									pressed && row.onPress ? styles.rowPressed : null,
-								]}
+								key={item.id}
+								onPress={() => router.push(`/item/${item.id}`)}
+								style={styles.masonryCell}
 							>
-								<Text style={styles.rowLabel}>{row.label}</Text>
-								<View style={styles.rowRight}>
-									{!isLoaded ? (
-										<Skeleton width={110} />
-									) : row.value ? (
-										<Text numberOfLines={1} style={styles.rowValue}>
-											{row.value}
-										</Text>
-									) : (
-										<Skeleton width={110} />
-									)}
+								<View style={styles.masonryCard}>
+									{item.image_url ? (
+										<Image
+											resizeMode="cover"
+											source={{ uri: item.image_url }}
+											style={styles.masonryImage}
+										/>
+									) : null}
 								</View>
 							</Pressable>
 						))}
 					</View>
 				</View>
-			))}
+			) : null}
 
 			<Pressable
 				accessibilityRole="button"
@@ -312,9 +318,14 @@ const styles = StyleSheet.create((theme) => ({
 		flex: 1,
 	},
 	content: {
-		gap: theme.gap(2.5),
+		gap: theme.gap(3),
 		padding: theme.gap(3),
 		paddingBottom: theme.gap(16),
+	},
+	topBar: {
+		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "space-between",
 	},
 	title: {
 		...theme.type.largeTitle,
@@ -322,28 +333,31 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	identity: {
 		alignItems: "center",
-		flexDirection: "row",
-		gap: theme.gap(2),
+		gap: theme.gap(1),
 	},
 	avatar: {
-		borderRadius: theme.radius.pill,
-		height: 56,
-		width: 56,
-	},
-	identityText: {
-		flex: 1,
-		gap: theme.gap(0.75),
+		borderRadius: 44,
+		height: 88,
+		width: 88,
 	},
 	name: {
 		...theme.type.title,
 		color: theme.colors.ink,
-		fontSize: 20,
-		lineHeight: 25,
+		fontSize: 22,
+		lineHeight: 28,
+		textAlign: "center",
 	},
 	identitySub: {
 		...theme.type.caption,
 		color: theme.colors.secondary,
 		fontWeight: "400",
+		textAlign: "center",
+	},
+	chips: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: theme.gap(1),
+		justifyContent: "center",
 	},
 	section: {
 		gap: theme.gap(1),
@@ -371,16 +385,28 @@ const styles = StyleSheet.create((theme) => ({
 		...theme.type.body,
 		color: theme.colors.ink,
 	},
-	rowRight: {
-		alignItems: "center",
-		flexDirection: "row",
-		flexShrink: 1,
-		gap: theme.gap(1),
-	},
 	rowValue: {
 		...theme.type.body,
 		color: theme.colors.secondary,
 		flexShrink: 1,
+	},
+	masonry: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: theme.gap(1),
+	},
+	masonryCell: {
+		width: "31.5%",
+	},
+	masonryCard: {
+		aspectRatio: 0.85,
+		backgroundColor: theme.colors.fill,
+		borderRadius: theme.radius.card,
+		overflow: "hidden",
+	},
+	masonryImage: {
+		height: "100%",
+		width: "100%",
 	},
 	signOut: {
 		alignItems: "center",

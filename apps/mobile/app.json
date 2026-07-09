@@ -25,7 +25,7 @@
 			]
 		],
 		"ios": {
-			"bundleIdentifier": "com.stephanos62.expo-forge-demo",
+			"bundleIdentifier": "com.example.expo-forge-demo",
 			"icon": {
 				"light": "./assets/images/icon/icon-light.png",
 				"dark": "./assets/images/icon/icon-dark.png",
@@ -39,7 +39,7 @@
 				"monochromeImage": "./assets/images/icon/icon-android-monochrome.png",
 				"backgroundColor": "#FFFFFF"
 			},
-			"package": "com.stephanos62.expoforgedemo"
+			"package": "com.example.expoforgedemo"
 		}
 	}
 }

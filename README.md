@@ -31,7 +31,7 @@ expo-forge is built around five core principles:
 
 ## Status
 
-expo-forge is a work in progress. The template itself builds and runs today; the `create-expo-forge` CLI v0.1 is in the repo, publishing soon. Until then, clone the repository directly. (The bare `expo-forge` npm name belongs to an unrelated package — the package ships as `create-expo-forge`, installed via `bun create expo-forge`.)
+expo-forge ships today: the template builds and runs (iOS + Android development clients), and `create-expo-forge@0.1` is published on npm. Scaffold with `bun create expo-forge`. (The bare `expo-forge` npm name belongs to an unrelated package — this project ships as `create-expo-forge`.)
 
 ## Features
 
@@ -39,13 +39,13 @@ expo-forge comes with batteries included:
 
 ### Apps
 
-- **Mobile** — Expo app with welcome, auth, home, and profile screens, built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
+- **Mobile** — Expo app with onboarding/auth, masonry home feed, item detail (Apple zoom), search, and profile — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
 
 ### Packages
 
 - **Authentication** — Powered by [Clerk](https://clerk.com) via `@clerk/expo` — email code plus Apple/Google SSO
 - **Backend** — [Supabase](https://supabase.com) client factory, an RLS example migration, and generated types
-- **Design System** — Design tokens via [react-native-unistyles](https://www.unistyl.es) v3 (light/dark adaptive), Button/IconButton/Skeleton components, and a NavThemeProvider
+- **Design System** — Design tokens via [react-native-unistyles](https://www.unistyl.es) v3 (light/dark adaptive), Button/IconButton/Chip/SearchField/Skeleton, and a NavThemeProvider
 - **System materials** — All glass surfaces (tab bar, header chrome, buttons) use real Liquid Glass APIs (SwiftUI `glassEffect`, `expo-glass-effect`), so they automatically respect the user's iOS 26 appearance setting (Clear/Tinted) and accessibility options like Reduce Transparency
 - **Analytics** — Product analytics via [PostHog](https://posthog.com) (optional)
 - **Observability** — Error tracking via [Sentry](https://sentry.io) (optional)
@@ -67,7 +67,7 @@ Optional vendor packages no-op when their keys are unset — the app runs with j
 
 ### Installation
 
-Scaffold a new app with the init wizard (once the package is published):
+Scaffold a new app with the init wizard:
 
 ```sh
 bun create expo-forge my-app
@@ -75,12 +75,12 @@ bun create expo-forge my-app
 
 The wizard clones the template, renames the app and bundle identifier, prompts for your vendor keys with live validation (every key is skippable — add it later in `apps/mobile/.env.local`), lets you remove the optional vendors entirely (package, deps, and wiring stripped cleanly), and runs `bun install`.
 
-Until it's published, clone the repository and run the CLI locally:
+To exercise the CLI against a local checkout (agents / contributors):
 
 ```sh
 git clone https://github.com/abed42/expo-forge.git
 cd expo-forge && bun install && bunx tsup
-cd .. && node expo-forge/dist/index.js init my-app --template ./expo-forge
+cd .. && node expo-forge/dist/index.js init my-app --template ./expo-forge --yes --skip-optional
 ```
 
 #### CLI flags
@@ -195,15 +195,14 @@ Two [EAS Workflows](https://docs.expo.dev/eas/workflows/) live in `.eas/workflow
 - `create-production-builds.yml` — manual trigger (`eas workflow:run create-production-builds.yml`), builds iOS + Android with the `production` profile
 - `publish-preview-update.yml` — on push to `main`, publishes an OTA update to the `preview` branch
 
-They are syntax-complete but dormant until the project is linked to EAS. One-time activation: run `eas init` to create the EAS project and `eas.json` (the `.eas/` directory must sit next to `eas.json` — move it if `eas init` places `eas.json` in `apps/mobile/`), connect the GitHub repo to the EAS project on [expo.dev](https://expo.dev) so push triggers fire, and add an `EXPO_TOKEN` [access token](https://expo.dev/settings/access-tokens) as a repo secret for any CI-driven `eas` CLI calls.
+They are syntax-complete but dormant until the project is linked to EAS. One-time activation: run `eas init` (keep the committed root `eas.json` profiles — or merge if `eas init` writes a new one), connect the GitHub repo to the EAS project on [expo.dev](https://expo.dev) so push triggers fire, and add an `EXPO_TOKEN` [access token](https://expo.dev/settings/access-tokens) as a repo secret for any CI-driven `eas` CLI calls. The `.eas/` workflows directory must sit next to `eas.json` at the repo root.
 
 ## Roadmap
 
-- CLI wizard (`create-expo-forge`) with schema-driven env prompts and optional-vendor removal
-- Clerk-JWT Supabase RLS integration and webhook user sync
-- Demo feed screen
+- Package sign-in/sign-up screens inside `@repo/auth` (app routes become thin wrappers)
 - Convex backend variant
-- EAS Workflows CI
+- Android polish parity (safe-area, glass fallbacks already ship; deeper Material refinement)
+- Hermes V1 + reanimated Android memory workaround docs
 
 ## Contributing
 

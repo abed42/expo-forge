@@ -171,6 +171,28 @@ export const removalEdits: Record<RemovablePackage, AnchorEdit[]> = {
 			replace: "",
 		},
 	],
-	// @repo/payments is not imported by the app yet — directory + dep only.
-	payments: [],
+	// @repo/payments is wired into env composition + boot configurePayments —
+	// strip those anchors when the vendor is removed.
+	payments: [
+		{
+			file: "apps/mobile/src/env.ts",
+			find: 'import { paymentsKeys } from "@repo/payments";\n',
+			replace: "",
+		},
+		{
+			file: "apps/mobile/src/env.ts",
+			find: "\tpaymentsKeys,\n",
+			replace: "",
+		},
+		{
+			file: "apps/mobile/src/app/_layout.tsx",
+			find: 'import { configurePayments } from "@repo/payments";\n',
+			replace: "",
+		},
+		{
+			file: "apps/mobile/src/app/_layout.tsx",
+			find: "configurePayments();\n\n",
+			replace: "",
+		},
+	],
 };
