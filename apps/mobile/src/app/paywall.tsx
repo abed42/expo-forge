@@ -1,12 +1,13 @@
 import { Button, IconButton, Skeleton } from "@repo/design-system";
 import {
-	isPaymentsConfigured,
+	getPaymentsStatus,
+	type PaymentsStatus,
 	type PurchaseResult,
 	usePaywall,
 } from "@repo/payments";
 import { Stack, useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
 import {
 	Alert,
 	Platform,
@@ -41,11 +42,113 @@ function isUserCancelled(error: unknown): boolean {
 	return /cancel/i.test(message);
 }
 
+type PaywallPackagesProps = {
+	busyId: string | null;
+	isLoading: boolean;
+	onPurchase: (pkg: PurchasesPackage) => Promise<void>;
+	packages: readonly PurchasesPackage[];
+	paymentsStatus: PaymentsStatus;
+};
+
+function PaywallPackages({
+	busyId,
+	isLoading,
+	onPurchase,
+	packages,
+	paymentsStatus,
+}: PaywallPackagesProps): ReactElement {
+	if (paymentsStatus === "missing-key") {
+		return (
+			<View style={styles.empty}>
+				<Text style={styles.emptyTitle}>API key missing</Text>
+				<Text style={styles.emptyBody}>
+					Add EXPO_PUBLIC_REVENUECAT_API_KEY to apps/mobile/.env.local (appl_…
+					on iOS, goog_… on Android), then restart Metro.
+				</Text>
+			</View>
+		);
+	}
+
+	if (paymentsStatus === "needs-native-rebuild") {
+		return (
+			<View style={styles.empty}>
+				<Text style={styles.emptyTitle}>Rebuild required</Text>
+				<Text style={styles.emptyBody}>
+					Your key is set, but RNPurchases is not in this binary. Rebuild the
+					dev client — Metro reload is not enough:
+					{"\n\n"}
+					cd apps/mobile && bun ios
+				</Text>
+			</View>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<View style={styles.packages}>
+				<View style={styles.skeletonRow}>
+					<Skeleton height={18} width={160} />
+					<Skeleton height={18} width={64} />
+				</View>
+				<View style={styles.skeletonRow}>
+					<Skeleton height={18} width={140} />
+					<Skeleton height={18} width={56} />
+				</View>
+			</View>
+		);
+	}
+
+	if (packages.length === 0) {
+		return (
+			<View style={styles.empty}>
+				<Text style={styles.emptyTitle}>No packages yet</Text>
+				<Text style={styles.emptyBody}>
+					Key is set, but RevenueCat returned no current offering. Create a
+					product + offering in the RevenueCat dashboard and mark it Current.
+				</Text>
+			</View>
+		);
+	}
+
+	return (
+		<View style={styles.packages}>
+			{packages.map((pkg) => {
+				const selected = busyId === pkg.identifier;
+				return (
+					<Pressable
+						disabled={Boolean(busyId)}
+						key={pkg.identifier}
+						onPress={() => void onPurchase(pkg)}
+						style={({ pressed }) => [
+							styles.packageRow,
+							pressed ? styles.packagePressed : null,
+							busyId && !selected ? styles.packageDimmed : null,
+						]}
+					>
+						<View style={styles.packageText}>
+							<Text style={styles.packageTitle}>{packageLabel(pkg)}</Text>
+							{pkg.product.description ? (
+								<Text numberOfLines={2} style={styles.packageDesc}>
+									{pkg.product.description}
+								</Text>
+							) : null}
+						</View>
+						<Text style={styles.packagePrice}>
+							{selected ? "…" : packagePrice(pkg)}
+						</Text>
+					</Pressable>
+				);
+			})}
+		</View>
+	);
+}
+
 export default function PaywallScreen() {
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
 	const { theme } = useUnistyles();
-	const configured = isPaymentsConfigured();
+	const paymentsStatus = getPaymentsStatus();
+	const configured = paymentsStatus === "ready";
 	const { offerings, isLoading, purchase, restore } = usePaywall();
 	const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -146,66 +249,13 @@ export default function PaywallScreen() {
 					configure an offering in the dashboard to see real packages.
 				</Text>
 
-				{!configured ? (
-					<View style={styles.empty}>
-						<Text style={styles.emptyTitle}>Payments not configured</Text>
-						<Text style={styles.emptyBody}>
-							Set EXPO_PUBLIC_REVENUECAT_API_KEY in apps/mobile/.env.local
-							(appl_… on iOS, goog_… on Android), then reload. Until then this
-							screen stays inert — same pattern as analytics and Sentry.
-						</Text>
-					</View>
-				) : isLoading ? (
-					<View style={styles.packages}>
-						<View style={styles.skeletonRow}>
-							<Skeleton height={18} width={160} />
-							<Skeleton height={18} width={64} />
-						</View>
-						<View style={styles.skeletonRow}>
-							<Skeleton height={18} width={140} />
-							<Skeleton height={18} width={56} />
-						</View>
-					</View>
-				) : packages.length === 0 ? (
-					<View style={styles.empty}>
-						<Text style={styles.emptyTitle}>No packages yet</Text>
-						<Text style={styles.emptyBody}>
-							Key is set, but RevenueCat returned no current offering. Create a
-							product + offering in the RevenueCat dashboard and mark it
-							Current.
-						</Text>
-					</View>
-				) : (
-					<View style={styles.packages}>
-						{packages.map((pkg) => {
-							const selected = busyId === pkg.identifier;
-							return (
-								<Pressable
-									disabled={Boolean(busyId)}
-									key={pkg.identifier}
-									onPress={() => void onPurchase(pkg)}
-									style={({ pressed }) => [
-										styles.packageRow,
-										pressed ? styles.packagePressed : null,
-										busyId && !selected ? styles.packageDimmed : null,
-									]}
-								>
-									<View style={styles.packageText}>
-										<Text style={styles.packageTitle}>{packageLabel(pkg)}</Text>
-										{pkg.product.description ? (
-											<Text numberOfLines={2} style={styles.packageDesc}>
-												{pkg.product.description}
-											</Text>
-										) : null}
-									</View>
-									<Text style={styles.packagePrice}>
-										{selected ? "…" : packagePrice(pkg)}
-									</Text>
-								</Pressable>
-							);
-						})}
-					</View>
-				)}
+				<PaywallPackages
+					busyId={busyId}
+					isLoading={isLoading}
+					onPurchase={onPurchase}
+					packages={packages}
+					paymentsStatus={paymentsStatus}
+				/>
 
 				<Button
 					disabled={Boolean(busyId) || !configured}
