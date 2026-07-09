@@ -1,6 +1,7 @@
 import { useAuth, useUser } from "@repo/auth";
 import { Chip, IconButton, Skeleton } from "@repo/design-system";
-import { registerForPush } from "@repo/notifications";
+import { registerForPush, sendTestNotification } from "@repo/notifications";
+import { isPaymentsConfigured, usePaywall } from "@repo/payments";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
@@ -26,9 +27,16 @@ import {
 } from "@/lib/appearance";
 import { useFeed } from "@/lib/feed";
 
-type NotificationsValue = "Off" | "Enabled" | "Unavailable" | "Needs setup";
+type NotificationsValue = "Off" | "Enabled" | "Local" | "Needs setup";
 
 const APPEARANCE_OPTIONS: AppearancePreference[] = ["system", "light", "dark"];
+
+function isUserCancelled(error: unknown): boolean {
+	if ((error as { userCancelled?: boolean })?.userCancelled === true) {
+		return true;
+	}
+	return /cancel/i.test(String((error as { message?: string })?.message ?? ""));
+}
 
 export default function ProfileScreen() {
 	const router = useRouter();
@@ -36,9 +44,12 @@ export default function ProfileScreen() {
 	const { user, isLoaded } = useUser();
 	const { signOut } = useAuth();
 	const { items } = useFeed();
+	const { restore } = usePaywall();
+	const paymentsReady = isPaymentsConfigured();
 	const [appearance, setAppearance] = useState<AppearancePreference>("system");
 	const insets = useSafeAreaInsets();
 	const [notifications, setNotifications] = useState<NotificationsValue>("Off");
+	const [restoring, setRestoring] = useState(false);
 
 	useEffect(() => {
 		loadAppearance().then(setAppearance);
@@ -88,10 +99,23 @@ export default function ProfileScreen() {
 		}
 
 		switch (result.reason) {
-			case "simulator":
-				setNotifications("Unavailable");
-				Alert.alert("Notifications", "Not available in the simulator.");
+			case "simulator": {
+				// Remote push tokens need a real device; local banners still work
+				// (same path as Home's "Send test notification").
+				const local = await sendTestNotification();
+				if (local.ok) {
+					setNotifications("Local");
+					return;
+				}
+				setNotifications("Off");
+				Alert.alert(
+					"Notifications",
+					local.reason === "denied"
+						? "Permission denied — enable notifications in Settings."
+						: "Could not schedule a local notification.",
+				);
 				break;
+			}
 			case "denied":
 				setNotifications("Off");
 				if (result.canAskAgain === false) {
@@ -122,12 +146,79 @@ export default function ProfileScreen() {
 		}
 	};
 
+	const restorePurchases = async () => {
+		if (restoring) {
+			return;
+		}
+		if (!paymentsReady) {
+			Alert.alert(
+				"Restore purchases",
+				"RevenueCat isn't configured. Add EXPO_PUBLIC_REVENUECAT_API_KEY to apps/mobile/.env.local, or open Pro to see setup details.",
+				[
+					{ style: "cancel", text: "Not now" },
+					{ onPress: () => router.push("/paywall"), text: "Open Pro" },
+				],
+			);
+			return;
+		}
+
+		setRestoring(true);
+		try {
+			const result = await restore();
+			if (!result) {
+				Alert.alert("Restore purchases", "Could not reach RevenueCat.");
+				return;
+			}
+			const active = Object.keys(result.entitlements.active);
+			Alert.alert(
+				"Restored",
+				active.length > 0
+					? `Active: ${active.join(", ")}`
+					: "No active entitlements found for this Apple/Google account.",
+			);
+		} catch (error) {
+			if (!isUserCancelled(error)) {
+				Alert.alert(
+					"Restore failed",
+					(error as { message?: string })?.message ??
+						"Could not restore purchases.",
+				);
+			}
+		} finally {
+			setRestoring(false);
+		}
+	};
+
 	const googleAccount = user?.externalAccounts?.find(
 		(account) => account.provider === "google",
 	);
 	const appleAccount = user?.externalAccounts?.find(
 		(account) => account.provider === "apple",
 	);
+
+	const clerkErrorMessage = (updateError: unknown): string => {
+		const errors = (
+			updateError as {
+				errors?: Array<{
+					message?: string;
+					longMessage?: string;
+					code?: string;
+				}>;
+			}
+		)?.errors;
+		const first = errors?.[0];
+		const raw = first?.longMessage ?? first?.message ?? "";
+		// Clerk returns "is unknown" / form_param_unknown when Username isn't
+		// enabled on the instance — surface the real fix instead of the raw string.
+		if (
+			first?.code === "form_param_unknown" ||
+			/is unknown/i.test(raw) ||
+			/username.*unknown/i.test(raw)
+		) {
+			return "Username isn't enabled for this Clerk app. Turn it on under Configure → Email, phone, username.";
+		}
+		return raw || "Could not update username.";
+	};
 
 	const editUsername = () => {
 		Alert.prompt(
@@ -140,11 +231,9 @@ export default function ProfileScreen() {
 				}
 				try {
 					await user.update({ username });
+					await user.reload();
 				} catch (updateError) {
-					const message =
-						(updateError as { errors?: Array<{ message?: string }> })
-							?.errors?.[0]?.message ?? "Could not update username.";
-					Alert.alert("Username", message);
+					Alert.alert("Username", clerkErrorMessage(updateError));
 				}
 			},
 			"plain-text",
@@ -189,7 +278,12 @@ export default function ProfileScreen() {
 					<Text style={styles.identitySub}>
 						{user.username
 							? `@${user.username}`
-							: (user.primaryEmailAddress?.emailAddress ?? "Signed in")}
+							: user.createdAt
+								? `Joined ${new Date(user.createdAt).toLocaleDateString(
+										undefined,
+										{ month: "long", year: "numeric" },
+									)}`
+								: "Signed in"}
 					</Text>
 				) : (
 					<Skeleton height={14} width={120} />
@@ -233,6 +327,13 @@ export default function ProfileScreen() {
 					label={notifications}
 					onPress={enableNotifications}
 				/>
+				<Chip
+					icon={
+						<SymbolView name="crown" size={14} tintColor={theme.colors.ink} />
+					}
+					label="Pro"
+					onPress={() => router.push("/paywall")}
+				/>
 			</View>
 
 			<View style={styles.section}>
@@ -249,28 +350,60 @@ export default function ProfileScreen() {
 						{user?.username ? `@${user.username}` : "Set"}
 					</Text>
 				</Pressable>
-				<View style={[styles.row, styles.rowBorder]}>
-					<Text style={styles.rowLabel}>Email</Text>
-					<Text numberOfLines={1} style={styles.rowValue}>
-						{user?.primaryEmailAddress?.emailAddress ?? "—"}
+				{user?.primaryEmailAddress?.emailAddress ? (
+					<View style={[styles.row, styles.rowBorder]}>
+						<Text style={styles.rowLabel}>Email</Text>
+						<Text numberOfLines={1} style={styles.rowValue}>
+							{user.primaryEmailAddress.emailAddress}
+						</Text>
+					</View>
+				) : null}
+				{googleAccount ? (
+					<View style={[styles.row, styles.rowBorder]}>
+						<Text style={styles.rowLabel}>Google</Text>
+						<Text numberOfLines={1} style={styles.rowValue}>
+							Connected
+						</Text>
+					</View>
+				) : null}
+				{appleAccount ? (
+					<View style={[styles.row, styles.rowBorder]}>
+						<Text style={styles.rowLabel}>Apple</Text>
+						<Text numberOfLines={1} style={styles.rowValue}>
+							Connected
+						</Text>
+					</View>
+				) : null}
+			</View>
+
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Subscriptions</Text>
+				<Pressable
+					onPress={() => router.push("/paywall")}
+					style={({ pressed }) => [
+						styles.row,
+						pressed ? styles.rowPressed : null,
+					]}
+				>
+					<Text style={styles.rowLabel}>Pro</Text>
+					<Text style={styles.rowValue}>
+						{paymentsReady ? "View plans" : "Not configured"}
 					</Text>
-				</View>
-				<View style={[styles.row, styles.rowBorder]}>
-					<Text style={styles.rowLabel}>Google</Text>
-					<Text numberOfLines={1} style={styles.rowValue}>
-						{googleAccount
-							? (googleAccount.emailAddress ?? "Connected")
-							: "Not connected"}
+				</Pressable>
+				<Pressable
+					disabled={restoring}
+					onPress={() => void restorePurchases()}
+					style={({ pressed }) => [
+						styles.row,
+						styles.rowBorder,
+						pressed ? styles.rowPressed : null,
+					]}
+				>
+					<Text style={styles.rowLabel}>Restore purchases</Text>
+					<Text style={styles.rowValue}>
+						{restoring ? "…" : paymentsReady ? "Restore" : "Setup needed"}
 					</Text>
-				</View>
-				<View style={[styles.row, styles.rowBorder]}>
-					<Text style={styles.rowLabel}>Apple</Text>
-					<Text numberOfLines={1} style={styles.rowValue}>
-						{appleAccount
-							? (appleAccount.emailAddress ?? "Connected")
-							: "Not connected"}
-					</Text>
-				</View>
+				</Pressable>
 			</View>
 
 			{masonryPreview.length > 0 ? (

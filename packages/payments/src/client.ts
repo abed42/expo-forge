@@ -49,6 +49,11 @@ export function configurePayments(): void {
 	hasConfiguredPayments = true;
 }
 
+/** True once a key is present and `configurePayments()` has run successfully. */
+export function isPaymentsConfigured(): boolean {
+	return Boolean(revenueCatApiKey && hasConfiguredPayments);
+}
+
 export function usePaywall(): UsePaywallResult {
 	const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(

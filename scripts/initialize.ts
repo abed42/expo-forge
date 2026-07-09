@@ -297,7 +297,7 @@ const writeReadme = async (targetDir: string, name: string) => {
 		"cd apps/mobile && bun ios",
 		"```",
 		"",
-		"Environment keys live in `apps/mobile/.env.local` (see `.env.example`).",
+		"Environment keys live **only** in `apps/mobile/.env.local` (copy from `apps/mobile/.env.example`). A repo-root `.env.local` is not loaded by Expo.",
 		"",
 		"Remaining setup steps live in [NEXT_STEPS.md](NEXT_STEPS.md).",
 		"",

@@ -47,9 +47,9 @@ const agentsMdEdits = (name: string): AnchorEdit[] => [
 	},
 	{
 		label: "do-not-touch section",
-		find: "## Do not touch without explicit instruction\n\n`.env.local` (user secrets), `ISA.md` (project system of record — humans/primary agent maintain it), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).",
+		find: "## Do not touch without explicit instruction\n\n`apps/mobile/.env.local` (user secrets), `ISA.md` (project system of record — humans/primary agent maintain it), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).",
 		replace:
-			"## Do not touch without explicit instruction\n\n`.env.local` (user secrets) and `tooling/pins.json` values.",
+			"## Do not touch without explicit instruction\n\n`apps/mobile/.env.local` (user secrets) and `tooling/pins.json` values.",
 	},
 ];
 

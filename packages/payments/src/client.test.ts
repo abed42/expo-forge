@@ -93,12 +93,14 @@ describe("configurePayments without EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 describe("configurePayments with EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 	it("configures Purchases with the API key exactly once", async () => {
 		process.env.EXPO_PUBLIC_REVENUECAT_API_KEY = "appl_test_key";
-		const { configurePayments } = await loadClient();
+		const { configurePayments, isPaymentsConfigured } = await loadClient();
 		const purchases = await getPurchasesMock();
 
+		expect(isPaymentsConfigured()).toBe(false);
 		configurePayments();
 		configurePayments();
 
+		expect(isPaymentsConfigured()).toBe(true);
 		expect(purchases.configure).toHaveBeenCalledTimes(1);
 		expect(purchases.configure).toHaveBeenCalledWith({
 			apiKey: "appl_test_key",

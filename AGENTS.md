@@ -31,11 +31,25 @@ For agents inside this template repo exercising the scaffold flow end-to-end (th
 ## Architecture rules
 
 - **Vendor quarantine**: every third-party service lives behind `@repo/<vendor>` with `keys.ts` (zod schema), a provider/client entry, and inert-when-unset behavior (no key → no-op + at most ONE `console.info`; never throw, never warn-spam). App code never imports vendor SDKs directly (e.g. `useSignIn` comes from `@repo/auth`, not `@clerk/expo`).
-- **Env**: `EXPO_PUBLIC_*` only in client code; validated once at boot via `@repo/env` `composeEnv` in `apps/mobile/src/env.ts`. Metro statically inlines `process.env.EXPO_PUBLIC_X` member expressions — always read env via static member access. Real secrets live only in Supabase secrets / EAS env, never client files. Never commit `.env.local`; never put real values in `.env.example`.
+- **Env**: **only** `apps/mobile/.env.local` is loaded (Expo project root = `apps/mobile/`, next to `app.json`). Repo-root `.env*` is a trap — Metro ignores it. Template: `apps/mobile/.env.example` → copy to `apps/mobile/.env.local`. `EXPO_PUBLIC_*` only in client code; validated once at boot via `@repo/env` `composeEnv` in `apps/mobile/src/env.ts`. Metro statically inlines `process.env.EXPO_PUBLIC_X` member expressions — always read env via static member access; restart Metro after changing any `EXPO_PUBLIC_*` value. Real secrets live only in Supabase secrets / EAS env, never client files. Never commit `.env.local`; never put real values in `.env.example`.
 - **Auth**: Clerk Core 3 result-object API (`signIn.emailCode.sendCode/verifyCode`, `finalize()` — methods return `{ error }`, they don't throw). Supabase runs in third-party-auth mode: the Clerk JWT rides every request via the `accessToken` getter; RLS policies key on `auth.jwt()->>'sub'`. Route gating is declarative `Stack.Protected` in `apps/mobile/src/app/_layout.tsx` — every unauthenticated screen MUST be declared inside the `!isSignedIn` guard or users get stranded on it after sign-in (this bug shipped once; don't reintroduce it).
 - **Styling**: Unistyles v3 tokens only (`packages/design-system/src/tokens.ts`) — no hardcoded hex in app code (theme has `danger`, `accent`, etc.). `index.ts` imports unistyles config BEFORE `expo-router/entry`; that load order is correctness, not style. UI is deliberately grayscale; accent tokens exist but stay unused in the demo.
 - **Glass**: all glass uses system APIs (`expo-glass-effect` GlassView, `@expo/ui` SwiftUI `glassEffect`) gated behind `isLiquidGlassAvailable()` with fill/hairline fallbacks. Never fake glass with translucent washes.
 - **Icons**: SF Symbols need Android counterparts — NativeTabs icons take `sf` + `md` (Material) props; never ship an Apple private-use glyph (U+F8FF) in a cross-platform string.
+
+## Env files (read this before editing keys)
+
+| Path | Loaded by Expo? | Purpose |
+| --- | --- | --- |
+| `apps/mobile/.env.local` | **Yes** | Your real keys (gitignored) |
+| `apps/mobile/.env.example` | No | Canonical empty template — copy from here |
+| Repo-root `.env.example` | No | Pointer only — redirects to `apps/mobile/` |
+| Repo-root `.env.local` | **No** | Do not use — Metro never reads it |
+
+```sh
+cp apps/mobile/.env.example apps/mobile/.env.local
+# edit apps/mobile/.env.local, then restart Metro
+```
 
 ## Generating env keys via CLIs (preferred over dashboard copy-paste)
 
@@ -65,4 +79,4 @@ Every change: `tsc --noEmit` and `biome check` on touched surfaces, `vitest run`
 
 ## Do not touch without explicit instruction
 
-`.env.local` (user secrets), `ISA.md` (project system of record — humans/primary agent maintain it), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).
+`apps/mobile/.env.local` (user secrets), `ISA.md` (project system of record — humans/primary agent maintain it), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).

@@ -1,5 +1,6 @@
 export {
 	configurePayments,
+	isPaymentsConfigured,
 	type PurchaseResult,
 	type RestoreResult,
 	type UsePaywallResult,
