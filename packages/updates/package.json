@@ -9,10 +9,8 @@
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"
 	},
-	"dependencies": {
-		"expo-updates": "~57.0.6"
-	},
 	"peerDependencies": {
+		"expo-updates": "~57.0.6",
 		"react": "19.2.3",
 		"react-native": "0.86.0"
 	},

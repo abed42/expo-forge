@@ -21,10 +21,10 @@ import {
 	renderNextSteps,
 } from "./steps";
 import {
-	type RemovablePackage,
 	removalEdits,
 	type Vendor,
 	type VendorKeySpec,
+	type VendorRemoval,
 	vendors,
 } from "./vendors";
 
@@ -398,7 +398,7 @@ const collectVendor = async (
 			{
 				value: "remove",
 				label: "Remove",
-				hint: `deletes packages/${vendor.pkg} and its wiring`,
+				hint: `deletes packages/${vendor.removal?.pkg} and its wiring`,
 			},
 		],
 	});
@@ -422,9 +422,10 @@ const collectVendor = async (
 
 const removeVendorPackage = async (
 	targetDir: string,
-	pkg: RemovablePackage,
+	removal: VendorRemoval,
 	warn: (message: string) => void,
 ) => {
+	const { pkg, appDependencies, appFiles = [] } = removal;
 	await rm(join(targetDir, "packages", pkg), {
 		recursive: true,
 		force: true,
@@ -432,9 +433,22 @@ const removeVendorPackage = async (
 
 	const mobilePkgPath = join(targetDir, "apps", "mobile", "package.json");
 	const mobilePkg = await readJson(mobilePkgPath);
+	let packageChanged = false;
 	if (mobilePkg.dependencies?.[`@repo/${pkg}`]) {
 		delete mobilePkg.dependencies[`@repo/${pkg}`];
+		packageChanged = true;
+	}
+	for (const dependency of appDependencies) {
+		if (mobilePkg.dependencies?.[dependency]) {
+			delete mobilePkg.dependencies[dependency];
+			packageChanged = true;
+		}
+	}
+	if (packageChanged) {
 		await writeJson(mobilePkgPath, mobilePkg);
+	}
+	for (const appFile of appFiles) {
+		await rm(join(targetDir, appFile), { force: true });
 	}
 
 	for (const edit of removalEdits[pkg]) {
@@ -554,9 +568,9 @@ export const initialize = async (options: InitOptions) => {
 		finalize.start("Finalizing...");
 
 		for (const decision of decisions) {
-			if (decision.action === "remove" && decision.vendor.pkg) {
-				finalize.message(`Removing packages/${decision.vendor.pkg}...`);
-				await removeVendorPackage(targetDir, decision.vendor.pkg, ui.warn);
+			if (decision.action === "remove" && decision.vendor.removal) {
+				finalize.message(`Removing packages/${decision.vendor.removal.pkg}...`);
+				await removeVendorPackage(targetDir, decision.vendor.removal, ui.warn);
 			}
 		}
 
@@ -607,7 +621,7 @@ export const initialize = async (options: InitOptions) => {
 				"NEXT_STEPS.md               # full checklist — browser steps need you, the rest an agent can run",
 				"cd apps/mobile && bun ios   # dev-client build — Xcode required, iOS 17.0 target",
 				"apps/mobile/.env.local      # add any skipped keys (Clerk: dashboard.clerk.com)",
-				"eas init                    # when you're ready for EAS builds",
+				"cd apps/mobile && eas init  # EAS config belongs in the Expo app root",
 			].join("\n"),
 			"Next steps",
 		);

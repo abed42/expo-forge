@@ -3,6 +3,7 @@ import {
 	getPaymentsStatus,
 	type PaymentsStatus,
 	type PurchaseResult,
+	type PurchasesPackage,
 	usePaywall,
 } from "@repo/payments";
 import { Stack, useRouter } from "expo-router";
@@ -16,7 +17,6 @@ import {
 	Text,
 	View,
 } from "react-native";
-import type { PurchasesPackage } from "react-native-purchases";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 

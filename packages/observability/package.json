@@ -12,8 +12,10 @@
 	},
 	"dependencies": {
 		"@repo/env": "workspace:*",
-		"@sentry/react-native": "~7.11.0",
 		"zod": "^4.4.3"
+	},
+	"peerDependencies": {
+		"@sentry/react-native": "~7.11.0"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",
