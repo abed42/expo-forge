@@ -1,13 +1,12 @@
 import { Host, HStack, Image as SwiftImage } from "@expo/ui/swift-ui";
 import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
 import { IconButton, Skeleton } from "@repo/design-system";
-import { sendTestNotification } from "@repo/notifications";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useState } from "react";
-import { Alert, Image, Platform, Pressable, Text, View } from "react-native";
+import { Image, Platform, Pressable, Share, Text, View } from "react-native";
 import Animated, {
 	interpolate,
 	useAnimatedScrollHandler,
@@ -16,12 +15,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
+
 import {
 	type AppearancePreference,
 	loadAppearance,
 	saveAppearance,
 } from "@/lib/appearance";
-
+import { aspectFor } from "@/lib/aspect";
 import { type FeedItem, useFeed } from "@/lib/feed";
 
 // Gate required: some iOS 26 builds lack the API and crash without it.
@@ -29,51 +29,74 @@ const canUseGlass = isLiquidGlassAvailable();
 
 const HEADER_CONTENT_HEIGHT = 60;
 
-// The feed hydrates from Supabase (public.feed_items, migration 0003).
 // While loading — and whenever Supabase is unset, errors, or returns no rows —
-// the list falls back to these skeleton items, so Home never crashes and
-// always renders an honest state. The header floats on liquid glass; the
-// feed scrolls underneath it.
-const SKELETON_ITEMS = [0, 1, 2];
+// the list falls back to these skeleton items so Home never crashes.
+const SKELETON_ITEMS = [0, 1, 2, 3, 4, 5];
 
-// One FlashList carries both worlds: numbers render skeletons, rows render
-// the real feed.
 type FeedListItem = FeedItem | number;
 
 const AnimatedFlashList = Animated.createAnimatedComponent(
 	FlashList,
 ) as unknown as typeof FlashList;
 
-function FeedSeparator() {
-	return <View style={styles.separator} />;
-}
-
-// Demo affordance: proves the notification pipeline end-to-end — tap, then a
-// real OS banner arrives ~2s later (works in the simulator; local, no push).
-function TestNotificationButton() {
-	const onPress = async () => {
-		const result = await sendTestNotification();
-		if (!result.ok) {
-			Alert.alert(
-				"Notifications",
-				result.reason === "denied"
-					? "Permission denied — enable notifications in Settings."
-					: "Could not schedule the test notification.",
-			);
-		}
-	};
+function FeedCell({ item }: { item: FeedItem }) {
+	const aspectRatio = aspectFor(item.id);
 
 	return (
-		<Pressable
-			accessibilityRole="button"
-			onPress={onPress}
-			style={({ pressed }) => [
-				styles.testButton,
-				pressed ? styles.testButtonPressed : null,
-			]}
-		>
-			<Text style={styles.testButtonLabel}>Send test notification</Text>
-		</Pressable>
+		<View style={styles.cell}>
+			<Link asChild href={`/item/${item.id}`}>
+				<Link.Trigger>
+					<Pressable style={[styles.card, { aspectRatio }]}>
+						<Link.AppleZoom>
+							{item.image_url ? (
+								<Image
+									resizeMode="cover"
+									source={{ uri: item.image_url }}
+									style={styles.cardImage}
+								/>
+							) : (
+								<View style={styles.cardImage} />
+							)}
+						</Link.AppleZoom>
+					</Pressable>
+				</Link.Trigger>
+				<Link.Menu>
+					<Link.MenuAction
+						icon="square.and.arrow.up"
+						onPress={() => {
+							void Share.share({
+								message: item.subtitle
+									? `${item.title} — ${item.subtitle}`
+									: item.title,
+								url: item.image_url ?? undefined,
+							});
+						}}
+					>
+						Share
+					</Link.MenuAction>
+					<Link.MenuAction
+						icon="doc.on.doc"
+						onPress={() => {
+							void Share.share({ message: item.title });
+						}}
+					>
+						Copy title
+					</Link.MenuAction>
+				</Link.Menu>
+			</Link>
+			<Text numberOfLines={2} style={styles.itemTitle}>
+				{item.title}
+			</Text>
+		</View>
+	);
+}
+
+function SkeletonCell({ index }: { index: number }) {
+	return (
+		<View style={styles.cell}>
+			<View style={[styles.card, { aspectRatio: aspectFor(index) }]} />
+			<Skeleton height={14} width={120} />
+		</View>
 	);
 }
 
@@ -93,7 +116,6 @@ export default function HomeScreen() {
 		loadAppearance().then(setAppearance);
 	}, []);
 
-	// Quick toggle next to search; the Profile row remains the full picker.
 	const cycleAppearance = () => {
 		const next: AppearancePreference =
 			appearance === "system"
@@ -117,8 +139,6 @@ export default function HomeScreen() {
 		scrollY.value = event.contentOffset.y;
 	});
 
-	// Header material fades in over the first 32pt of scroll — at rest the
-	// bar is invisible and the screen reads as one clean surface.
 	const materialStyle = useAnimatedStyle(() => ({
 		opacity: interpolate(scrollY.value, [0, 32], [0, 1], "clamp"),
 	}));
@@ -164,8 +184,6 @@ export default function HomeScreen() {
 					/>
 				</IconButton>
 				{Platform.OS === "ios" && canUseGlass ? (
-					// True system glass: SwiftUI .glassEffect with vibrancy and the
-					// interactive press shimmer — same pipeline as the native tab bar.
 					<Host style={styles.searchHost}>
 						<SwiftImage
 							modifiers={[
@@ -203,42 +221,21 @@ export default function HomeScreen() {
 				scrollEventThrottle={16}
 				contentContainerStyle={{
 					paddingBottom: theme.gap(14),
-					paddingHorizontal: theme.gap(3),
+					paddingHorizontal: theme.gap(2),
 					paddingTop: headerHeight + theme.gap(1),
 				}}
 				data={listData}
-				ItemSeparatorComponent={FeedSeparator}
 				keyExtractor={(item) =>
 					typeof item === "number" ? `skeleton-${item}` : item.id
 				}
+				masonry
+				numColumns={2}
+				optimizeItemArrangement
 				renderItem={({ item }) =>
 					typeof item === "number" ? (
-						<View style={styles.feedItem}>
-							<View style={styles.card} />
-							<View style={styles.titleRow}>
-								<Skeleton height={16} width={220} />
-								<Skeleton height={16} width={64} />
-							</View>
-							<Skeleton height={14} width={160} />
-							<TestNotificationButton />
-						</View>
+						<SkeletonCell index={item} />
 					) : (
-						<View style={styles.feedItem}>
-							<View style={[styles.card, styles.cardClip]}>
-								{item.image_url ? (
-									<Image
-										resizeMode="cover"
-										source={{ uri: item.image_url }}
-										style={styles.cardImage}
-									/>
-								) : null}
-							</View>
-							<Text style={styles.itemTitle}>{item.title}</Text>
-							{item.subtitle ? (
-								<Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-							) : null}
-							<TestNotificationButton />
-						</View>
+						<FeedCell item={item} />
 					)
 				}
 				showsVerticalScrollIndicator={false}
@@ -304,51 +301,23 @@ const styles = StyleSheet.create((theme) => ({
 		tintColor: theme.colors.ink,
 		width: 120,
 	},
-	feedItem: {
-		gap: theme.gap(1.5),
-	},
-	separator: {
-		height: theme.gap(4),
+	cell: {
+		gap: theme.gap(1),
+		padding: theme.gap(1),
 	},
 	card: {
-		aspectRatio: 0.88,
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.card,
-		marginBottom: theme.gap(0.5),
-	},
-	cardClip: {
 		overflow: "hidden",
+		width: "100%",
 	},
 	cardImage: {
 		height: "100%",
 		width: "100%",
 	},
-	titleRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-	},
-	testButton: {
-		alignItems: "center",
-		backgroundColor: theme.colors.fill,
-		borderRadius: theme.radius.pill,
-		justifyContent: "center",
-		marginTop: theme.gap(1),
-		minHeight: 48,
-	},
-	testButtonPressed: {
-		opacity: 0.8,
-	},
-	testButtonLabel: {
-		...theme.type.body,
+	itemTitle: {
+		...theme.type.caption,
 		color: theme.colors.ink,
 		fontWeight: "600",
-	},
-	itemTitle: {
-		...theme.type.body,
-		color: theme.colors.ink,
-	},
-	itemSubtitle: {
-		...theme.type.caption,
-		color: theme.colors.secondary,
 	},
 }));

@@ -33,20 +33,38 @@ insert into public.feed_items (title, subtitle, image_url, created_at) values
 	(
 		'Forged in the open',
 		'What shipping a native-first template actually takes',
-		'https://picsum.photos/seed/forge-1/900/1000',
+		'https://picsum.photos/seed/forge-1/900/1200',
 		now()
 	),
 	(
 		'The monochrome canvas',
 		'Editorial restraint as a design system default',
-		'https://picsum.photos/seed/forge-2/900/1000',
+		'https://picsum.photos/seed/forge-2/900/900',
 		now() - interval '1 hour'
 	),
 	(
 		'No deploy but the binary',
 		'Why the backend should never block an App Store submit',
-		'https://picsum.photos/seed/forge-3/900/1000',
+		'https://picsum.photos/seed/forge-3/900/1100',
 		now() - interval '2 hours'
+	),
+	(
+		'Liquid glass, not a wash',
+		'System materials or honest fill fallbacks — never fake translucency',
+		'https://picsum.photos/seed/forge-4/900/750',
+		now() - interval '3 hours'
+	),
+	(
+		'Vendor quarantine',
+		'Every third-party service behind a @repo package with inert-when-unset',
+		'https://picsum.photos/seed/forge-5/900/1050',
+		now() - interval '4 hours'
+	),
+	(
+		'Pins that do not move',
+		'worklets 0.10.0 exact, reanimated ^4.5.1 — crash-grade reasons',
+		'https://picsum.photos/seed/forge-6/900/980',
+		now() - interval '5 hours'
 	);
 
 comment on table public.feed_items is

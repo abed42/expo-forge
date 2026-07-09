@@ -1,6 +1,6 @@
 {
-	"status": "provisional-amber-proven",
-	"note": "Expo SDK 57 native-coupled and tooling pins validated together in the amber reference app; Phase 0 consumes these exact specifiers.",
+	"status": "verified",
+	"note": "Expo SDK 57 native-coupled and tooling pins validated together in the amber reference app and confirmed current-stable (currency research 2026-07-07). Consume these exact specifiers; do not bump worklets past 0.10.0 or reanimated below ^4.5.1.",
 	"pins": {
 		"expo": "~57.0.2",
 		"react": "19.2.3",

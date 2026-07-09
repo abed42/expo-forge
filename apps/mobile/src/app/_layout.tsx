@@ -4,6 +4,7 @@ import { AnalyticsProvider } from "@repo/analytics";
 import { AuthProvider, useAuth } from "@repo/auth";
 import { NavThemeProvider } from "@repo/design-system/nav-theme";
 import { initObservability } from "@repo/observability";
+import { configurePayments } from "@repo/payments";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ import { UpdateBanner } from "@/components/update-banner";
 import { applyAppearance, loadAppearance } from "@/lib/appearance";
 
 initObservability();
+configurePayments();
 
 // Declarative gating (amber pattern): the welcome screen doubles as auth
 // entry, so the only session state is Clerk's. Email flow is a push within
@@ -35,6 +37,11 @@ function RootNavigator() {
 			</Stack.Protected>
 			<Stack.Protected guard={Boolean(isSignedIn)}>
 				<Stack.Screen name="(tabs)" />
+				{/* Declared inside the guard so session activation owns them —
+				    otherwise Expo Router auto-registers unguarded routes and
+				    users can land on search/detail after sign-out. */}
+				<Stack.Screen name="search" options={{ animation: "fade" }} />
+				<Stack.Screen name="item/[id]" />
 			</Stack.Protected>
 		</Stack>
 	);

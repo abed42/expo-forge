@@ -8,7 +8,8 @@
 		"ios": "expo run:ios",
 		"android": "expo run:android",
 		"typecheck": "tsc --noEmit",
-		"lint": "biome check ."
+		"lint": "biome check .",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@expo/ui": "~57.0.3",
@@ -19,6 +20,7 @@
 		"@repo/env": "workspace:*",
 		"@repo/notifications": "workspace:*",
 		"@repo/observability": "workspace:*",
+		"@repo/payments": "workspace:*",
 		"@repo/updates": "workspace:*",
 		"@shopify/flash-list": "2.0.2",
 		"expo": "~57.0.2",
@@ -51,6 +53,7 @@
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",
 		"@types/react": "~19.2.2",
-		"typescript": "~6.0.3"
+		"typescript": "~6.0.3",
+		"vitest": "^4.1.10"
 	}
 }
