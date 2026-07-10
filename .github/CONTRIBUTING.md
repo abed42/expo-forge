@@ -25,16 +25,23 @@ bun lint               # turbo lint (Biome)
 bun run fix            # biome check --write .
 ```
 
-To run the app, use the dev-client workflow (not Expo Go). Restart Metro after any `EXPO_PUBLIC_*` change:
+To run the app, use the dev-client workflow (not Expo Go). `apps/mobile` is the Expo project root:
 
 ```sh
-cd apps/mobile && bun ios
+cd apps/mobile
+bun expo start   # existing development client
+bun ios          # rebuild and run iOS
+bun android      # rebuild and run Android
+bunx expo-doctor
 ```
+
+Restart Metro after any `EXPO_PUBLIC_*` change. Rebuild the development client after adding a native dependency or changing a config plugin. Run all EAS commands from `apps/mobile`; `eas.json` and `.eas/workflows/` live there.
 
 ### Things to know before touching dependencies
 
 - **`tooling/pins.json` is the single source of truth** for native-coupled versions (Expo SDK, React Native, React, and related native modules). Update pins there first, then mirror them in package manifests. Do not bump `react-native-worklets` past exactly `0.10.0` or downgrade `react-native-reanimated` below `^4.5.1` — both pins are deliberate.
 - **`bunfig.toml` forces the hoisted linker.** Metro requires it; don't change the linker setting.
+- Install Expo/native dependencies from `apps/mobile` with `bun expo install <package>` so Expo can select and check SDK-compatible versions.
 - Use `bun` for everything — installing, running scripts, and creating branches of work. Don't introduce npm/yarn/pnpm lockfiles.
 
 ## Pull Request Guidelines

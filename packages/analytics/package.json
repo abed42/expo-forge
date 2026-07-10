@@ -12,10 +12,10 @@
 	},
 	"dependencies": {
 		"@repo/env": "workspace:*",
-		"posthog-react-native": "^4.54.4",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
+		"posthog-react-native": "^4.54.4",
 		"react": "19.2.3",
 		"react-native": "0.86.0"
 	},

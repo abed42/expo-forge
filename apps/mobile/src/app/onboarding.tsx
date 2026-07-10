@@ -237,7 +237,10 @@ export default function WelcomeScreen() {
 						pressed ? styles.buttonPressed : null,
 					]}
 				>
-					<Text style={styles.primaryIcon}>{""}</Text>
+					<Image
+						source={require("../../assets/images/icons/apple.png")}
+						style={styles.primaryIcon}
+					/>
 					<Text style={styles.primaryLabel}>Continue with Apple</Text>
 				</Pressable>
 				<Pressable
@@ -356,9 +359,10 @@ const styles = StyleSheet.create((theme) => ({
 		minHeight: 48,
 	},
 	primaryIcon: {
-		height: 24,
+		height: 18,
+		resizeMode: "contain",
 		tintColor: theme.colors.onInk,
-		width: 24,
+		width: 18,
 	},
 	primaryLabel: {
 		...theme.type.body,

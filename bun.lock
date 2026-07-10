@@ -21,6 +21,7 @@
     "apps/mobile": {
       "name": "mobile",
       "dependencies": {
+        "@clerk/expo": "^3.7.0",
         "@expo/ui": "~57.0.3",
         "@repo/analytics": "workspace:*",
         "@repo/auth": "workspace:*",
@@ -31,21 +32,29 @@
         "@repo/observability": "workspace:*",
         "@repo/payments": "workspace:*",
         "@repo/updates": "workspace:*",
+        "@sentry/react-native": "~7.11.0",
         "@shopify/flash-list": "2.0.2",
         "expo": "~57.0.2",
         "expo-auth-session": "~57.0.1",
         "expo-build-properties": "~57.0.0",
+        "expo-constants": "~57.0.3",
+        "expo-dev-client": "~57.0.5",
+        "expo-device": "~57.0.0",
         "expo-glass-effect": "~57.0.0",
+        "expo-notifications": "~57.0.3",
         "expo-router": "~57.0.3",
         "expo-secure-store": "~57.0.0",
         "expo-status-bar": "~57.0.0",
         "expo-symbols": "~57.0.0",
         "expo-system-ui": "~57.0.0",
+        "expo-updates": "~57.0.6",
         "expo-web-browser": "~57.0.0",
+        "posthog-react-native": "^4.54.4",
         "react": "19.2.3",
         "react-native": "0.86.0",
         "react-native-gesture-handler": "~2.32.0",
         "react-native-nitro-modules": "^0.36.1",
+        "react-native-purchases": "^10.4.1",
         "react-native-reanimated": "^4.5.1",
         "react-native-safe-area-context": "~5.7.0",
         "react-native-screens": "4.25.2",
@@ -63,7 +72,6 @@
       "name": "@repo/analytics",
       "dependencies": {
         "@repo/env": "workspace:*",
-        "posthog-react-native": "^4.54.4",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -73,6 +81,7 @@
         "typescript": "~6.0.3",
       },
       "peerDependencies": {
+        "posthog-react-native": "^4.54.4",
         "react": "19.2.3",
         "react-native": "0.86.0",
       },
@@ -80,11 +89,7 @@
     "packages/auth": {
       "name": "@repo/auth",
       "dependencies": {
-        "@clerk/expo": "^3.7.0",
         "@repo/env": "workspace:*",
-        "expo-auth-session": "~57.0.1",
-        "expo-secure-store": "~57.0.0",
-        "expo-web-browser": "~57.0.0",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -94,6 +99,10 @@
         "typescript": "~6.0.3",
       },
       "peerDependencies": {
+        "@clerk/expo": "^3.7.0",
+        "expo-auth-session": "~57.0.1",
+        "expo-secure-store": "~57.0.0",
+        "expo-web-browser": "~57.0.0",
         "react": "19.2.3",
         "react-native": "0.86.0",
       },
@@ -117,15 +126,13 @@
     },
     "packages/design-system": {
       "name": "@repo/design-system",
-      "dependencies": {
-        "expo-glass-effect": "~57.0.0",
-      },
       "devDependencies": {
         "@repo/typescript-config": "workspace:*",
         "@types/react": "~19.2.2",
         "typescript": "~6.0.3",
       },
       "peerDependencies": {
+        "expo-glass-effect": "~57.0.0",
         "expo-router": "~57.0.3",
         "expo-symbols": "~57.0.0",
         "expo-system-ui": "~57.0.0",
@@ -148,9 +155,6 @@
     "packages/notifications": {
       "name": "@repo/notifications",
       "dependencies": {
-        "expo-constants": "~57.0.3",
-        "expo-device": "~57.0.0",
-        "expo-notifications": "~57.0.3",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -158,6 +162,9 @@
         "typescript": "~6.0.3",
       },
       "peerDependencies": {
+        "expo-constants": "~57.0.3",
+        "expo-device": "~57.0.0",
+        "expo-notifications": "~57.0.3",
         "react-native": "0.86.0",
       },
     },
@@ -165,7 +172,6 @@
       "name": "@repo/observability",
       "dependencies": {
         "@repo/env": "workspace:*",
-        "@sentry/react-native": "~7.11.0",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -173,12 +179,14 @@
         "@types/node": "^25.3.5",
         "typescript": "~6.0.3",
       },
+      "peerDependencies": {
+        "@sentry/react-native": "~7.11.0",
+      },
     },
     "packages/payments": {
       "name": "@repo/payments",
       "dependencies": {
         "@repo/env": "workspace:*",
-        "react-native-purchases": "^10.4.1",
         "zod": "^4.4.3",
       },
       "devDependencies": {
@@ -190,6 +198,7 @@
       "peerDependencies": {
         "react": "19.2.3",
         "react-native": "0.86.0",
+        "react-native-purchases": "^10.4.1",
       },
     },
     "packages/typescript-config": {
@@ -198,15 +207,13 @@
     },
     "packages/updates": {
       "name": "@repo/updates",
-      "dependencies": {
-        "expo-updates": "~57.0.6",
-      },
       "devDependencies": {
         "@repo/typescript-config": "workspace:*",
         "@types/react": "~19.2.2",
         "typescript": "~6.0.3",
       },
       "peerDependencies": {
+        "expo-updates": "~57.0.6",
         "react": "19.2.3",
         "react-native": "0.86.0",
       },
@@ -1250,6 +1257,14 @@
     "expo-constants": ["expo-constants@57.0.3", "", { "dependencies": { "@expo/env": "~2.4.1" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-BghbZlzwFnA22BG0CWv6W29zx8w19FozYPfSeZ3HjMitoy4aAmF1FnFbbjYSmZz6HHXXTWOfqwobOEIaglfzxg=="],
 
     "expo-crypto": ["expo-crypto@57.0.0", "", { "peerDependencies": { "expo": "*" } }, "sha512-vd0kdUO14h9CgPcgzcR8nmy/wgz3zSOhQmucnbDdyn/z9eAeR2IB5BKaDvPbg/lrIT+KweGAV5IlrK5PZFqUSQ=="],
+
+    "expo-dev-client": ["expo-dev-client@57.0.5", "", { "dependencies": { "expo-dev-launcher": "~57.0.5", "expo-dev-menu": "~57.0.5", "expo-dev-menu-interface": "~57.0.0", "expo-manifests": "~57.0.0", "expo-updates-interface": "~57.0.0" }, "peerDependencies": { "expo": "*" } }, "sha512-OOQJHb4Cf403AhZAbcZg0OOVJKLc1HArVck92LHd9PO2HuTadj/6YAlWIyXXYfeYYdjoVgLd/cAXnaEAwp6HKg=="],
+
+    "expo-dev-launcher": ["expo-dev-launcher@57.0.5", "", { "dependencies": { "@expo/schema-utils": "^57.0.1", "expo-dev-menu": "~57.0.5", "expo-manifests": "~57.0.0" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-f76DIU/mF3YdDZOgwLL3A5gwb3NVIySLE5ot+gy1T0pFo6VPW3Ew7h8oyG9fQdYum58v/3LoB1uWAIhhkHhsqA=="],
+
+    "expo-dev-menu": ["expo-dev-menu@57.0.5", "", { "dependencies": { "expo-dev-menu-interface": "~57.0.0" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-ITQdZBawOe7Z9aB9erLNKIM/0X1iL6VvTrC5By6ECQqTptiRLJmpeqCt1vCJ72Wz+8YeHk+n2GY5V+1yzXf5OA=="],
+
+    "expo-dev-menu-interface": ["expo-dev-menu-interface@57.0.0", "", { "peerDependencies": { "expo": "*" } }, "sha512-F47VdzOHYc19FhI/jBgctpO8a5UskTIxG6a1E5t3W5gF8VImuvBQffdXXfLHhsuCl7dS3v3U0R45cleeVXO1Zg=="],
 
     "expo-device": ["expo-device@57.0.0", "", { "dependencies": { "ua-parser-js": "^0.7.33" }, "peerDependencies": { "expo": "*" } }, "sha512-XiTtUhyS64xO8AtEY14FI1vJpUT5b+cyxhjAsHIsoAx6y4rLF719pVY2sNx1MJYb/l7qa9kxWAcMDfk8Q8Gcpg=="],
 

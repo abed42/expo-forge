@@ -16,9 +16,8 @@ export type UseFeedResult = {
 	status: FeedStatus;
 };
 
-// Inert-when-unset pattern (see @repo/payments, @repo/analytics): the feed
-// degrades to skeleton placeholders and says why exactly once, then stays
-// quiet.
+// Same inert-when-unset pattern as optional vendor packages: the feed degrades
+// to skeleton placeholders and says why exactly once, then stays quiet.
 let hasLoggedFeedFallback = false;
 
 function logFeedFallbackOnce(reason: string): void {

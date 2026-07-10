@@ -12,12 +12,12 @@
 	},
 	"dependencies": {
 		"@repo/env": "workspace:*",
-		"react-native-purchases": "^10.4.1",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
 		"react": "19.2.3",
-		"react-native": "0.86.0"
+		"react-native": "0.86.0",
+		"react-native-purchases": "^10.4.1"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",

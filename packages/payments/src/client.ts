@@ -19,25 +19,29 @@ export type UsePaywallResult = {
 };
 
 let hasConfiguredPayments = false;
-let hasLoggedMissingPaymentsKey = false;
+let hasLoggedDisabledPayments = false;
 
 // Metro statically inlines process.env.EXPO_PUBLIC_* member expressions in client bundles.
 const revenueCatApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
 
-function logMissingPaymentsKey(): void {
-	if (hasLoggedMissingPaymentsKey) {
+function logDisabledOnce(reason: string): void {
+	if (hasLoggedDisabledPayments) {
 		return;
 	}
 
-	console.info(
-		"[@repo/payments] RevenueCat disabled because EXPO_PUBLIC_REVENUECAT_API_KEY is not set.",
-	);
-	hasLoggedMissingPaymentsKey = true;
+	console.info(`[@repo/payments] RevenueCat disabled: ${reason}`);
+	hasLoggedDisabledPayments = true;
 }
 
+function isNativeModuleMissing(error: unknown): boolean {
+	const message = String((error as { message?: string })?.message ?? error);
+	return /Native module \(RNPurchases\) not found|RNPurchases/i.test(message);
+}
+
+/** Configures RevenueCat when available; otherwise leaves payments inert. */
 export function configurePayments(): void {
 	if (!revenueCatApiKey) {
-		logMissingPaymentsKey();
+		logDisabledOnce("EXPO_PUBLIC_REVENUECAT_API_KEY is not set.");
 		return;
 	}
 
@@ -45,25 +49,49 @@ export function configurePayments(): void {
 		return;
 	}
 
-	Purchases.configure({ apiKey: revenueCatApiKey });
-	hasConfiguredPayments = true;
+	try {
+		Purchases.configure({ apiKey: revenueCatApiKey });
+		hasConfiguredPayments = true;
+	} catch (error) {
+		if (isNativeModuleMissing(error)) {
+			logDisabledOnce(
+				"native module RNPurchases not in this binary — rebuild the dev client (`cd apps/mobile && bun ios`).",
+			);
+			return;
+		}
+
+		logDisabledOnce(
+			error instanceof Error ? error.message : "Purchases.configure failed.",
+		);
+	}
 }
 
 /** True once a key is present and `configurePayments()` has run successfully. */
 export function isPaymentsConfigured(): boolean {
-	return Boolean(revenueCatApiKey && hasConfiguredPayments);
+	return hasConfiguredPayments;
+}
+
+export type PaymentsStatus = "ready" | "missing-key" | "needs-native-rebuild";
+
+/** Distinguishes “no key” from “key set but RNPurchases not in this binary”. */
+export function getPaymentsStatus(): PaymentsStatus {
+	if (hasConfiguredPayments) {
+		return "ready";
+	}
+	if (!revenueCatApiKey) {
+		return "missing-key";
+	}
+	return "needs-native-rebuild";
 }
 
 export function usePaywall(): UsePaywallResult {
 	const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
-	const [isLoading, setIsLoading] = useState<boolean>(
-		Boolean(revenueCatApiKey && hasConfiguredPayments),
-	);
+	const [isLoading, setIsLoading] = useState<boolean>(isPaymentsConfigured());
 
 	useEffect(() => {
 		let isMounted = true;
 
-		if (!revenueCatApiKey || !hasConfiguredPayments) {
+		if (!isPaymentsConfigured()) {
 			setIsLoading(false);
 			return () => {
 				isMounted = false;
@@ -79,7 +107,6 @@ export function usePaywall(): UsePaywallResult {
 				setOfferings(result.current);
 			})
 			.catch(() => {
-				// The stub should stay non-blocking until the demo app lands with full paywall UX and retry handling.
 				if (!isMounted) {
 					return;
 				}
@@ -102,22 +129,21 @@ export function usePaywall(): UsePaywallResult {
 	async function purchase(
 		pkg: PurchasesPackage,
 	): Promise<PurchaseResult | null> {
-		if (!revenueCatApiKey || !hasConfiguredPayments) {
+		if (!isPaymentsConfigured()) {
 			return null;
 		}
 
-		return await Purchases.purchasePackage(pkg);
+		return Purchases.purchasePackage(pkg);
 	}
 
 	async function restore(): Promise<RestoreResult | null> {
-		if (!revenueCatApiKey || !hasConfiguredPayments) {
+		if (!isPaymentsConfigured()) {
 			return null;
 		}
 
-		return await Purchases.restorePurchases();
+		return Purchases.restorePurchases();
 	}
 
-	// The full paywall implementation lands with the demo app; this hook keeps call sites typed in the meantime.
 	return {
 		offerings,
 		isLoading,

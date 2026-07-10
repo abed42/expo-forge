@@ -141,10 +141,10 @@ export const buildPendingSteps = (
 			title: "Link the project to EAS",
 			kind: "terminal",
 			agentRunnable: false,
-			command: "eas init",
+			command: "cd apps/mobile && eas init",
 			url: "https://expo.dev",
 			detail:
-				"Interactive Expo login (browser) — needs a human. Creates the EAS project and eas.json; keep the .eas/ workflows directory next to eas.json (move eas.json to the repo root if eas init drops it in apps/mobile/). Then connect the GitHub repo on expo.dev and add an EXPO_TOKEN repo secret for CI.",
+				"Interactive Expo login (browser) — needs a human. Expo's monorepo project root is apps/mobile: keep eas.json, credentials.json, and .eas/workflows there. Configure the Expo GitHub App base directory as apps/mobile, then add an EXPO_TOKEN repo secret for CI-driven EAS commands.",
 		},
 		{
 			id: "clerk-third-party-auth",

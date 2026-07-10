@@ -25,7 +25,7 @@ vi.mock("react", () => ({
 const testPackage = { identifier: "monthly" } as PurchasesPackage;
 
 async function loadClient(): Promise<typeof import("./client")> {
-	return await import("./client");
+	return import("./client");
 }
 
 async function getPurchasesMock() {
@@ -76,12 +76,13 @@ describe("paymentsKeys", () => {
 
 describe("configurePayments without EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 	it("does not configure Purchases and logs a single console.info", async () => {
-		const { configurePayments } = await loadClient();
+		const { configurePayments, getPaymentsStatus } = await loadClient();
 		const purchases = await getPurchasesMock();
 
 		configurePayments();
 		configurePayments();
 
+		expect(getPaymentsStatus()).toBe("missing-key");
 		expect(purchases.configure).not.toHaveBeenCalled();
 		expect(console.info).toHaveBeenCalledTimes(1);
 		expect(console.info).toHaveBeenCalledWith(
@@ -93,7 +94,8 @@ describe("configurePayments without EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 describe("configurePayments with EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 	it("configures Purchases with the API key exactly once", async () => {
 		process.env.EXPO_PUBLIC_REVENUECAT_API_KEY = "appl_test_key";
-		const { configurePayments, isPaymentsConfigured } = await loadClient();
+		const { configurePayments, getPaymentsStatus, isPaymentsConfigured } =
+			await loadClient();
 		const purchases = await getPurchasesMock();
 
 		expect(isPaymentsConfigured()).toBe(false);
@@ -101,11 +103,39 @@ describe("configurePayments with EXPO_PUBLIC_REVENUECAT_API_KEY", () => {
 		configurePayments();
 
 		expect(isPaymentsConfigured()).toBe(true);
+		expect(getPaymentsStatus()).toBe("ready");
 		expect(purchases.configure).toHaveBeenCalledTimes(1);
 		expect(purchases.configure).toHaveBeenCalledWith({
 			apiKey: "appl_test_key",
 		});
 		expect(console.info).not.toHaveBeenCalled();
+	});
+
+	it("stays inert when the native module is missing (stale binary)", async () => {
+		process.env.EXPO_PUBLIC_REVENUECAT_API_KEY = "appl_test_key";
+		const purchases = await getPurchasesMock();
+		function throwMissingNativeModule(): never {
+			throw new Error(
+				"[RevenueCat] Native module (RNPurchases) not found. This can happen if:",
+			);
+		}
+		purchases.configure
+			.mockImplementationOnce(throwMissingNativeModule)
+			.mockImplementationOnce(throwMissingNativeModule);
+		const { configurePayments, getPaymentsStatus, isPaymentsConfigured } =
+			await loadClient();
+
+		expect(() => {
+			configurePayments();
+			configurePayments();
+		}).not.toThrow();
+		expect(isPaymentsConfigured()).toBe(false);
+		expect(getPaymentsStatus()).toBe("needs-native-rebuild");
+		expect(purchases.configure).toHaveBeenCalledTimes(2);
+		expect(console.info).toHaveBeenCalledTimes(1);
+		expect(console.info).toHaveBeenCalledWith(
+			expect.stringContaining("RNPurchases"),
+		);
 	});
 });
 

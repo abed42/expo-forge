@@ -175,21 +175,33 @@ Native-coupled dependency versions live in `tooling/pins.json` as the single sou
 - `react-native-worklets` is pinned **exactly** to `0.10.0` (Expo's own pin — 0.10.1 crashes at launch)
 - `react-native-reanimated` is a deliberate override at `^4.5.1`
 
+Native/runtime SDKs are declared directly in `apps/mobile/package.json` so `expo install --check`, Expo Doctor, and autolinking see the complete native surface. `@repo/*` wrappers consume those SDKs as peer dependencies; application code still imports only the wrapper APIs.
+
 ### Known gotchas
 
 - **Hoisted linker required** — `bunfig.toml` forces Bun's hoisted linker because Metro cannot resolve modules through Bun's default isolated layout. Don't remove it.
 - **iOS deployment target 17.0** — required by `@clerk/expo`, set via `expo-build-properties`.
-- **Dev client, not Expo Go** — this template does not run in Expo Go, by design. Production dependencies ship native code that Go's sandbox doesn't include: react-native-unistyles v3 (Nitro Modules), @clerk/expo (ClerkKit / native Google Sign-In), @sentry/react-native, react-native-purchases — plus config Go can't honor (iOS 17 deployment target, config plugins). Run a development build instead: `bun ios` / `bun android` compiles the dev client once, and everything after is the familiar Metro hot-reload workflow.
+- **Dev client, not Expo Go** — this template declares `expo-dev-client` and does not run in Expo Go, by design. Production dependencies ship native code that Go's sandbox doesn't include: react-native-unistyles v3 (Nitro Modules), @clerk/expo (ClerkKit / native Google Sign-In), @sentry/react-native, react-native-purchases — plus config Go can't honor (iOS 17 deployment target, config plugins). From `apps/mobile`, `bun ios` / `bun android` rebuilds the native client; `bun expo start` starts Metro for an existing client.
 
 ## Scripts
 
-Run from the repository root:
+Repository tasks run from the repository root:
 
 ```sh
-bun dev         # turbo dev
-bun typecheck   # turbo typecheck
-bun lint        # turbo lint
-bun run fix     # biome check --write .
+bun install
+bunx turbo lint typecheck test
+bunx tsup                         # build create-expo-forge CLI
+```
+
+Expo and EAS tasks run from the Expo app root:
+
+```sh
+cd apps/mobile
+bun expo start                    # Metro for the existing dev client
+bun ios                           # rebuild and run iOS
+bun android                       # rebuild and run Android
+bunx expo-doctor
+eas init                          # all EAS commands run here
 ```
 
 Linting and formatting are handled by [Biome](https://biomejs.dev) 2.
@@ -198,12 +210,12 @@ Linting and formatting are handled by [Biome](https://biomejs.dev) 2.
 
 Every push to `main` and every pull request runs `.github/workflows/ci.yml`: Bun (version pinned by the `packageManager` field) installs with a frozen lockfile, then `bunx turbo lint typecheck test` fans out across all workspaces — Biome lint, `tsc --noEmit`, and Vitest suites — with the Turborepo cache persisted between runs.
 
-Two [EAS Workflows](https://docs.expo.dev/eas/workflows/) live in `.eas/workflows/`:
+Two [EAS Workflows](https://docs.expo.dev/eas/workflows/) live in `apps/mobile/.eas/workflows/`, beside the app's `eas.json`:
 
-- `create-production-builds.yml` — manual trigger (`eas workflow:run create-production-builds.yml`), builds iOS + Android with the `production` profile
+- `create-production-builds.yml` — manual trigger from `apps/mobile` (`eas workflow:run create-production-builds.yml`), builds iOS + Android with the `production` profile
 - `publish-preview-update.yml` — on push to `main`, publishes an OTA update to the `preview` branch
 
-They are syntax-complete but dormant until the project is linked to EAS. One-time activation: run `eas init` (keep the committed root `eas.json` profiles — or merge if `eas init` writes a new one), connect the GitHub repo to the EAS project on [expo.dev](https://expo.dev) so push triggers fire, and add an `EXPO_TOKEN` [access token](https://expo.dev/settings/access-tokens) as a repo secret for any CI-driven `eas` CLI calls. The `.eas/` workflows directory must sit next to `eas.json` at the repo root.
+They are syntax-complete but dormant until the project is linked to EAS. Expo's monorepo project root is `apps/mobile`, so run `eas init`, `eas build`, `eas update`, and workflow commands from there. Keep `eas.json`, future `credentials.json`, and `.eas/workflows/` in that app root. Configure the Expo GitHub App base directory as `apps/mobile`, then add an `EXPO_TOKEN` [access token](https://expo.dev/settings/access-tokens) as a repository secret for CI-driven EAS commands.
 
 ## Roadmap
 
