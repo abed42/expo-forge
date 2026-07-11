@@ -38,6 +38,7 @@
 		"dev": "turbo dev",
 		"build": "turbo build",
 		"lint": "turbo lint",
+		"lint:root": "biome check .",
 		"typecheck": "turbo typecheck",
 		"test": "turbo test",
 		"test:scripts": "vitest run scripts",

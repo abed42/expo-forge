@@ -12,7 +12,11 @@
 			"!**/.expo",
 			"!**/ios",
 			"!**/android",
-			"!**/dist"
+			"!**/dist",
+			// Vendored agent skills + their lockfile (third-party/generated
+			// content, stripped from scaffolds by the init wizard)
+			"!.agents",
+			"!skills-lock.json"
 		]
 	},
 	"formatter": {

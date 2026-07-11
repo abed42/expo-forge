@@ -1,3 +1,4 @@
+export type { PurchasesPackage } from "react-native-purchases";
 export {
 	configurePayments,
 	getPaymentsStatus,
@@ -8,5 +9,4 @@ export {
 	type UsePaywallResult,
 	usePaywall,
 } from "./client";
-export type { PurchasesPackage } from "react-native-purchases";
 export { paymentsKeys } from "./keys";

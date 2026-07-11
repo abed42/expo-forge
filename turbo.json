@@ -7,7 +7,10 @@
 		"typecheck": {
 			"dependsOn": ["^typecheck"]
 		},
-		"lint": {},
+		"lint": {
+			"dependsOn": ["//#lint:root"]
+		},
+		"//#lint:root": {},
 		"test": {
 			"dependsOn": ["//#test:scripts"]
 		},
