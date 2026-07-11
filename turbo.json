@@ -8,7 +8,10 @@
 			"dependsOn": ["^typecheck"]
 		},
 		"lint": {},
-		"test": {},
+		"test": {
+			"dependsOn": ["//#test:scripts"]
+		},
+		"//#test:scripts": {},
 		"dev": {
 			"cache": false,
 			"persistent": true

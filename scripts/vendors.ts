@@ -1,6 +1,8 @@
 // Vendor manifest — the single source of truth the init wizard iterates.
 // Mirrors packages/*/src/keys.ts (the Zod schemas the app validates at boot);
 // when a package's keys.ts changes, update the matching entry here.
+// Drift is caught by scripts/vendors.test.ts, which diffs every vendor's
+// key list against its package schema — run `bun run test:scripts`.
 
 export type VendorKeySpec = {
 	/** EXPO_PUBLIC_* variable written to apps/mobile/.env.local */
@@ -90,6 +92,12 @@ export const vendors: Vendor[] = [
 				placeholder: "phc_...",
 				validate: (value) =>
 					/^phc_/.test(value) ? undefined : 'Must start with "phc_"',
+			},
+			{
+				env: "EXPO_PUBLIC_POSTHOG_HOST",
+				label: "PostHog host (Enter to skip — US Cloud default)",
+				placeholder: "https://us.i.posthog.com",
+				validate: httpsUrl,
 			},
 		],
 	},

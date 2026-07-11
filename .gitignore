@@ -3,7 +3,10 @@ node_modules
 ios/
 android/
 dist
-.env*.local
+# All env files are secrets except the committed template
+.env
+.env.*
+!.env.example
 credentials.json
 .DS_Store
 *.log

@@ -85,8 +85,19 @@ export function composeEnv<Schemas extends readonly AnyZodObject[]>(
 		return cachedEnvs.get(cacheKey) as ComposeEnvResult<Schemas>;
 	}
 
+	// Treat "" as unset (t3-env's emptyStringAsUndefined): dotenv turns a
+	// blank `KEY=` line — which .env.example ships and the init wizard writes
+	// for skipped keys — into an empty string, which would otherwise fail
+	// `.optional()` validators and crash boot for keys the user never set.
+	const envWithoutBlanks: Record<string, string | undefined> = {};
+	for (const [key, value] of Object.entries(process.env)) {
+		if (value !== "") {
+			envWithoutBlanks[key] = value;
+		}
+	}
+
 	const mergedSchema = mergeSchemas(schemas);
-	const result = mergedSchema.safeParse(process.env);
+	const result = mergedSchema.safeParse(envWithoutBlanks);
 
 	if (!result.success) {
 		throw new Error(

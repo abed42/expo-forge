@@ -112,6 +112,28 @@ describe("composeEnv", () => {
 		).toThrowError(/EXPO_PUBLIC_BETA/);
 	});
 
+	it('treats "" as unset — blank KEY= lines must not fail optional validators', async () => {
+		// dotenv yields "" for a blank `KEY=` line; .env.example ships those and
+		// the init wizard writes them for skipped keys. Regression: z.url()
+		// .optional() rejected "" and crashed boot for keys the user never set.
+		vi.stubEnv("EXPO_PUBLIC_ALPHA", "");
+
+		const composeEnv = await importComposeEnv();
+		const env = composeEnv(z.object({ EXPO_PUBLIC_ALPHA: z.url().optional() }));
+
+		expect(env.EXPO_PUBLIC_ALPHA).toBeUndefined();
+	});
+
+	it('treats "" on a required variable as missing, not invalid', async () => {
+		vi.stubEnv("EXPO_PUBLIC_ALPHA", "");
+
+		const composeEnv = await importComposeEnv();
+
+		expect(() =>
+			composeEnv(z.object({ EXPO_PUBLIC_ALPHA: z.string().min(1) })),
+		).toThrowError(/EXPO_PUBLIC_ALPHA/);
+	});
+
 	it("gives later schemas precedence when keys overlap", async () => {
 		vi.stubEnv("EXPO_PUBLIC_ALPHA", "abc");
 

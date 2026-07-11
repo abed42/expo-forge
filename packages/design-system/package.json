@@ -7,6 +7,10 @@
 		"./nav-theme": "./src/nav-theme.tsx",
 		"./tokens": "./src/tokens.ts"
 	},
+	"scripts": {
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
 	"peerDependencies": {
 		"expo-glass-effect": "~57.0.0",
 		"expo-router": "~57.0.3",
