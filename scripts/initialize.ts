@@ -270,6 +270,11 @@ const transformRootPackageJson = async (targetDir: string, name: string) => {
 	const devDependencies = { ...pkg.devDependencies };
 	delete devDependencies.tsup;
 
+	// The CLI's own tests live in scripts/, which stripInternals removes —
+	// the hook would fail every scaffolded `turbo test` run if it shipped.
+	const scripts = { ...pkg.scripts };
+	delete scripts["test:scripts"];
+
 	// Rebuild with an explicit whitelist: drops the npm-publishing fields
 	// (bin, files, publishConfig, homepage, repository, keywords, description,
 	// type) and the CLI-only runtime dependencies.
@@ -280,10 +285,32 @@ const transformRootPackageJson = async (targetDir: string, name: string) => {
 		license: pkg.license,
 		workspaces: pkg.workspaces,
 		packageManager: pkg.packageManager,
-		scripts: pkg.scripts,
+		scripts,
 		overrides: pkg.overrides,
 		devDependencies,
 	});
+};
+
+// Companion to the test:scripts removal above: turbo.json's //#test:scripts
+// root task points at the same stripped scripts/ directory.
+const transformTurboJson = async (targetDir: string) => {
+	const path = join(targetDir, "turbo.json");
+	const config = await readJson(path);
+
+	if (config.tasks) {
+		delete config.tasks["//#test:scripts"];
+		const dependsOn: string[] | undefined = config.tasks.test?.dependsOn;
+		if (dependsOn) {
+			const remaining = dependsOn.filter((dep) => dep !== "//#test:scripts");
+			if (remaining.length > 0) {
+				config.tasks.test.dependsOn = remaining;
+			} else {
+				delete config.tasks.test.dependsOn;
+			}
+		}
+	}
+
+	await writeJson(path, config);
 };
 
 const writeReadme = async (targetDir: string, name: string) => {
@@ -552,6 +579,7 @@ export const initialize = async (options: InitOptions) => {
 		failedStep = "transform-scaffold";
 		scaffold.message("Renaming app...");
 		await transformRootPackageJson(targetDir, name);
+		await transformTurboJson(targetDir);
 		await writeReadme(targetDir, name);
 		await renameApp(targetDir, name, bundleId);
 		await transformScaffoldAgentsMd(targetDir, name, ui.warn);
