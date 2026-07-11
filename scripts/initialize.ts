@@ -292,25 +292,26 @@ const transformRootPackageJson = async (targetDir: string, name: string) => {
 };
 
 // Companion to the test:scripts removal above: turbo.json's //#test:scripts
-// root task points at the same stripped scripts/ directory.
-const transformTurboJson = async (targetDir: string) => {
+// root task points at the same stripped scripts/ directory. Anchor-exact
+// string surgery (like removalEdits) rather than a JSON round-trip, so the
+// file keeps its biome formatting and the scaffold's own lint gate passes.
+const transformTurboJson = async (
+	targetDir: string,
+	warn: (message: string) => void,
+) => {
 	const path = join(targetDir, "turbo.json");
-	const config = await readJson(path);
+	const content = await readFile(path, "utf8");
+	const find =
+		'\t\t"test": {\n\t\t\t"dependsOn": ["//#test:scripts"]\n\t\t},\n\t\t"//#test:scripts": {},\n';
 
-	if (config.tasks) {
-		delete config.tasks["//#test:scripts"];
-		const dependsOn: string[] | undefined = config.tasks.test?.dependsOn;
-		if (dependsOn) {
-			const remaining = dependsOn.filter((dep) => dep !== "//#test:scripts");
-			if (remaining.length > 0) {
-				config.tasks.test.dependsOn = remaining;
-			} else {
-				delete config.tasks.test.dependsOn;
-			}
-		}
+	if (!content.includes(find)) {
+		warn(
+			"turbo.json anchor not found — remove the //#test:scripts root task manually.",
+		);
+		return;
 	}
 
-	await writeJson(path, config);
+	await writeFile(path, content.replace(find, '\t\t"test": {},\n'));
 };
 
 const writeReadme = async (targetDir: string, name: string) => {
@@ -579,7 +580,7 @@ export const initialize = async (options: InitOptions) => {
 		failedStep = "transform-scaffold";
 		scaffold.message("Renaming app...");
 		await transformRootPackageJson(targetDir, name);
-		await transformTurboJson(targetDir);
+		await transformTurboJson(targetDir, ui.warn);
 		await writeReadme(targetDir, name);
 		await renameApp(targetDir, name, bundleId);
 		await transformScaffoldAgentsMd(targetDir, name, ui.warn);
