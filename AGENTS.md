@@ -6,7 +6,7 @@ Production-grade template for Expo apps. Bun workspaces + Turborepo monorepo. On
 
 - `bun install` — always bun, never npm/yarn/pnpm. `bunfig.toml` forces the hoisted linker (Metro cannot resolve through bun's isolated store — do not remove).
 - `bunx turbo lint typecheck test` — the full gate; CI runs exactly this. All three must be green before any commit.
-- Per package: `bunx vitest run` (83+ tests), `bunx tsc --noEmit`, `bunx biome check --write <paths>`.
+- Per package: `bunx vitest run` (110+ tests repo-wide), `bunx tsc --noEmit`, `bunx biome check --write <paths>`.
 - Expo app root: `apps/mobile`. Run `bun expo start`, `bun ios`, `bun android`, `bunx expo-doctor`, and all `eas` commands from there. Development builds only; this template does not run in Expo Go (native deps: Unistyles/Nitro, ClerkKit, Sentry, RevenueCat).
 - CLI: `bunx tsup` builds `scripts/index.ts` → `dist/index.js`. Test locally: `node dist/index.js init test-app --template <this-repo-path> --yes ...` (see `--help` for non-interactive flags).
 

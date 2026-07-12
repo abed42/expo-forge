@@ -223,6 +223,9 @@ export default function WelcomeScreen() {
 				style={styles.footer}
 			>
 				{error ? <Text style={styles.error}>{error}</Text> : null}
+				{/* Placeholder copy, intentionally not tappable: point these at your
+				    hosted terms/privacy pages (onPress + Linking.openURL) before App
+				    Store review — accounts require reachable legal URLs. */}
 				<Text style={styles.legal}>
 					By creating an account, you agree to our{"\n"}
 					<Text style={styles.legalLink}>Terms of Service</Text> and{" "}

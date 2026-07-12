@@ -166,7 +166,7 @@ expo-forge/
     └── pins.json            # Single source for native-coupled versions
 ```
 
-#> **Tip:** both key sets can come from CLIs instead of dashboards — `clerk env pull` (after `clerk link`, run from `apps/mobile`) writes the Clerk publishable key into `apps/mobile/.env.local`, and `supabase projects api-keys` prints the Supabase publishable key for the same file. If you use `clerk env pull`, delete the `CLERK_SECRET_KEY` line it adds — secrets don't belong in client env files.
+> **Tip:** both key sets can come from CLIs instead of dashboards — `clerk env pull` (after `clerk link`, run from `apps/mobile`) writes the Clerk publishable key into `apps/mobile/.env.local`, and `supabase projects api-keys` prints the Supabase publishable key for the same file. If you use `clerk env pull`, delete the `CLERK_SECRET_KEY` line it adds — secrets don't belong in client env files.
 
 ## Version pinning
 
