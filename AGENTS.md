@@ -81,4 +81,4 @@ Every change: `tsc --noEmit` and `biome check` on touched surfaces, `vitest run`
 
 ## Do not touch without explicit instruction
 
-`apps/mobile/.env.local` (user secrets), `ISA.md` (project system of record — humans/primary agent maintain it), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).
+`apps/mobile/.env.local` (user secrets), `tooling/pins.json` values, published npm metadata in root `package.json` (`name`, `bin`, `files`, `publishConfig`).

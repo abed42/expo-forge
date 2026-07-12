@@ -250,7 +250,6 @@ const internalPaths = [
 	"dist",
 	"tsup.config.ts",
 	join(".github", "assets"),
-	"ISA.md",
 	".agents",
 	"skills-lock.json",
 ];

@@ -12,6 +12,9 @@ credentials.json
 *.log
 .turbo
 
+# maintainer-local project log (never committed)
+ISA.md
+
 # scaffolding byproducts (safe to delete from disk)
 .tmp/
 docs/superpowers/
