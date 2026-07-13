@@ -30,6 +30,12 @@ import {
 
 export const templateUrl = "https://github.com/abed42/expo-forge.git";
 
+// The release tag the published CLI scaffolds from. Pinning (instead of
+// cloning HEAD) keeps every `bun create expo-forge` reproducible: an
+// in-flight template change on main can never break an installed CLI.
+// Release flow: bump package.json + this ref together, tag, publish.
+export const templateRef = "v0.1.1";
+
 export type InitOptions = {
 	name?: string;
 	bundleId?: string;
@@ -238,7 +244,19 @@ const cloneTemplate = (template: string, targetDir: string) => {
 	if (existsSync(localPath)) {
 		// Local template (development / testing) — git ignores --depth here.
 		run("git", ["clone", localPath, targetDir]);
+	} else if (template === templateUrl) {
+		// Default template: clone the pinned release tag, never moving HEAD.
+		run("git", [
+			"clone",
+			"--depth",
+			"1",
+			"--branch",
+			templateRef,
+			template,
+			targetDir,
+		]);
 	} else {
+		// Custom template URL: the caller owns the ref they point at.
 		run("git", ["clone", "--depth", "1", template, targetDir]);
 	}
 };
