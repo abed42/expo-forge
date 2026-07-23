@@ -22,7 +22,8 @@
 						"deploymentTarget": "17.0"
 					}
 				}
-			]
+			],
+			"expo-maps"
 		],
 		"ios": {
 			"bundleIdentifier": "com.example.expo-forge-demo",

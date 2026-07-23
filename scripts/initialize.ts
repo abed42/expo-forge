@@ -34,7 +34,7 @@ export const templateUrl = "https://github.com/abed42/expo-forge.git";
 // cloning HEAD) keeps every `bun create expo-forge` reproducible: an
 // in-flight template change on main can never break an installed CLI.
 // Release flow: bump package.json + this ref together, tag, publish.
-export const templateRef = "v0.1.1";
+export const templateRef = "v0.2.0";
 
 export type InitOptions = {
 	name?: string;

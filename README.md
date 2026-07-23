@@ -31,7 +31,7 @@ expo-forge is built around five core principles:
 
 ## Status
 
-expo-forge ships today: the template builds and runs (iOS + Android development clients), and `create-expo-forge@0.1` is published on npm. Scaffold with `bun create expo-forge`. (The bare `expo-forge` npm name belongs to an unrelated package — this project ships as `create-expo-forge`.)
+expo-forge ships today: the template builds and runs (iOS + Android development clients), and `create-expo-forge@0.2` is published on npm. Scaffold with `bun create expo-forge`. (The bare `expo-forge` npm name belongs to an unrelated package — this project ships as `create-expo-forge`.)
 
 ## Features
 
@@ -39,7 +39,7 @@ expo-forge comes with batteries included:
 
 ### Apps
 
-- **Mobile** — Expo app with onboarding/auth, masonry home feed, item detail (Apple zoom), search, and profile — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
+- **Mobile** — Expo app with onboarding/auth, masonry home feed, item detail (Apple zoom), search, profile, and a Showcase tab touring the UI kit (glass, native drawers, context menus, pop-ups, filters, maps) — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
 
 ### Packages
 

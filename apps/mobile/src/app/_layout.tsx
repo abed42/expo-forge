@@ -43,6 +43,21 @@ function RootNavigator() {
 				<Stack.Screen name="search" options={{ animation: "fade" }} />
 				<Stack.Screen name="item/[id]" />
 				<Stack.Screen name="paywall" />
+				<Stack.Screen
+					name="showcase-sheet"
+					options={{
+						// Transparent native header so Stack.Toolbar items can render
+						// inside the sheet (flightly pattern).
+						headerShadowVisible: false,
+						headerShown: true,
+						headerTransparent: true,
+						presentation: "formSheet",
+						sheetAllowedDetents: [0.6, 1.0],
+						sheetGrabberVisible: true,
+						sheetInitialDetentIndex: 0,
+						title: "",
+					}}
+				/>
 			</Stack.Protected>
 		</Stack>
 	);

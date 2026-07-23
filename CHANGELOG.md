@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.2.0 — 2026-07-23
+
+Adds a Showcase tab: a working tour of the template's UI kit, built entirely
+on system APIs so the scaffolded app demonstrates the patterns it ships with.
+
+### Added
+
+- **Showcase tab** — liquid-glass hero, native drawers (formSheet with
+  detents plus a SwiftUI `BottomSheet`), a long-press context menu, menus /
+  action sheets / alerts, and a filter row that reflows a list, grid, or map
+  through a Reanimated layout transition. Every surface has an Android and a
+  pre-iOS-26 fallback, so the tab degrades instead of crashing.
+- **`showcase-sheet`** route — a native `formSheet` (detents `0.6 → 1.0`,
+  visible grabber) carrying a real `UIToolbar` with a native menu. The bottom
+  toolbar mounts after the present transition settles, working around blank
+  toolbar items when configured mid-presentation (expo/expo#44493).
+- **`expo-maps`** (`~57.0.1`) drives the Map segment. It is resolved through
+  a lazy `require`, so dev clients built before this release still render the
+  placeholder card rather than failing to load the route. **Existing dev
+  clients need a rebuild to see the live map.**
+- **Pin drift suite** (`scripts/pins.test.ts`) diffs every `tooling/pins.json`
+  entry against the root and app manifests, and asserts `templateRef` tracks
+  the published version — the two invariants `AGENTS.md` documents but
+  nothing enforced.
+
+### Fixed
+
+- In-app appearance now calls `Appearance.setColorScheme`, so native views
+  (SwiftUI hosts, glass, menus, sheets) follow a pinned Light/Dark choice
+  instead of staying on the OS theme — previously a pinned theme could leave
+  the segmented picker illegible.
+- `apps/mobile` had drifted to `expo@^57.0.7` against a `~57.0.2` pin — a
+  caret where the template uses tildes throughout. Restored to the pinned
+  spec; `~57.0.2` already admits the resolved `57.0.7`, so nothing downgrades.
+
+### Changed
+
+- Tabs tint with the theme's ink instead of the system blue, matching the
+  grayscale design.
+- Profile's "Pro" entry point moved from a chip to a crown icon button beside
+  sign-out, freeing the chip row for status.
+
 ## 0.1.1 — 2026-07-12
 
 The launch release. `create-expo-forge` now scaffolds from the pinned

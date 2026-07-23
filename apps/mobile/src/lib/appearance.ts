@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { Appearance } from "react-native";
 import { UnistylesRuntime } from "react-native-unistyles";
 
 // System is the default: Unistyles adaptiveThemes follows the OS. Choosing
@@ -16,6 +17,13 @@ export const APPEARANCE_LABELS: Record<AppearancePreference, string> = {
 };
 
 export function applyAppearance(preference: AppearancePreference) {
+	// Native views (SwiftUI hosts, glass, menus, sheets) follow the OS window
+	// style, not Unistyles — set RN's window override so both layers agree,
+	// otherwise a pinned in-app theme leaves native controls in the OS theme
+	// (e.g. an illegible segmented picker).
+	Appearance.setColorScheme(
+		preference === "system" ? "unspecified" : preference,
+	);
 	if (preference === "system") {
 		UnistylesRuntime.setAdaptiveThemes(true);
 		return;
