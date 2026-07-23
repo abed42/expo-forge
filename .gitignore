@@ -15,6 +15,9 @@ credentials.json
 # maintainer-local project log (never committed)
 ISA.md
 
+# per-developer Claude Code permissions (.claude/settings.json stays shared)
+.claude/settings.local.json
+
 # scaffolding byproducts (safe to delete from disk)
 .tmp/
 docs/superpowers/

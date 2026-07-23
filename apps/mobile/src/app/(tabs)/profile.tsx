@@ -254,13 +254,21 @@ export default function ProfileScreen() {
 		>
 			<View style={styles.topBar}>
 				<Text style={styles.title}>Profile</Text>
-				<IconButton accessibilityLabel="Sign out" onPress={() => signOut()}>
-					<SymbolView
-						name="rectangle.portrait.and.arrow.right"
-						size={17}
-						tintColor={theme.colors.ink}
-					/>
-				</IconButton>
+				<View style={styles.topBarActions}>
+					<IconButton
+						accessibilityLabel="Pro"
+						onPress={() => router.push("/paywall")}
+					>
+						<SymbolView name="crown" size={17} tintColor={theme.colors.ink} />
+					</IconButton>
+					<IconButton accessibilityLabel="Sign out" onPress={() => signOut()}>
+						<SymbolView
+							name="rectangle.portrait.and.arrow.right"
+							size={17}
+							tintColor={theme.colors.ink}
+						/>
+					</IconButton>
+				</View>
 			</View>
 
 			<View style={styles.identity}>
@@ -326,13 +334,6 @@ export default function ProfileScreen() {
 					}
 					label={notifications}
 					onPress={enableNotifications}
-				/>
-				<Chip
-					icon={
-						<SymbolView name="crown" size={14} tintColor={theme.colors.ink} />
-					}
-					label="Pro"
-					onPress={() => router.push("/paywall")}
 				/>
 			</View>
 
@@ -459,6 +460,10 @@ const styles = StyleSheet.create((theme) => ({
 		alignItems: "center",
 		flexDirection: "row",
 		justifyContent: "space-between",
+	},
+	topBarActions: {
+		flexDirection: "row",
+		gap: theme.gap(1),
 	},
 	title: {
 		...theme.type.largeTitle,
