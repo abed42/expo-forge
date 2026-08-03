@@ -42,6 +42,7 @@
 		"typecheck": "turbo typecheck",
 		"test": "turbo test",
 		"test:scripts": "vitest run scripts",
+		"prepublishOnly": "bunx tsup && bun scripts/prepublish-check.ts",
 		"fix": "biome check --write ."
 	},
 	"devDependencies": {

@@ -268,6 +268,7 @@ const internalPaths = [
 	"dist",
 	"tsup.config.ts",
 	join(".github", "assets"),
+	join(".github", "workflows", "cli.yml"),
 	".agents",
 	"skills-lock.json",
 ];
@@ -287,10 +288,12 @@ const transformRootPackageJson = async (targetDir: string, name: string) => {
 	const devDependencies = { ...pkg.devDependencies };
 	delete devDependencies.tsup;
 
-	// The CLI's own tests live in scripts/, which stripInternals removes —
-	// the hook would fail every scaffolded `turbo test` run if it shipped.
+	// The CLI's own tests and release guard live in scripts/, which
+	// stripInternals removes — test:scripts would fail every scaffolded
+	// `turbo test` run, and prepublishOnly points at a file that is gone.
 	const scripts = { ...pkg.scripts };
 	delete scripts["test:scripts"];
+	delete scripts.prepublishOnly;
 
 	// Rebuild with an explicit whitelist: drops the npm-publishing fields
 	// (bin, files, publishConfig, homepage, repository, keywords, description,

@@ -1,0 +1,39 @@
+# Covers the create-expo-forge CLI, which lives at the repo root in scripts/
+# and never ships to scaffolded apps. The init wizard strips this file
+# (internalPaths), so it must stay separate from ci.yml — a scaffold that
+# inherited these steps would fail on paths it does not have.
+name: CLI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Typecheck and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json # reads the "packageManager" field
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # scripts/ sits outside the workspaces `turbo typecheck` walks, so it has
+      # no typecheck task to inherit. Its tests already run in the CI workflow
+      # via turbo's //#test:scripts root task; only the type pass needs this.
+      - name: Typecheck the CLI
+        run: bunx tsc --noEmit -p scripts/tsconfig.json
+
+      - name: Build the published artifact
+        run: bunx tsup

@@ -33,15 +33,15 @@ const manifests = [
 	{ name: "apps/mobile/package.json", manifest: appManifest },
 ] as const;
 
+type DeclaredSpec = { file: (typeof manifests)[number]["name"]; spec: string };
+
 function specsFor(name: string) {
 	return manifests
 		.map(({ name: file, manifest }) => ({
 			file,
 			spec: { ...manifest.dependencies, ...manifest.devDependencies }[name],
 		}))
-		.filter((entry): entry is { file: string; spec: string } =>
-			Boolean(entry.spec),
-		);
+		.filter((entry): entry is DeclaredSpec => Boolean(entry.spec));
 }
 
 // tooling/pins.json is the single source for native-coupled versions
