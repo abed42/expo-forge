@@ -8,7 +8,7 @@ import { authKeys } from "../packages/auth/src/keys";
 import { backendKeys } from "../packages/backend/src/keys";
 import { observabilityKeys } from "../packages/observability/src/keys";
 import { paymentsKeys } from "../packages/payments/src/keys";
-import { type Vendor, vendors } from "./vendors";
+import { removalEdits, type Vendor, vendors } from "./vendors";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -64,6 +64,19 @@ describe("vendor removal targets exist in the template", () => {
 		it(`${vendor.id}: removal-owned app files exist`, () => {
 			for (const file of removal.appFiles ?? []) {
 				expect(existsSync(join(repoRoot, file)), file).toBe(true);
+			}
+		});
+
+		// A stale anchor only warns at scaffold time and leaves vendor code
+		// behind (e.g. a dangling router.push("/paywall") once the route is
+		// gone) — fail here instead so template edits update the anchor too.
+		it(`${vendor.id}: every removal anchor matches the template exactly once`, () => {
+			for (const edit of removalEdits[removal.pkg]) {
+				const source = readFileSync(join(repoRoot, edit.file), "utf8");
+				expect(
+					source.split(edit.find).length - 1,
+					`anchor drifted in ${edit.file}:\n${edit.find}`,
+				).toBe(1);
 			}
 		});
 	}

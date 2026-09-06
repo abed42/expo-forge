@@ -44,12 +44,14 @@ vi.mock("react", () => ({
 	useCallback: <T>(callback: T) => callback,
 }));
 
-vi.mock("expo-updates", () => ({
-	isEnabled: true,
-	runtimeVersion: "1.0.0",
-	checkForUpdateAsync,
-	fetchUpdateAsync,
-	reloadAsync,
+vi.mock("./native-updates", () => ({
+	loadUpdatesModule: () => ({
+		isEnabled: true,
+		runtimeVersion: "1.0.0",
+		checkForUpdateAsync,
+		fetchUpdateAsync,
+		reloadAsync,
+	}),
 }));
 
 import { useUpdateStatus } from "./use-update-status";

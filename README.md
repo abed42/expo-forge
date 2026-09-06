@@ -31,7 +31,7 @@ expo-forge is built around five core principles:
 
 ## Status
 
-expo-forge ships today: the template builds and runs (iOS + Android development clients), and `create-expo-forge@0.2` is published on npm. Scaffold with `bun create expo-forge`. (The bare `expo-forge` npm name belongs to an unrelated package — this project ships as `create-expo-forge`.)
+**Closed beta.** The template builds and runs (iOS + Android development clients). Beta builds of the CLI publish to npm under the `beta` dist-tag — scaffold with `bun create expo-forge@beta`. The `latest` tag still points at the original 0.1.0 launch release; it moves to the beta line once the beta closes. Report anything that breaks in [issues](https://github.com/abed42/expo-forge/issues). (The bare `expo-forge` npm name belongs to an unrelated package — this project ships as `create-expo-forge`.)
 
 ## Features
 
@@ -39,13 +39,13 @@ expo-forge comes with batteries included:
 
 ### Apps
 
-- **Mobile** — Expo app with onboarding/auth, masonry home feed, item detail (Apple zoom), search, profile, and a Showcase tab touring the UI kit (glass, native drawers, context menus, pop-ups, filters, maps) — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
+- **Mobile** — Expo app with onboarding/auth, masonry home feed (shimmer while loading, honest placeholder cards that say what to configure when the feed is empty), item detail (Apple zoom), search, profile, a full-screen assistant chat (streamed mock replies, a keyboard-aware composer with a photo/camera attachment panel — swap in a real model in one hook), and a Showcase tab touring the UI kit (glass, native drawers, context menus, pop-ups, Apple Maps) — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
 
 ### Packages
 
 - **Authentication** — Powered by [Clerk](https://clerk.com) via `@clerk/expo` — email code plus Apple/Google SSO
 - **Backend** — [Supabase](https://supabase.com) client factory, an RLS example migration, and generated types
-- **Design System** — Design tokens via [react-native-unistyles](https://www.unistyl.es) v3 (light/dark adaptive), Button/IconButton/Chip/SearchField/Skeleton, and a NavThemeProvider
+- **Design System** — Design tokens via [react-native-unistyles](https://www.unistyl.es) v3 (light/dark adaptive), Button/IconButton/Chip/SearchField/Skeleton/Shimmer/DotPattern, and a NavThemeProvider
 - **System materials** — All glass surfaces (tab bar, header chrome, buttons) use real Liquid Glass APIs (SwiftUI `glassEffect`, `expo-glass-effect`), so they automatically respect the user's iOS 26 appearance setting (Clear/Tinted) and accessibility options like Reduce Transparency
 - **Analytics** — Product analytics via [PostHog](https://posthog.com) (optional)
 - **Observability** — Error tracking via [Sentry](https://sentry.io) (optional)
@@ -67,10 +67,10 @@ Optional vendor packages no-op when their keys are unset — the app runs with j
 
 ### Installation
 
-Scaffold a new app with the init wizard:
+Scaffold a new app with the init wizard (during the closed beta, pin the `beta` tag):
 
 ```sh
-bun create expo-forge my-app
+bun create expo-forge@beta my-app
 ```
 
 The wizard clones the template, renames the app and bundle identifier, prompts for your vendor keys with live validation (every key is skippable — add it later in `apps/mobile/.env.local`), lets you remove the optional vendors entirely (package, deps, and wiring stripped cleanly), and runs `bun install`.

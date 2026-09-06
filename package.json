@@ -1,6 +1,6 @@
 {
 	"name": "create-expo-forge",
-	"version": "0.2.0",
+	"version": "0.3.0-beta.1",
 	"type": "module",
 	"description": "Production-grade template for Expo apps.",
 	"bin": {

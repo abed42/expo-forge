@@ -20,40 +20,42 @@ WebBrowser.maybeCompleteAuthSession();
 
 type SSOStrategy = "oauth_apple" | "oauth_google";
 
-// Single fanned deck: five cards in an arc, center card largest,
+// Single fanned deck: four cards in an arc, center card largest,
 // later tiles stack on top. (Two-band scatter: tag welcome-scatter-v1.)
+// Each tile's width/height matches its poster's aspect ratio so `cover`
+// never crops the artwork — keep them in sync when swapping images.
 const DECK_BLOCKS = [
 	{
 		top: "43%",
 		left: "2%",
-		width: 99,
+		width: 108, // 369x480
 		height: 141,
 		rotate: "-15deg",
-		source: require("../../assets/images/onboarding/collage-1.png"),
+		source: require("../../assets/images/onboarding/wish-you-were-here.png"),
 	},
 	{
 		top: "25%",
-		left: "22%",
-		width: 112,
-		height: 140,
+		left: "23%",
+		width: 100, // 319x480
+		height: 150,
 		rotate: "-4deg",
-		source: require("../../assets/images/onboarding/main.png"),
+		source: require("../../assets/images/onboarding/yosemite.png"),
 	},
 	{
 		top: "31%",
 		left: "48%",
-		width: 103,
+		width: 101, // 353x480
 		height: 137,
 		rotate: "7deg",
-		source: require("../../assets/images/onboarding/collage-6.png"),
+		source: require("../../assets/images/onboarding/golden-gate.png"),
 	},
 	{
 		top: "45%",
-		left: "70%",
-		width: 103,
+		left: "71%",
+		width: 91, // 320x480
 		height: 137,
 		rotate: "16deg",
-		source: require("../../assets/images/onboarding/collage-8.png"),
+		source: require("../../assets/images/onboarding/muir-woods.png"),
 	},
 ] as const;
 

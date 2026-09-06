@@ -17,6 +17,7 @@ ISA.md
 
 # per-developer Claude Code permissions (.claude/settings.json stays shared)
 .claude/settings.local.json
+.claude/worktrees/
 
 # scaffolding byproducts (safe to delete from disk)
 .tmp/

@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import { loadNotificationsModule } from "./native-notifications";
 
 const ANDROID_DEFAULT_CHANNEL_ID = "default";
 
@@ -21,7 +21,8 @@ export type RegisterForPushFailureReason =
 	| "simulator"
 	| "denied"
 	| "missing-project-id"
-	| "token-failure";
+	| "token-failure"
+	| "unavailable";
 
 export type RegisterForPushResult =
 	| { ok: true; token: string }
@@ -60,6 +61,15 @@ export async function registerForPush(): Promise<RegisterForPushResult> {
 			"[@repo/notifications] Push registration skipped because no EAS projectId is configured.",
 		);
 		return { ok: false, reason: "missing-project-id" };
+	}
+
+	const Notifications = loadNotificationsModule();
+
+	if (!Notifications) {
+		console.warn(
+			"[@repo/notifications] Push registration skipped because expo-notifications is unavailable in this build.",
+		);
+		return { ok: false, reason: "unavailable" };
 	}
 
 	if (Platform.OS === "android") {

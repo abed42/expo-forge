@@ -9,16 +9,18 @@ const checkForUpdateAsync = vi.hoisted(() => vi.fn());
 const fetchUpdateAsync = vi.hoisted(() => vi.fn());
 const reloadAsync = vi.hoisted(() => vi.fn());
 
-vi.mock("expo-updates", () => ({
-	get isEnabled() {
-		return updatesState.isEnabled;
-	},
-	get runtimeVersion() {
-		return updatesState.runtimeVersion;
-	},
-	checkForUpdateAsync,
-	fetchUpdateAsync,
-	reloadAsync,
+vi.mock("./native-updates", () => ({
+	loadUpdatesModule: () => ({
+		get isEnabled() {
+			return updatesState.isEnabled;
+		},
+		get runtimeVersion() {
+			return updatesState.runtimeVersion;
+		},
+		checkForUpdateAsync,
+		fetchUpdateAsync,
+		reloadAsync,
+	}),
 }));
 
 import {

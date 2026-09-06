@@ -232,7 +232,7 @@ export const removalEdits: Record<RemovablePackage, AnchorEdit[]> = {
 		),
 		removeAnchor(
 			"apps/mobile/src/app/(tabs)/profile.tsx",
-			'\t\t\t\t<Chip\n\t\t\t\t\ticon={\n\t\t\t\t\t\t<SymbolView name="crown" size={14} tintColor={theme.colors.ink} />\n\t\t\t\t\t}\n\t\t\t\t\tlabel="Pro"\n\t\t\t\t\tonPress={() => router.push("/paywall")}\n\t\t\t\t/>\n',
+			'\t\t\t\t\t<IconButton\n\t\t\t\t\t\taccessibilityLabel="Pro"\n\t\t\t\t\t\tonPress={() => router.push("/paywall")}\n\t\t\t\t\t>\n\t\t\t\t\t\t<SymbolView name="crown" size={17} tintColor={theme.colors.ink} />\n\t\t\t\t\t</IconButton>\n',
 		),
 		removeAnchor(
 			"apps/mobile/src/app/(tabs)/profile.tsx",

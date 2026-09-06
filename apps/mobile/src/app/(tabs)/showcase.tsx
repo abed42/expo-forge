@@ -3,9 +3,7 @@ import {
 	ContextMenu,
 	Group,
 	Host,
-	HStack,
 	Menu,
-	Picker,
 	Button as SwiftButton,
 	Image as SwiftImage,
 	Text as SwiftText,
@@ -14,21 +12,16 @@ import {
 import {
 	background,
 	buttonStyle,
-	fixedSize,
 	font,
 	foregroundColor,
 	frame,
-	glassEffect,
-	onTapGesture,
 	padding,
-	pickerStyle,
 	presentationDetents,
 	presentationDragIndicator,
 	shapes,
-	tag,
 	tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { Button, Chip, IconButton } from "@repo/design-system";
+import { Button, IconButton } from "@repo/design-system";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -44,12 +37,7 @@ import {
 	Text,
 	View,
 } from "react-native";
-import Animated, {
-	FadeIn,
-	FadeInDown,
-	FadeOut,
-	LinearTransition,
-} from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 
@@ -59,7 +47,7 @@ const isIOS = Platform.OS === "ios";
 
 // expo-maps is a native module — it exists only in dev clients built after it
 // was added. Resolve lazily so this route still renders on older binaries
-// (the Map segment falls back to the placeholder card).
+// (the Map tile falls back to the placeholder card).
 const appleMaps: typeof import("expo-maps").AppleMaps | null = (() => {
 	if (!isIOS) {
 		return null;
@@ -71,33 +59,13 @@ const appleMaps: typeof import("expo-maps").AppleMaps | null = (() => {
 	}
 })();
 
-const FILTERS = [
-	{ count: 4, key: "all", label: "All" },
-	{ count: 2, key: "popular", label: "Popular" },
-	{ count: 2, key: "recent", label: "Recent" },
-	{ count: 1, key: "saved", label: "Saved" },
+// Pins for the Map tile — each mock place gets real coordinates.
+const PINS = [
+	{ latitude: 64.15, longitude: -21.94, name: "Aurora" },
+	{ latitude: 55.24, longitude: -6.51, name: "Basalt" },
+	{ latitude: 35.2, longitude: -111.65, name: "Cinder" },
+	{ latitude: 31.1, longitude: -4.01, name: "Dune" },
 ] as const;
-
-type FilterKey = (typeof FILTERS)[number]["key"];
-
-// Mock results behind the filter row — swapping filters reflows the list
-// with a Reanimated layout transition (flightly's SearchFieldRow pattern).
-const FILTER_ITEMS: Record<FilterKey, readonly string[]> = {
-	all: ["Aurora", "Basalt", "Cinder", "Dune"],
-	popular: ["Aurora", "Cinder"],
-	recent: ["Cinder", "Dune"],
-	saved: ["Basalt"],
-};
-
-// Coordinates for the Map segment — each mock item gets a real place.
-const ITEM_PINS: Record<string, { latitude: number; longitude: number }> = {
-	Aurora: { latitude: 64.15, longitude: -21.94 },
-	Basalt: { latitude: 55.24, longitude: -6.51 },
-	Cinder: { latitude: 35.2, longitude: -111.65 },
-	Dune: { latitude: 31.1, longitude: -4.01 },
-};
-
-const SEGMENTS = ["List", "Grid", "Map"] as const;
 
 const MENU_ACTIONS = ["Share", "Duplicate", "Delete"] as const;
 
@@ -139,15 +107,11 @@ export default function ShowcaseScreen() {
 	const { theme } = useUnistyles();
 	const insets = useSafeAreaInsets();
 
-	const [filter, setFilter] = useState<FilterKey>("all");
-	const [segment, setSegment] = useState(0);
 	const [lastAction, setLastAction] = useState<string | null>(null);
 	const [sheetOpen, setSheetOpen] = useState(false);
 	const [liked, setLiked] = useState(false);
 	const [subscribed, setSubscribed] = useState(false);
 	const [sparkle, setSparkle] = useState(0);
-
-	const activeFilter = FILTERS.find((entry) => entry.key === filter);
 
 	const openActionSheet = () => {
 		if (isIOS) {
@@ -212,8 +176,8 @@ export default function ShowcaseScreen() {
 				<View style={styles.titleBlock}>
 					<Text style={styles.title}>Showcase</Text>
 					<Text style={styles.subtitle}>
-						The template's UI kit — glass, drawers, pop-ups, filters, and
-						buttons, all on system APIs.
+						The template's UI kit — glass, drawers, pop-ups, maps, and buttons,
+						all on system APIs.
 					</Text>
 				</View>
 
@@ -492,173 +456,48 @@ export default function ShowcaseScreen() {
 					</View>
 				</Animated.View>
 
-				{/* Filters */}
+				{/* Map — Apple Maps via expo-maps, pins on the mock places */}
 				<Animated.View
 					entering={FadeInDown.duration(350).delay(180)}
 					style={styles.tile}
 				>
-					<TileLabel>Filters</TileLabel>
-					{isIOS && canUseGlass ? (
-						// Flightly's chip pattern: the selected chip carries a glass
-						// capsule; unselected chips are bare text.
-						<Host style={styles.chipHost}>
-							{/* frame(alignment: leading) pins the row to the left edge —
-							    without it SwiftUI centers the stack until first re-layout. */}
-							<HStack
-								modifiers={[frame({ alignment: "leading", maxWidth: 9999 })]}
-								spacing={4}
-							>
-								{FILTERS.map((entry) => (
-									<SwiftText
-										key={entry.key}
-										modifiers={[
-											// fixedSize stops SwiftUI from ellipsizing labels
-											// when the row is tight.
-											fixedSize(),
-											font({ size: 14, weight: "semibold" }),
-											foregroundColor(
-												filter === entry.key
-													? theme.colors.ink
-													: theme.colors.secondary,
-											),
-											padding({ horizontal: 10, vertical: 10 }),
-											...(filter === entry.key
-												? [
-														glassEffect({
-															glass: {
-																interactive: true,
-																variant: "regular",
-															},
-															shape: "capsule",
-														}),
-													]
-												: []),
-											onTapGesture(() => setFilter(entry.key)),
-										]}
-									>
-										{`${entry.label} ${entry.count}`}
-									</SwiftText>
-								))}
-							</HStack>
-						</Host>
+					<TileLabel>Map</TileLabel>
+					{appleMaps ? (
+						<View style={styles.mapFrame}>
+							<appleMaps.View
+								cameraPosition={{
+									coordinates: {
+										latitude: PINS[0].latitude,
+										longitude: PINS[0].longitude,
+									},
+									zoom: 1,
+								}}
+								markers={PINS.map((pin) => ({
+									coordinates: {
+										latitude: pin.latitude,
+										longitude: pin.longitude,
+									},
+									id: pin.name,
+									systemImage: "mappin",
+									title: pin.name,
+								}))}
+								style={styles.map}
+							/>
+						</View>
 					) : (
-						<View style={styles.chipRow}>
-							{FILTERS.map((entry) => (
-								<Chip
-									count={entry.count}
-									key={entry.key}
-									label={entry.label}
-									onPress={() => setFilter(entry.key)}
-									selected={filter === entry.key}
-								/>
-							))}
+						<View style={styles.mapCard}>
+							<SymbolView
+								name="map"
+								size={28}
+								tintColor={theme.colors.secondary}
+							/>
+							<Text style={styles.tileCaption}>
+								{PINS.length} pins — rebuild the dev client for the live map
+							</Text>
 						</View>
 					)}
-					{isIOS ? (
-						<Host style={styles.segmentHost}>
-							<Picker
-								modifiers={[pickerStyle("segmented")]}
-								onSelectionChange={(selection) => setSegment(selection)}
-								selection={segment}
-							>
-								{SEGMENTS.map((label, index) => (
-									<SwiftText key={label} modifiers={[tag(index)]}>
-										{label}
-									</SwiftText>
-								))}
-							</Picker>
-						</Host>
-					) : (
-						<View style={styles.chipRow}>
-							{SEGMENTS.map((label, index) => (
-								<Chip
-									key={label}
-									label={label}
-									onPress={() => setSegment(index)}
-									selected={segment === index}
-								/>
-							))}
-						</View>
-					)}
-					<Animated.View
-						layout={LinearTransition.duration(220)}
-						style={styles.resultList}
-					>
-						{segment === 2 ? (
-							appleMaps ? (
-								<Animated.View
-									entering={FadeIn.duration(180)}
-									exiting={FadeOut.duration(120)}
-									key="map-live"
-									style={styles.mapFrame}
-								>
-									<appleMaps.View
-										cameraPosition={{
-											coordinates:
-												ITEM_PINS[FILTER_ITEMS[filter][0] ?? "Aurora"],
-											zoom: 1,
-										}}
-										markers={FILTER_ITEMS[filter].map((name) => ({
-											coordinates: ITEM_PINS[name],
-											id: name,
-											systemImage: "mappin",
-											title: name,
-										}))}
-										style={styles.map}
-									/>
-								</Animated.View>
-							) : (
-								<Animated.View
-									entering={FadeIn.duration(180)}
-									exiting={FadeOut.duration(120)}
-									key="map"
-									style={styles.mapCard}
-								>
-									<SymbolView
-										name="map"
-										size={28}
-										tintColor={theme.colors.secondary}
-									/>
-									<Text style={styles.tileCaption}>
-										{FILTER_ITEMS[filter].length}{" "}
-										{FILTER_ITEMS[filter].length === 1 ? "pin" : "pins"} —
-										rebuild the dev client for the live map
-									</Text>
-								</Animated.View>
-							)
-						) : segment === 1 ? (
-							<View style={styles.resultGrid}>
-								{FILTER_ITEMS[filter].map((name) => (
-									<Animated.View
-										entering={FadeIn.duration(180)}
-										exiting={FadeOut.duration(120)}
-										key={`grid-${name}`}
-										layout={LinearTransition.duration(220)}
-										style={styles.resultCard}
-									>
-										<Text style={styles.resultCardName}>{name}</Text>
-									</Animated.View>
-								))}
-							</View>
-						) : (
-							FILTER_ITEMS[filter].map((name) => (
-								<Animated.View
-									entering={FadeIn.duration(180)}
-									exiting={FadeOut.duration(120)}
-									key={name}
-									layout={LinearTransition.duration(220)}
-									style={styles.resultRow}
-								>
-									<View style={styles.resultDot} />
-									<Text style={styles.resultName}>{name}</Text>
-									<Text style={styles.resultMeta}>{SEGMENTS[segment]}</Text>
-								</Animated.View>
-							))
-						)}
-					</Animated.View>
 					<Text style={styles.tileCaption}>
-						Showing {activeFilter?.label.toLowerCase()} ·{" "}
-						{SEGMENTS[segment]?.toLowerCase()} layout
+						Native Apple Maps with {PINS.length} markers
 					</Text>
 				</Animated.View>
 			</ScrollView>
@@ -821,17 +660,6 @@ const styles = StyleSheet.create((theme) => ({
 	buttonHost: {
 		height: 44,
 	},
-	segmentHost: {
-		height: 32,
-	},
-	chipRow: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		gap: theme.gap(1),
-	},
-	chipHost: {
-		height: 44,
-	},
 	pill: {
 		alignItems: "center",
 		backgroundColor: theme.colors.surface,
@@ -863,31 +691,6 @@ const styles = StyleSheet.create((theme) => ({
 		justifyContent: "center",
 		minHeight: 96,
 	},
-	resultList: {
-		gap: theme.gap(0.5),
-	},
-	resultGrid: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		gap: theme.gap(1),
-	},
-	resultCard: {
-		alignItems: "center",
-		backgroundColor: theme.colors.surface,
-		borderCurve: "continuous",
-		borderRadius: theme.radius.card,
-		flexBasis: "45%",
-		flexGrow: 1,
-		justifyContent: "center",
-		minHeight: 72,
-		padding: theme.gap(1.5),
-	},
-	resultCardName: {
-		...theme.type.body,
-		color: theme.colors.ink,
-		fontWeight: "500",
-		textAlign: "center",
-	},
 	mapCard: {
 		alignItems: "center",
 		backgroundColor: theme.colors.surface,
@@ -906,30 +709,6 @@ const styles = StyleSheet.create((theme) => ({
 	},
 	map: {
 		flex: 1,
-	},
-	resultRow: {
-		alignItems: "center",
-		flexDirection: "row",
-		gap: theme.gap(1),
-		minHeight: 32,
-	},
-	resultDot: {
-		backgroundColor: theme.colors.ink,
-		borderRadius: 4,
-		height: 8,
-		opacity: 0.35,
-		width: 8,
-	},
-	resultName: {
-		...theme.type.body,
-		color: theme.colors.ink,
-		flex: 1,
-		fontWeight: "500",
-	},
-	resultMeta: {
-		...theme.type.caption,
-		color: theme.colors.secondary,
-		fontWeight: "400",
 	},
 	sheetHost: {
 		position: "absolute",

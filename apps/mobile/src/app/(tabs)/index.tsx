@@ -1,6 +1,6 @@
 import { Host, HStack, Image as SwiftImage } from "@expo/ui/swift-ui";
 import { frame, glassEffect } from "@expo/ui/swift-ui/modifiers";
-import { IconButton, Skeleton } from "@repo/design-system";
+import { DotPattern, IconButton, Shimmer, Skeleton } from "@repo/design-system";
 import { sendTestNotification } from "@repo/notifications";
 import { FlashList } from "@shopify/flash-list";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
@@ -43,12 +43,26 @@ const canUseGlass = isLiquidGlassAvailable();
 const HEADER_CONTENT_HEIGHT = 60;
 
 // The feed hydrates from Supabase (public.feed_items, migration 0003).
-// While loading — and whenever Supabase is unset, errors, or returns no rows —
-// the list falls back to these skeleton items, so Home never crashes and
-// always renders an honest state. The header floats on liquid glass; the
-// feed scrolls underneath it.
-const LIST_SKELETONS = [0, 1, 2];
-const GRID_SKELETONS = [0, 1, 2, 3, 4, 5];
+// Three honest states, never a stuck loader:
+//   loading → shimmering skeletons (held ≥ MIN_SKELETON_MS so the handoff is
+//             visible even on keyless boots),
+//   ready   → real rows,
+//   empty / error → dot-patterned placeholder cards; the reason (unreachable,
+//             migration missing, no rows, unconfigured) is logged once by useFeed.
+// The header floats on liquid glass; the feed scrolls underneath it.
+const LIST_PLACEHOLDERS = [0, 1, 2];
+const GRID_PLACEHOLDERS = [0, 1, 2, 3, 4, 5];
+
+const PLACEHOLDER_TITLES = [
+	"Your first item",
+	"Your second item",
+	"Your third item",
+	"Your fourth item",
+	"Your fifth item",
+	"Your sixth item",
+] as const;
+
+const PLACEHOLDER_SUBTITLE = "A feed_items row renders here.";
 
 type FeedListItem = FeedItem | number;
 
@@ -121,12 +135,31 @@ function ListCell({ item }: { item: FeedItem }) {
 function ListSkeleton() {
 	return (
 		<View style={styles.feedItem}>
-			<View style={styles.card} />
-			<View style={styles.titleRow}>
-				<Skeleton height={16} width={220} />
-				<Skeleton height={16} width={64} />
+			<Shimmer style={styles.feedItem}>
+				<View style={styles.card} />
+				<View style={styles.titleRow}>
+					<Skeleton height={16} width={220} />
+					<Skeleton height={16} width={64} />
+				</View>
+				<Skeleton height={14} width={160} />
+			</Shimmer>
+			<TestNotificationButton />
+		</View>
+	);
+}
+
+// Post-load stand-in for a row: same frame as ListCell, dot texture instead
+// of an image, real copy instead of bars — so it never reads as "pending".
+function ListPlaceholder({ index }: { index: number }) {
+	return (
+		<View style={styles.feedItem}>
+			<View style={[styles.card, styles.cardClip]}>
+				<DotPattern gap={16} />
 			</View>
-			<Skeleton height={14} width={160} />
+			<Text style={styles.itemTitle}>
+				{PLACEHOLDER_TITLES[index] ?? PLACEHOLDER_TITLES[0]}
+			</Text>
+			<Text style={styles.itemSubtitle}>{PLACEHOLDER_SUBTITLE}</Text>
 			<TestNotificationButton />
 		</View>
 	);
@@ -180,8 +213,24 @@ function GridCell({ item }: { item: FeedItem }) {
 function GridSkeleton({ index }: { index: number }) {
 	return (
 		<View style={styles.gridCell}>
-			<View style={[styles.gridCard, { aspectRatio: aspectFor(index) }]} />
-			<Skeleton height={14} width={100} />
+			<Shimmer style={styles.gridCell}>
+				<View style={[styles.gridCard, { aspectRatio: aspectFor(index) }]} />
+				<Skeleton height={14} width={100} />
+			</Shimmer>
+			<TestNotificationButton compact />
+		</View>
+	);
+}
+
+function GridPlaceholder({ index }: { index: number }) {
+	return (
+		<View style={styles.gridCell}>
+			<View style={[styles.gridCard, { aspectRatio: aspectFor(index) }]}>
+				<DotPattern gap={22} />
+			</View>
+			<Text numberOfLines={2} style={styles.gridTitle}>
+				{PLACEHOLDER_TITLES[index] ?? PLACEHOLDER_TITLES[0]}
+			</Text>
 			<TestNotificationButton compact />
 		</View>
 	);
@@ -196,9 +245,10 @@ export default function HomeScreen() {
 	const [appearance, setAppearance] = useState<AppearancePreference>("system");
 
 	const isGrid = layout === "grid";
-	const skeletons = isGrid ? GRID_SKELETONS : LIST_SKELETONS;
+	const isLoading = status === "loading";
+	const placeholders = isGrid ? GRID_PLACEHOLDERS : LIST_PLACEHOLDERS;
 	const listData: readonly FeedListItem[] =
-		status === "ready" && items.length > 0 ? items : skeletons;
+		status === "ready" && items.length > 0 ? items : placeholders;
 
 	const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
 
@@ -339,19 +389,26 @@ export default function HomeScreen() {
 					paddingTop: headerHeight + theme.gap(1),
 				}}
 				data={listData}
+				extraData={status}
 				ItemSeparatorComponent={isGrid ? undefined : FeedSeparator}
 				keyExtractor={(item) =>
-					typeof item === "number" ? `skeleton-${item}` : item.id
+					typeof item === "number" ? `placeholder-${item}` : item.id
 				}
 				masonry={isGrid}
 				numColumns={isGrid ? 2 : 1}
 				optimizeItemArrangement={isGrid}
 				renderItem={({ item }) =>
 					typeof item === "number" ? (
-						isGrid ? (
-							<GridSkeleton index={item} />
+						isLoading ? (
+							isGrid ? (
+								<GridSkeleton index={item} />
+							) : (
+								<ListSkeleton />
+							)
+						) : isGrid ? (
+							<GridPlaceholder index={item} />
 						) : (
-							<ListSkeleton />
+							<ListPlaceholder index={item} />
 						)
 					) : isGrid ? (
 						<GridCell item={item} />
@@ -429,7 +486,7 @@ const styles = StyleSheet.create((theme) => ({
 		height: theme.gap(4),
 	},
 	card: {
-		aspectRatio: 0.88,
+		aspectRatio: 1.4,
 		backgroundColor: theme.colors.fill,
 		borderRadius: theme.radius.card,
 		marginBottom: theme.gap(0.5),

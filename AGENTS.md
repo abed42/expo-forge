@@ -27,6 +27,7 @@ For agents inside this template repo exercising the scaffold flow end-to-end (th
 - `@shopify/flash-list` **exactly 2.0.2** (Expo SDK 57 bundled pin)
 - Root `overrides` pin `react` and `react-dom` to the same exact version — `@clerk/react` peer-pulls a newer react-dom otherwise and React crashes on exact-version mismatch
 - `@sentry/react-native` stays `~7.11.0` until getsentry/sentry-react-native#6384 closes
+- iOS builds **every Expo module from source** (`expo-build-properties` → `ios.usePrecompiledModules: false` in `apps/mobile/app.json`). Expo's precompiled xcframeworks are built against whichever `expo-modules-core` was current when each patch shipped; with the core pinned to the early SDK 57 line they don't agree with each other (newer patches import `BaseModule.willDestroy`, older ones `AnyModule._decorate`) and the dev client aborts in dyld before any JS runs. Source builds compile everything against the one pinned core. Same reason `expo-image` is pinned to exactly `57.0.1` — later patches don't compile against it. A clean source build can fail once with `plugin for module 'ExpoModulesMacros' not found` (a race, not a config problem) — rerun `bun ios` and it compiles.
 
 ## Architecture rules
 
@@ -38,6 +39,7 @@ For agents inside this template repo exercising the scaffold flow end-to-end (th
 - **Styling**: Unistyles v3 tokens only (`packages/design-system/src/tokens.ts`) — no hardcoded hex in app code (theme has `danger`, `accent`, etc.). `index.ts` imports unistyles config BEFORE `expo-router/entry`; that load order is correctness, not style. UI is deliberately grayscale; accent tokens exist but stay unused in the demo.
 - **Glass**: all glass uses system APIs (`expo-glass-effect` GlassView, `@expo/ui` SwiftUI `glassEffect`) gated behind `isLiquidGlassAvailable()` with fill/hairline fallbacks. Never fake glass with translucent washes.
 - **Icons**: SF Symbols need Android counterparts — NativeTabs icons take `sf` + `md` (Material) props; never ship an Apple private-use glyph (U+F8FF) in a cross-platform string.
+- **Optional features**: the Chat tab is a self-contained, deletable showcase — every touch point outside `apps/mobile/src/components/chat/` is marked `// chat:`; the removal recipe is in `apps/mobile/src/components/chat/README.md`. Follow the same pattern (one folder, one route, marked touch points, README) for any other optional feature.
 
 ## Env files (read this before editing keys)
 

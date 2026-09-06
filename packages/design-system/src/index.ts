@@ -1,7 +1,9 @@
 export { Button } from "./components/button";
 export { Chip } from "./components/chip";
+export { DotPattern } from "./components/dot-pattern";
 export { IconButton } from "./components/icon-button";
 export { SearchField } from "./components/search-field";
+export { Shimmer } from "./components/shimmer";
 export { Skeleton } from "./components/skeleton";
 export { NavThemeProvider } from "./nav-theme";
 export type { AppTheme, AppThemeName, AppThemes } from "./tokens";

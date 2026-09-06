@@ -13,6 +13,9 @@
 			"!**/ios",
 			"!**/android",
 			"!**/dist",
+			// Claude Code worktrees are full checkouts with their own biome.jsonc;
+			// biome refuses nested root configs, so keep them out of the scan
+			"!.claude/worktrees",
 			// Vendored agent skills + their lockfile (third-party/generated
 			// content, stripped from scaffolds by the init wizard)
 			"!.agents",

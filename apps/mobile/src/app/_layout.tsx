@@ -43,6 +43,8 @@ function RootNavigator() {
 				<Stack.Screen name="search" options={{ animation: "fade" }} />
 				<Stack.Screen name="item/[id]" />
 				<Stack.Screen name="paywall" />
+				{/* chat: full-screen over the tabs; remove with src/components/chat. */}
+				<Stack.Screen name="chat" />
 				<Stack.Screen
 					name="showcase-sheet"
 					options={{

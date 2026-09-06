@@ -1,5 +1,5 @@
-import * as Updates from "expo-updates";
 import { useCallback, useState } from "react";
+import { loadUpdatesModule } from "./native-updates";
 
 declare const __DEV__: boolean;
 
@@ -32,7 +32,7 @@ function createError(error: unknown, context: string): Error {
 }
 
 export function runtimeVersion(): string | null {
-	return Updates.runtimeVersion ?? null;
+	return loadUpdatesModule()?.runtimeVersion ?? null;
 }
 
 /**
@@ -43,7 +43,9 @@ export async function runUpdateCheck(
 	sink: UpdateStatusSink,
 	isDev: boolean,
 ): Promise<void> {
-	if (isDev || !Updates.isEnabled) {
+	const Updates = loadUpdatesModule();
+
+	if (isDev || !Updates?.isEnabled) {
 		sink.setStatus("idle");
 		sink.setError(null);
 		return;
@@ -83,7 +85,9 @@ export async function runReload(
 	sink: UpdateStatusSink,
 	isDev: boolean,
 ): Promise<void> {
-	if (isDev || !Updates.isEnabled) {
+	const Updates = loadUpdatesModule();
+
+	if (isDev || !Updates?.isEnabled) {
 		sink.setStatus("idle");
 		sink.setError(null);
 		return;

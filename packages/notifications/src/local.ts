@@ -1,27 +1,47 @@
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import { loadNotificationsModule } from "./native-notifications";
 
 export type TestNotificationResult =
 	| { ok: true }
-	| { ok: false; reason: "denied" | "failed" };
+	| { ok: false; reason: "denied" | "failed" | "unavailable" };
 
 const ANDROID_DEFAULT_CHANNEL_ID = "default";
 
-// Install once at module load so the first tap doesn't pay the handler setup
-// cost — without a handler, foregrounded apps swallow their own banners.
-Notifications.setNotificationHandler({
-	handleNotification: async () => ({
-		shouldPlaySound: false,
-		shouldSetBadge: false,
-		shouldShowBanner: true,
-		shouldShowList: true,
-	}),
-});
+// Install once, on first resolve, so the first tap doesn't pay the handler
+// setup cost — without a handler, foregrounded apps swallow their own banners.
+let handlerInstalled = false;
+
+function notificationsModule(): ReturnType<typeof loadNotificationsModule> {
+	const Notifications = loadNotificationsModule();
+
+	if (Notifications && !handlerInstalled) {
+		handlerInstalled = true;
+		Notifications.setNotificationHandler({
+			handleNotification: async () => ({
+				shouldPlaySound: false,
+				shouldSetBadge: false,
+				shouldShowBanner: true,
+				shouldShowList: true,
+			}),
+		});
+	}
+
+	return Notifications;
+}
 
 // Fires a real OS banner immediately — the demo proof that the
 // notification pipeline (permissions + scheduling + foreground display) is
 // wired. Local-only: no push token, no EAS project required, simulator-safe.
 export async function sendTestNotification(): Promise<TestNotificationResult> {
+	const Notifications = notificationsModule();
+
+	if (!Notifications) {
+		console.warn(
+			"[@repo/notifications] expo-notifications is unavailable in this build.",
+		);
+		return { ok: false, reason: "unavailable" };
+	}
+
 	try {
 		if (Platform.OS === "android") {
 			await Notifications.setNotificationChannelAsync(

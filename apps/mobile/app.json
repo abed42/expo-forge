@@ -19,11 +19,28 @@
 				"expo-build-properties",
 				{
 					"ios": {
-						"deploymentTarget": "17.0"
+						"deploymentTarget": "17.0",
+						"usePrecompiledModules": false
 					}
 				}
 			],
-			"expo-maps"
+			"expo-maps",
+			"expo-image",
+			[
+				"expo-camera",
+				{
+					"cameraPermission": "Allow $(PRODUCT_NAME) to take photos for the chat."
+				}
+			],
+			[
+				"expo-media-library",
+				{
+					"photosPermission": "Allow $(PRODUCT_NAME) to show your photos in the chat attachment picker.",
+					"savePhotosPermission": false,
+					"isAccessMediaLocationEnabled": false,
+					"granularPermissions": ["photo"]
+				}
+			]
 		],
 		"ios": {
 			"bundleIdentifier": "com.example.expo-forge-demo",
@@ -40,7 +57,8 @@
 				"monochromeImage": "./assets/images/icon/icon-android-monochrome.png",
 				"backgroundColor": "#FFFFFF"
 			},
-			"package": "com.example.expoforgedemo"
+			"package": "com.example.expoforgedemo",
+			"permissions": ["android.permission.CAMERA"]
 		}
 	}
 }

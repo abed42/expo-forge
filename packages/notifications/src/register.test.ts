@@ -39,12 +39,14 @@ vi.mock("react-native", () => ({
 	},
 }));
 
-vi.mock("expo-notifications", () => ({
-	AndroidImportance: { DEFAULT: 3 },
-	setNotificationChannelAsync,
-	getPermissionsAsync,
-	requestPermissionsAsync,
-	getExpoPushTokenAsync,
+vi.mock("./native-notifications", () => ({
+	loadNotificationsModule: () => ({
+		AndroidImportance: { DEFAULT: 3 },
+		setNotificationChannelAsync,
+		getPermissionsAsync,
+		requestPermissionsAsync,
+		getExpoPushTokenAsync,
+	}),
 }));
 
 import { registerForPush } from "./register";

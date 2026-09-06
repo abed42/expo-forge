@@ -7,8 +7,9 @@ import { StyleSheet } from "react-native-unistyles";
  * Floating "Update ready" pill shown once an OTA update has been downloaded.
  *
  * Checks on mount and every time the app returns to the foreground. Renders
- * null in dev builds because `useUpdateStatus` short-circuits behind the
- * package's `__DEV__` guard — mounting it unconditionally costs nothing.
+ * null in dev builds, and in any build where expo-updates is disabled, because
+ * `useUpdateStatus` short-circuits behind the package's `__DEV__` guard and its
+ * lazy native-module lookup — mounting it unconditionally costs nothing.
  */
 export function UpdateBanner() {
 	const { status, check, reload } = useUpdateStatus();
