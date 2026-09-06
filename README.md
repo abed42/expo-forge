@@ -3,13 +3,24 @@
 **Production-grade template for Expo apps.**
 
 <div>
-  <img src="https://img.shields.io/npm/v/create-expo-forge" alt="" />
-  <img src="https://img.shields.io/npm/l/create-expo-forge" alt="" />
+  <a href="https://www.npmjs.com/package/create-expo-forge"><img src="https://img.shields.io/npm/v/create-expo-forge?label=npm" alt="npm latest" /></a>
+  <a href="https://www.npmjs.com/package/create-expo-forge/v/beta"><img src="https://img.shields.io/npm/v/create-expo-forge/beta?label=beta&color=orange" alt="npm beta" /></a>
+  <a href="https://www.npmjs.com/package/create-expo-forge"><img src="https://img.shields.io/npm/dm/create-expo-forge?label=downloads" alt="npm downloads" /></a>
+  <a href="https://github.com/abed42/expo-forge/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/abed42/expo-forge/ci.yml?branch=main&label=CI" alt="CI" /></a>
+  <a href="https://github.com/abed42/expo-forge/actions/workflows/cli.yml"><img src="https://img.shields.io/github/actions/workflow/status/abed42/expo-forge/cli.yml?branch=main&label=CLI" alt="CLI" /></a>
+  <a href="license.md"><img src="https://img.shields.io/npm/l/create-expo-forge" alt="MIT license" /></a>
+</div>
+<div>
+  <a href="https://docs.expo.dev/versions/v57.0.0/"><img src="https://img.shields.io/badge/Expo%20SDK-57-000020?logo=expo&logoColor=white" alt="Expo SDK 57" /></a>
+  <a href="https://reactnative.dev"><img src="https://img.shields.io/badge/React%20Native-0.86-61DAFB?logo=react&logoColor=white" alt="React Native 0.86" /></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white" alt="TypeScript 6" /></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/Bun-1.3-000?logo=bun&logoColor=white" alt="Bun 1.3" /></a>
+  <a href="https://biomejs.dev"><img src="https://img.shields.io/badge/Biome-2-60A5FA?logo=biome&logoColor=white" alt="Biome 2" /></a>
+  <img src="https://img.shields.io/badge/platforms-iOS%20%7C%20Android-lightgrey?logo=apple" alt="iOS and Android" />
+  <img src="https://img.shields.io/badge/status-closed%20beta-orange" alt="closed beta" />
 </div>
 
-<!-- Downloads badge joins at launch:
-  <img src="https://img.shields.io/npm/dy/create-expo-forge" alt="" />
--->
+<img src="docs/media/hero.png" alt="Expo Forge: onboarding, Showcase, and the assistant chat on iPhone" />
 
 ## Overview
 
@@ -40,6 +51,8 @@ expo-forge comes with batteries included:
 ### Apps
 
 - **Mobile** — Expo app with onboarding/auth, masonry home feed (shimmer while loading, honest placeholder cards that say what to configure when the feed is empty), item detail (Apple zoom), search, profile, a full-screen assistant chat (streamed mock replies, a keyboard-aware composer with a photo/camera attachment panel — swap in a real model in one hook), and a Showcase tab touring the UI kit (glass, native drawers, context menus, pop-ups, Apple Maps) — built on expo-router native tabs (iOS 26 liquid glass) and a dev-client workflow (not Expo Go)
+
+<img src="docs/media/screens.png" alt="Native form sheet, context menu, Apple Maps, and the dark-theme assistant" />
 
 ### Packages
 
